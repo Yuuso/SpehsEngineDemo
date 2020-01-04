@@ -41,13 +41,16 @@ int main()
 	se::input::InputManager inputManager;
 	se::input::EventSignaler eventSignaler;
 
-	se::graphics::Window window;
-	se::graphics::Renderer renderer(window);
+	se::graphics::Window window1;
+	se::graphics::Window window2;
+	se::graphics::Renderer renderer(window1);
+	renderer.add(window2);
 
 	se::graphics::Scene scene;
 	se::graphics::Camera camera;
 	se::graphics::View view(scene, camera);
-	window.add(view);
+	window1.add(view);
+	window2.add(view);
 
 	se::graphics::ShaderManager shaderManager;
 
