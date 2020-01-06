@@ -51,14 +51,24 @@ int main()
 	se::graphics::Camera camera;
 	se::graphics::View view(scene, camera);
 	window1.add(view);
-	se::graphics::Camera observerCamera;
-	se::graphics::View observerView(scene, observerCamera);
-	window2.add(observerView);
+	se::graphics::Camera observerCamera1;
+	se::graphics::Camera observerCamera2;
+	se::graphics::View observerView1(scene, observerCamera1);
+	se::graphics::View observerView2(scene, observerCamera2);
+	observerView1.setSize(se::graphics::ViewSize(1.0f, 0.5f));
+	observerView2.setSize(se::graphics::ViewSize(1.0f, 0.5f));
+	observerView2.setOffset(se::graphics::ViewSize(0.0f, 0.5f));
+	window2.add(observerView1);
+	window2.add(observerView2);
 
-	observerCamera.setPosition(glm::vec3(20.0f,
+	observerCamera1.setPosition(glm::vec3(20.0f,
 										 20.0f,
 										 20.0f));
-	observerCamera.setTarget(glm::vec3(0.0f));
+	observerCamera1.setTarget(glm::vec3(0.0f));
+	observerCamera2.setPosition(glm::vec3(-20.0f,
+										  20.0f,
+										  -20.0f));
+	observerCamera2.setTarget(glm::vec3(0.0f));
 
 	CameraController cameraController(camera, eventSignaler);
 
