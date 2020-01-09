@@ -60,6 +60,7 @@ int main()
 	observerView2.setOffset(se::graphics::ViewSize(0.0f, 0.5f));
 	window2.add(observerView1);
 	window2.add(observerView2);
+	bool view2Active = true;
 
 	observerCamera1.setPosition(glm::vec3(20.0f,
 										 20.0f,
@@ -122,13 +123,26 @@ int main()
 
 	int frameN = 0;
 	se::time::Time lastObjectSpawned = se::time::Time::zero;
+	se::time::Time lastObjectDeleted = se::time::Time::zero;
 	while (true)
 	{
-		if (objects.size() < 10
-			&& se::time::now() - lastObjectSpawned > se::time::fromSeconds(1.4f))
+		if (objects.size() < 20
+			&& se::time::now() - lastObjectSpawned > se::time::fromSeconds(1.0f))
 		{
 			objects.emplace_back(std::make_unique<ShapeObject>(scene, shaderManager));
 			lastObjectSpawned = se::time::now();
+		}
+		else if (objects.size() > 0
+				 && se::time::now() - lastObjectDeleted > se::time::fromSeconds(2.5f))
+		{
+			objects.erase(objects.begin() + se::rng::random<size_t>(0, objects.size() - 1));
+			lastObjectDeleted = se::time::now();
+
+			if (view2Active)
+				window2.remove(observerView2);
+			else
+				window2.add(observerView2);
+			view2Active = !view2Active;
 		}
 
 		deltaTimeSystem.deltaTimeSystemUpdate();
@@ -144,9 +158,7 @@ int main()
 		for (auto&& object : objects)
 			object->update(deltaTimeSystem.deltaTime);
 
-		scene.update();
-
-		renderer.debugTextPrintf(1, 1, "frame: %i", frameN++);
+		se::graphics::Renderer::debugTextPrintf(1, 1, "frame: %i", frameN++);
 		renderer.render();
 
 		if (inputManager.isQuitRequested())
