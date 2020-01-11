@@ -44,7 +44,7 @@ int main()
 
 	se::graphics::Window window1;
 	se::graphics::Window window2;
-	se::graphics::Renderer renderer(window1);
+	se::graphics::Renderer renderer(window1, se::graphics::RendererFlag::VSync | se::graphics::RendererFlag::MSAAX16);
 	renderer.add(window2);
 
 	se::graphics::Scene scene;
@@ -58,6 +58,7 @@ int main()
 	observerView1.setSize(se::graphics::ViewSize(1.0f, 0.5f));
 	observerView2.setSize(se::graphics::ViewSize(1.0f, 0.5f));
 	observerView2.setOffset(se::graphics::ViewSize(0.0f, 0.5f));
+	observerView2.setMSAAEnabled(false);
 	window2.add(observerView1);
 	window2.add(observerView2);
 	bool view2Active = true;
@@ -85,6 +86,8 @@ int main()
 			init();
 			shape.setShader(_shaderManager.find("color"));
 			_scene.add(shape);
+			shape.setScale(glm::vec3(se::rng::random(0.5f, 2.0f)));
+			//shape.setRenderMode(se::graphics::RenderMode::Transient);
 		}
 		void update(const se::time::Time _deltaTime)
 		{
@@ -104,8 +107,11 @@ int main()
 		{
 			direction = glm::normalize(se::rng::cube(glm::vec3(-1.0f), glm::vec3(1.0f)));
 			axis = glm::normalize(se::rng::cube(glm::vec3(-1.0f), glm::vec3(1.0f)));
-			velocity = se::rng::random(2.0f, 4.0f);
+			velocity = se::rng::random(3.0f, 6.0f);
 			angularVelocity = se::rng::random(5.0f, 15.0f);
+
+			shape.setRenderMode((se::graphics::RenderMode)se::rng::random(0, 2));
+			shape.setPrimitiveType((se::graphics::PrimitiveType)se::rng::random(0, 5));
 		}
 
 		se::graphics::Shape shape;
@@ -126,14 +132,14 @@ int main()
 	se::time::Time lastObjectDeleted = se::time::Time::zero;
 	while (true)
 	{
-		if (objects.size() < 20
-			&& se::time::now() - lastObjectSpawned > se::time::fromSeconds(1.0f))
+		if (objects.size() < 100 &&
+			se::time::now() - lastObjectSpawned > se::time::fromSeconds(0.4f))
 		{
 			objects.emplace_back(std::make_unique<ShapeObject>(scene, shaderManager));
 			lastObjectSpawned = se::time::now();
 		}
-		else if (objects.size() > 0
-				 && se::time::now() - lastObjectDeleted > se::time::fromSeconds(2.5f))
+		else if (objects.size() > 0 &&
+				 se::time::now() - lastObjectDeleted > se::time::fromSeconds(1.2f))
 		{
 			objects.erase(objects.begin() + se::rng::random<size_t>(0, objects.size() - 1));
 			lastObjectDeleted = se::time::now();
