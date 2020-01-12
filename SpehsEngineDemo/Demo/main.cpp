@@ -58,7 +58,7 @@ int main()
 	observerView1.setSize(se::graphics::ViewSize(1.0f, 0.5f));
 	observerView2.setSize(se::graphics::ViewSize(1.0f, 0.5f));
 	observerView2.setOffset(se::graphics::ViewSize(0.0f, 0.5f));
-	observerView2.setMSAAEnabled(false);
+	//observerView2.setMSAAEnabled(false);
 	window2.add(observerView1);
 	window2.add(observerView2);
 	bool view2Active = true;
@@ -83,11 +83,12 @@ int main()
 		ShapeObject(se::graphics::Scene& _scene, se::graphics::ShaderManager& _shaderManager)
 			: shape(se::rng::random(3, 11))
 		{
-			init();
 			shape.setShader(_shaderManager.find("color"));
 			_scene.add(shape);
 			shape.setScale(glm::vec3(se::rng::random(0.5f, 2.0f)));
-			//shape.setRenderMode(se::graphics::RenderMode::Transient);
+			//shape.setRenderMode(se::graphics::RenderMode::Static);
+			//shape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
+			init();
 		}
 		void update(const se::time::Time _deltaTime)
 		{
@@ -111,7 +112,7 @@ int main()
 			angularVelocity = se::rng::random(5.0f, 15.0f);
 
 			shape.setRenderMode((se::graphics::RenderMode)se::rng::random(0, 2));
-			shape.setPrimitiveType((se::graphics::PrimitiveType)se::rng::random(0, 5));
+			shape.setPrimitiveType((se::graphics::PrimitiveType)se::rng::random(0, 2));
 		}
 
 		se::graphics::Shape shape;
