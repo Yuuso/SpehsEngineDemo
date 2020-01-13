@@ -3,6 +3,7 @@
 #include "boost/signals2.hpp"
 #include "glm/vec3.hpp"
 #include "SpehsEngine/Graphics/Camera.h"
+#include "SpehsEngine/Graphics/Window.h"
 #include "SpehsEngine/Input/EventSignaler.h"
 #include "SpehsEngine/Core/SE_Time.h"
 
@@ -10,7 +11,7 @@
 class CameraController
 {
 public:
-	CameraController(se::graphics::Camera& _camera, se::input::EventSignaler& _eventSignaler);
+	CameraController(const se::graphics::Window& _window, se::graphics::Camera& _camera, se::input::EventSignaler& _eventSignaler);
 
 	void update(const se::time::Time _deltaTime);
 
@@ -27,6 +28,7 @@ private:
 	se::graphics::Camera& camera;
 	const se::graphics::Camera initialState;
 	se::input::EventSignaler& eventSignaler;
+	const se::graphics::Window& window;
 
 	glm::vec3 movement = glm::vec3(0.0f);
 	glm::vec2 rotation = glm::vec2(0.0f);

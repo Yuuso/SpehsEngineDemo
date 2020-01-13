@@ -43,8 +43,17 @@ int main()
 	se::input::EventSignaler eventSignaler;
 
 	se::graphics::Window window1;
+	window1.setResizable(false);
+	window1.setBorderless(true);
+	window1.setName("SpehsEngineDemo");
 	se::graphics::Window window2;
-	se::graphics::Renderer renderer(window1, se::graphics::RendererFlag::VSync | se::graphics::RendererFlag::MSAAX16);
+	window2.forceKeepAspectRatio(true);
+	window2.setWidth(1600);
+	window2.setHeight(900);
+	window2.setX(20);
+	window2.setY(20);
+	window2.setName("SpehsEngineDemo 2");
+	se::graphics::Renderer renderer(window1, se::graphics::RendererFlag::VSync | se::graphics::RendererFlag::MSAA16);
 	renderer.add(window2);
 
 	se::graphics::Scene scene;
@@ -72,7 +81,7 @@ int main()
 										  -20.0f));
 	observerCamera2.setTarget(glm::vec3(0.0f));
 
-	CameraController cameraController(camera, eventSignaler);
+	CameraController cameraController(window1, camera, eventSignaler);
 
 	se::graphics::ShaderManager shaderManager;
 
@@ -131,6 +140,7 @@ int main()
 	int frameN = 0;
 	se::time::Time lastObjectSpawned = se::time::Time::zero;
 	se::time::Time lastObjectDeleted = se::time::Time::zero;
+	se::time::Time lastWindow2Hidden = se::time::Time::zero;
 	while (true)
 	{
 		if (objects.size() < 100 &&
@@ -145,17 +155,40 @@ int main()
 			objects.erase(objects.begin() + se::rng::random<size_t>(0, objects.size() - 1));
 			lastObjectDeleted = se::time::now();
 
-			if (view2Active)
-				window2.remove(observerView2);
-			else
-				window2.add(observerView2);
 			view2Active = !view2Active;
+			if (view2Active)
+			{
+				window2.add(observerView2);
+				window2.setName("SpehsEngineDemo 2 (observerView2 active)");
+			}
+			else
+			{
+				window2.remove(observerView2);
+				window2.setName("SpehsEngineDemo 2 (observerView2 inactive)");
+			}
+
+			const auto displaySize = renderer.getDisplaySize();
+			window1.setX(se::rng::random(0, displaySize.x - window1.getWidth()));
+			window1.setY(se::rng::random(0, displaySize.y - window1.getHeight()));
+		}
+
+		if (window2.isQuitRequested())
+		{
+			window2.ignoreQuitRequest();
+			if (window2.isShown())
+			{
+				window2.hide();
+				lastWindow2Hidden = se::time::now();
+			}
+		}
+		else if (!window2.isShown() && se::time::timeSince(lastWindow2Hidden) > se::time::fromSeconds(3.0f))
+		{
+			window2.show();
 		}
 
 		deltaTimeSystem.deltaTimeSystemUpdate();
 		//inifile.update();
 
-		input.update();
 		eventCatcher.pollEvents();
 		eventSignaler.signalEvents(eventCatcher);
 		inputManager.update(eventCatcher);

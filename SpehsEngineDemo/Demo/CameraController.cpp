@@ -8,10 +8,11 @@
 #include "glm/gtx/rotate_vector.hpp"
 
 
-CameraController::CameraController(se::graphics::Camera& _camera, se::input::EventSignaler& _eventSignaler)
+CameraController::CameraController(const se::graphics::Window& _window, se::graphics::Camera& _camera, se::input::EventSignaler& _eventSignaler)
 	: camera(_camera)
 	, initialState(_camera)
 	, eventSignaler(_eventSignaler)
+	, window(_window)
 {
 	eventSignaler.connectToPreUpdateSignal(			preUpdateConnection,			boost::bind(&CameraController::preUpdateCallback,			this));
 	eventSignaler.connectToPostUpdateSignal(		postUpdateConnection,			boost::bind(&CameraController::postUpdateCallback,			this));
@@ -52,6 +53,8 @@ void CameraController::postUpdateCallback()
 }
 bool CameraController::keyboardPressCallback(const se::input::KeyboardPressEvent& _event)
 {
+	if (!window.getKeyboardFocus())
+		return false;
 	if (_event.key == se::input::Key::BACKSPACE)
 	{
 		camera = initialState;
@@ -61,6 +64,8 @@ bool CameraController::keyboardPressCallback(const se::input::KeyboardPressEvent
 }
 bool CameraController::keyboardDownCallback(const se::input::KeyboardDownEvent& _event)
 {
+	if (!window.getKeyboardFocus())
+		return false;
 	switch (_event.key)
 	{
 		case se::input::Key::W:
@@ -92,6 +97,8 @@ bool CameraController::keyboardDownCallback(const se::input::KeyboardDownEvent& 
 }
 bool CameraController::mouseButtonPressCallback(const se::input::MouseButtonPressEvent& _event)
 {
+	if (!window.getMouseFocus())
+		return false;
 	switch (_event.button)
 	{
 		case se::input::MouseButton::right:
@@ -102,6 +109,8 @@ bool CameraController::mouseButtonPressCallback(const se::input::MouseButtonPres
 }
 bool CameraController::mouseButtonReleaseCallback(const se::input::MouseButtonReleaseEvent& _event)
 {
+	if (!window.getMouseFocus())
+		return false;
 	switch (_event.button)
 	{
 		case se::input::MouseButton::right:
@@ -112,6 +121,8 @@ bool CameraController::mouseButtonReleaseCallback(const se::input::MouseButtonRe
 }
 bool CameraController::mouseMotionCallback(const se::input::MouseMotionEvent& _event)
 {
+	if (!window.getMouseFocus())
+		return false;
 	if (mouseButtonReleaseConnection.connected()
 		&& receivingHover)
 	{
@@ -122,6 +133,8 @@ bool CameraController::mouseMotionCallback(const se::input::MouseMotionEvent& _e
 }
 bool CameraController::mouseHoverCallback(const se::input::MouseHoverEvent&)
 {
+	if (!window.getMouseFocus())
+		return false;
 	if (mouseButtonReleaseConnection.connected())
 	{
 		receivingHover = true;
