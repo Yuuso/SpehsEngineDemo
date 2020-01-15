@@ -9,6 +9,8 @@
 #include "SpehsEngine/Core/OS.h"
 #include "SpehsEngine/Core/RNG.h"
 #include "SpehsEngine/Core/Thread.h"
+#include "SpehsEngine/Core/ColorUtilityFunctions.h"
+#include "SpehsEngine/Core/HexColor.h"
 #include "SpehsEngine/Graphics/Camera.h"
 #include "SpehsEngine/Graphics/GraphicsLib.h"
 #include "SpehsEngine/Graphics/Renderer.h"
@@ -43,31 +45,57 @@ int main()
 	se::input::EventSignaler eventSignaler;
 
 	se::graphics::Window window1;
-	window1.setResizable(false);
-	window1.setBorderless(true);
+	//window1.setResizable(false);
+	//window1.setBorderless(true);
 	window1.setName("SpehsEngineDemo");
-	se::graphics::Window window2;
-	window2.forceKeepAspectRatio(true);
-	window2.setWidth(1600);
-	window2.setHeight(900);
-	window2.setX(20);
-	window2.setY(20);
-	window2.setName("SpehsEngineDemo 2");
-	se::graphics::Renderer renderer(window1, se::graphics::RendererFlag::VSync | se::graphics::RendererFlag::MSAA16);
-	renderer.add(window2);
+	window1.setWidth(1600);
+	window1.setHeight(900);
+	se::graphics::Renderer renderer(window1, se::graphics::RendererFlag::VSync
+										   | se::graphics::RendererFlag::MSAA2
+//										   | se::graphics::RendererFlag::OpenGL
+										   );
 
 	se::graphics::Scene scene;
 	se::graphics::Camera camera;
 	se::graphics::View view(scene, camera);
 	window1.add(view);
+	//camera.setProjection(se::graphics::Projection::Orthographic);
+	//camera.setZoom(0.01f);
+
+	se::graphics::Scene hudScene;
+	se::graphics::Camera hudCamera;
+	se::graphics::View hudView(hudScene, hudCamera);
+	window1.add(hudView);
+	hudView.setClearFlags(se::graphics::ViewClearFlag::ClearDepth);
+	hudCamera.setUp({ 0.0f, 0.0f, -1.0f });
+	hudCamera.setPosition({ 0.0f, 1.0f, 0.0f });
+	hudCamera.setDirection({ 0.0f, -1.0f, 0.0f });
+	hudCamera.setProjection(se::graphics::Projection::Orthographic);
+
+	se::graphics::Window window2;
+	if (!renderer.checkRendererFlag(se::graphics::RendererFlag::OpenGL)
+	&&  !renderer.checkRendererFlag(se::graphics::RendererFlag::Vulkan)
+		) // TODO: This can't be true!
+	{
+		renderer.add(window2);
+	}
+	//window2.forceKeepAspectRatio(true);
+	window2.setWidth(1600);
+	window2.setHeight(1000);
+	window2.setX(20);
+	window2.setY(20);
+	window2.setName("SpehsEngineDemo 2");
 	se::graphics::Camera observerCamera1;
 	se::graphics::Camera observerCamera2;
 	se::graphics::View observerView1(scene, observerCamera1);
 	se::graphics::View observerView2(scene, observerCamera2);
 	observerView1.setSize(se::graphics::ViewSize(1.0f, 0.5f));
+	observerView1.setClearColor(se::DimGray);
 	observerView2.setSize(se::graphics::ViewSize(1.0f, 0.5f));
 	observerView2.setOffset(se::graphics::ViewSize(0.0f, 0.5f));
-	//observerView2.setMSAAEnabled(false);
+	observerView2.setClearColor(se::DarkGray);
+	observerView1.setMSAAEnabled(false);
+	observerView2.setMSAAEnabled(false);
 	window2.add(observerView1);
 	window2.add(observerView2);
 	bool view2Active = true;
@@ -80,6 +108,7 @@ int main()
 										  20.0f,
 										  -20.0f));
 	observerCamera2.setTarget(glm::vec3(0.0f));
+
 
 	CameraController cameraController(window1, camera, eventSignaler);
 
@@ -95,8 +124,8 @@ int main()
 			shape.setShader(_shaderManager.find("color"));
 			_scene.add(shape);
 			shape.setScale(glm::vec3(se::rng::random(0.5f, 2.0f)));
-			//shape.setRenderMode(se::graphics::RenderMode::Static);
-			//shape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
+			shape.setRenderMode(se::graphics::RenderMode::Dynamic);
+			shape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
 			init();
 		}
 		void update(const se::time::Time _deltaTime)
@@ -107,7 +136,7 @@ int main()
 			shape.setPosition(shape.getPosition() + direction * velocity * _deltaTime.asSeconds());
 			shape.setRotation(glm::rotate(shape.getRotation(), angularVelocity * _deltaTime.asSeconds(), axis));
 
-			if (velocity < 0.001f && angularVelocity < 0.001f)
+			if (velocity < 0.0001f && angularVelocity < 0.0001f)
 				init();
 		}
 
@@ -120,8 +149,8 @@ int main()
 			velocity = se::rng::random(3.0f, 6.0f);
 			angularVelocity = se::rng::random(5.0f, 15.0f);
 
-			shape.setRenderMode((se::graphics::RenderMode)se::rng::random(0, 2));
-			shape.setPrimitiveType((se::graphics::PrimitiveType)se::rng::random(0, 2));
+			//shape.setRenderMode((se::graphics::RenderMode)se::rng::random(0, 2));
+			//shape.setPrimitiveType((se::graphics::PrimitiveType)se::rng::random(0, 2));
 		}
 
 		se::graphics::Shape shape;
@@ -131,6 +160,15 @@ int main()
 		float angularVelocity;
 	};
 	std::vector<std::unique_ptr<ShapeObject>> objects;
+
+	se::graphics::Shape hudShape(4);
+	hudShape.setShader(shaderManager.find("color"));
+	hudShape.setRenderMode(se::graphics::RenderMode::Dynamic);
+	hudShape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
+	hudShape.setColor(se::hexColor(se::Orange));
+	hudShape.setScale(glm::vec3(20.0f));
+	hudShape.setPosition({ -window1.getWidth() * 0.5f + 20.0f, 0.0f, -window1.getHeight() * 0.5f + 50.0f });
+	hudScene.add(hudShape);
 
 	se::Console console;
 
@@ -167,9 +205,9 @@ int main()
 				window2.setName("SpehsEngineDemo 2 (observerView2 inactive)");
 			}
 
-			const auto displaySize = renderer.getDisplaySize();
-			window1.setX(se::rng::random(0, displaySize.x - window1.getWidth()));
-			window1.setY(se::rng::random(0, displaySize.y - window1.getHeight()));
+			//const auto displaySize = renderer.getDisplaySize();
+			//window1.setX(se::rng::random(0, displaySize.x - window1.getWidth()));
+			//window1.setY(se::rng::random(0, displaySize.y - window1.getHeight()));
 		}
 
 		if (window2.isQuitRequested())
