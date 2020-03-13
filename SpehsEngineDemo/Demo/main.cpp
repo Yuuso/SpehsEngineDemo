@@ -52,8 +52,8 @@ int main()
 	window1.setHeight(900);
 	se::graphics::Renderer renderer(window1, se::graphics::RendererFlag::VSync
 										   | se::graphics::RendererFlag::MSAA2
-//										   | se::graphics::RendererFlag::OpenGL
-										   );
+//										   , se::graphics::RendererBackend::OpenGL
+									);
 
 	se::graphics::Scene scene;
 	se::graphics::Camera camera;
@@ -73,9 +73,8 @@ int main()
 	hudCamera.setProjection(se::graphics::Projection::Orthographic);
 
 	se::graphics::Window window2;
-	if (!renderer.checkRendererFlag(se::graphics::RendererFlag::OpenGL)
-	&&  !renderer.checkRendererFlag(se::graphics::RendererFlag::Vulkan)
-		) // TODO: This can't be true!
+	if (renderer.getRendererBackend() != se::graphics::RendererBackend::OpenGL &&
+		renderer.getRendererBackend() != se::graphics::RendererBackend::Vulkan) // TODO: There has to be a way to fix this!
 	{
 		renderer.add(window2);
 	}
@@ -121,11 +120,11 @@ int main()
 		ShapeObject(se::graphics::Scene& _scene, se::graphics::ShaderManager& _shaderManager)
 			: shape(se::rng::random(3, 11))
 		{
-			shape.setShader(_shaderManager.find("color"));
+			shape.setShader(_shaderManager.findShader("phong"));
 			_scene.add(shape);
 			shape.setScale(glm::vec3(se::rng::random(0.5f, 2.0f)));
-			shape.setRenderMode(se::graphics::RenderMode::Dynamic);
-			shape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
+			//shape.setRenderMode(se::graphics::RenderMode::Static);
+			//shape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
 			init();
 		}
 		void update(const se::time::Time _deltaTime)
@@ -136,8 +135,8 @@ int main()
 			shape.setPosition(shape.getPosition() + direction * velocity * _deltaTime.asSeconds());
 			shape.setRotation(glm::rotate(shape.getRotation(), angularVelocity * _deltaTime.asSeconds(), axis));
 
-			if (velocity < 0.0001f && angularVelocity < 0.0001f)
-				init();
+			//if (velocity < 0.0001f && angularVelocity < 0.0001f)
+			//	init();
 		}
 
 	private:
@@ -149,8 +148,8 @@ int main()
 			velocity = se::rng::random(3.0f, 6.0f);
 			angularVelocity = se::rng::random(5.0f, 15.0f);
 
-			//shape.setRenderMode((se::graphics::RenderMode)se::rng::random(0, 2));
-			//shape.setPrimitiveType((se::graphics::PrimitiveType)se::rng::random(0, 2));
+			shape.setRenderMode((se::graphics::RenderMode)se::rng::random(0, 2));
+			shape.setPrimitiveType((se::graphics::PrimitiveType)se::rng::random(0, 2));
 		}
 
 		se::graphics::Shape shape;
@@ -162,13 +161,20 @@ int main()
 	std::vector<std::unique_ptr<ShapeObject>> objects;
 
 	se::graphics::Shape hudShape(4);
-	hudShape.setShader(shaderManager.find("color"));
+	hudShape.setShader(shaderManager.findShader("color"));
 	hudShape.setRenderMode(se::graphics::RenderMode::Dynamic);
 	hudShape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
 	hudShape.setColor(se::hexColor(se::Orange));
 	hudShape.setScale(glm::vec3(20.0f));
 	hudShape.setPosition({ -window1.getWidth() * 0.5f + 20.0f, 0.0f, -window1.getHeight() * 0.5f + 50.0f });
 	hudScene.add(hudShape);
+
+	se::graphics::Shape planeShape(4);
+	planeShape.setShader(shaderManager.findShader("phong"));
+	planeShape.setScale(glm::vec3(50.0f));
+	planeShape.setPosition({ 0.0f, -10.0f, 0.0f });
+	planeShape.setColor(se::Color());
+	scene.add(planeShape);
 
 	se::Console console;
 
