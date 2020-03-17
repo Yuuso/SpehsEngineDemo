@@ -113,6 +113,8 @@ int main()
 
 	se::graphics::ShaderManager shaderManager;
 
+	auto testShader = shaderManager.createShader("test", "vs_test.bin", "fs_test.bin");
+
 	class ShapeObject
 	{
 	public:
@@ -170,7 +172,7 @@ int main()
 	hudScene.add(hudShape);
 
 	se::graphics::Shape planeShape(4);
-	planeShape.setShader(shaderManager.findShader("phong"));
+	planeShape.setShader(testShader);
 	planeShape.setScale(glm::vec3(50.0f));
 	planeShape.setPosition({ 0.0f, -10.0f, 0.0f });
 	planeShape.setColor(se::Color());
@@ -244,6 +246,13 @@ int main()
 
 		se::graphics::Renderer::debugTextPrintf(1, 1, "frame: %i", frameN++);
 		renderer.render();
+
+		if (inputManager.isKeyPressed((unsigned)se::input::Key::F5))
+		{
+			se::log::info("Reloading shaders...", se::log::TextColor::BLUE);
+			shaderManager.reloadShaders();
+			//renderer.reloadDefaultUniforms();
+		}
 
 		if (inputManager.isQuitRequested())
 			break;
