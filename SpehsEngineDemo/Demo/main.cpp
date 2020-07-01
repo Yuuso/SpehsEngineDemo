@@ -15,7 +15,9 @@
 #include "SpehsEngine/Graphics/GraphicsLib.h"
 #include "SpehsEngine/Graphics/Renderer.h"
 #include "SpehsEngine/Graphics/Scene.h"
-#include "SpehsEngine/Graphics/ShaderManager.h"
+#include "SpehsEngine/Graphics/DefaultShaderManager.h"
+#include "SpehsEngine/Graphics/TextureManager.h"
+#include "SpehsEngine/Graphics/DefaultMaterials.h"
 #include "SpehsEngine/Graphics/Shape.h"
 #include "SpehsEngine/Graphics/View.h"
 #include "SpehsEngine/Graphics/Window.h"
@@ -111,18 +113,26 @@ int main()
 
 	CameraController cameraController(window1, camera, eventSignaler);
 
-	se::graphics::ShaderManager shaderManager;
+	se::graphics::DefaultShaderManager shaderManager;
+	se::graphics::TextureManager textureManager;
 
 	auto testShader = shaderManager.createShader("test", "vs_test.bin", "fs_test.bin");
+
+	auto testColor = textureManager.createTexture("testColor", "data/textures/test_color.png");
+	auto testNormal = textureManager.createTexture("testNormal", "data/textures/test_normal.png");
+
+	std::shared_ptr<se::graphics::PhongMaterial> phongMaterial = std::make_unique<se::graphics::PhongMaterial>(shaderManager);
+	phongMaterial->setTexture(se::graphics::MaterialTextureType::Color, testColor);
+	phongMaterial->setTexture(se::graphics::MaterialTextureType::Normal, testNormal);
 
 	class ShapeObject
 	{
 	public:
 
-		ShapeObject(se::graphics::Scene& _scene, se::graphics::ShaderManager& _shaderManager)
+		ShapeObject(se::graphics::Scene& _scene, std::shared_ptr<se::graphics::Material> material)
 			: shape(se::rng::random(3, 11))
 		{
-			shape.setShader(_shaderManager.findShader("phong"));
+			shape.setMaterial(material);
 			_scene.add(shape);
 			shape.setScale(glm::vec3(se::rng::random(0.5f, 2.0f)));
 			//shape.setRenderMode(se::graphics::RenderMode::Static);
@@ -163,7 +173,7 @@ int main()
 	std::vector<std::unique_ptr<ShapeObject>> objects;
 
 	se::graphics::Shape hudShape(4);
-	hudShape.setShader(shaderManager.findShader("color"));
+	hudShape.setMaterial(phongMaterial);
 	hudShape.setRenderMode(se::graphics::RenderMode::Dynamic);
 	hudShape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
 	hudShape.setColor(se::hexColor(se::Orange));
@@ -172,7 +182,7 @@ int main()
 	hudScene.add(hudShape);
 
 	se::graphics::Shape planeShape(4);
-	planeShape.setShader(testShader);
+	planeShape.setMaterial(phongMaterial);
 	planeShape.setScale(glm::vec3(50.0f));
 	planeShape.setPosition({ 0.0f, -10.0f, 0.0f });
 	planeShape.setColor(se::Color());
@@ -192,7 +202,7 @@ int main()
 		if (objects.size() < 100 &&
 			se::time::now() - lastObjectSpawned > se::time::fromSeconds(0.4f))
 		{
-			objects.emplace_back(std::make_unique<ShapeObject>(scene, shaderManager));
+			objects.emplace_back(std::make_unique<ShapeObject>(scene, phongMaterial));
 			lastObjectSpawned = se::time::now();
 		}
 		else if (objects.size() > 0 &&

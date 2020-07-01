@@ -1,0 +1,17 @@
+
+@ECHO OFF
+SETLOCAL
+CD /D %~dp0
+
+SET TARGET_LOC=%CD%\..\..\bin\data\textures
+
+REM Clear old shaders
+IF EXIST %TARGET_LOC% RMDIR /S /Q %TARGET_LOC%
+MKDIR %TARGET_LOC%
+
+
+XCOPY *.png %TARGET_LOC%\
+
+
+PAUSE
+EXIT \B 0
