@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "CameraController.h"
+#include "DefaultResourcePathFinders.h"
 #include "SpehsEngine/Core/Console.h"
 #include "SpehsEngine/Core/CoreLib.h"
 #include "SpehsEngine/Core/DeltaTimeSystem.h"
@@ -25,6 +26,7 @@
 #include "SpehsEngine/Input/EventSignaler.h"
 #include "SpehsEngine/Input/InputLib.h"
 #include "SpehsEngine/Input/InputManager.h"
+
 
 int main()
 {
@@ -116,10 +118,16 @@ int main()
 	se::graphics::DefaultShaderManager shaderManager;
 	se::graphics::TextureManager textureManager;
 
+	std::shared_ptr<ShaderPathFinder> shaderPathFinder = std::make_shared<ShaderPathFinder>();
+	shaderManager.setResourcePathFinder(shaderPathFinder);
+
+	std::shared_ptr<TexturePathFinder> texturePathFinder = std::make_shared<TexturePathFinder>();
+	textureManager.setResourcePathFinder(texturePathFinder);
+
 	auto testShader = shaderManager.createShader("test", "vs_test.bin", "fs_test.bin");
 
-	auto testColor = textureManager.createTexture("testColor", "data/textures/test_color.png");
-	auto testNormal = textureManager.createTexture("testNormal", "data/textures/test_normal.png");
+	auto testColor = textureManager.createTexture("testColor", "test_color.png");
+	auto testNormal = textureManager.createTexture("testNormal", "test_normal.png");
 
 	std::shared_ptr<se::graphics::PhongMaterial> phongMaterial = std::make_unique<se::graphics::PhongMaterial>(shaderManager);
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Color, testColor);
