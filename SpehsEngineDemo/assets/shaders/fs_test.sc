@@ -2,24 +2,12 @@ $input v_position, v_normal, v_color0, v_texcoord0
 
 #include "bgfx_shader.sh"
 #include "se_shader.sh"
-
-#define MAX_POINT_LIGHTS 16
-
-uniform vec4 u_ambientLight_ColorIntensity;
-uniform vec4 u_pointLight_Count;
-uniform vec4 u_pointLight_PositionIRadius[MAX_POINT_LIGHTS];
-uniform vec4 u_pointLight_ColorORadius[MAX_POINT_LIGHTS];
-
-#define u_ambientLightColor 		u_ambientLight_ColorIntensity.xyz
-#define u_ambientLightIntensity 	u_ambientLight_ColorIntensity.w
-#define u_pointLightCount 			int(u_pointLight_Count.x)
-#define u_pointLightPosition(n)		u_pointLight_PositionIRadius[n].xyz
-#define u_pointLightInnerRadius(n)	u_pointLight_PositionIRadius[n].w
-#define u_pointLightOuterRadius(n)	u_pointLight_ColorORadius[n].w
-#define u_pointLightColor(n)		u_pointLight_ColorORadius[n].xyz
+#include "se_lights.sh"
+#include "se_materials.sh"
 
 SAMPLER2D(s_texColor, 0);
 SAMPLER2D(s_texNormal, 1);
+
 
 void main()
 {

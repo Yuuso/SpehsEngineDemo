@@ -3,6 +3,9 @@ Dependencies/
 bin/
 obj/
 
+# Shader headers
+/SpehsEngineDemo/assets/shaders/*.sh
+
 #
 .vs/
 *.TMP
