@@ -2,24 +2,25 @@
 
 #include "CameraController.h"
 #include "DefaultResourcePathFinders.h"
+#include "SpehsEngine/Core/ColorUtilityFunctions.h"
 #include "SpehsEngine/Core/Console.h"
 #include "SpehsEngine/Core/CoreLib.h"
 #include "SpehsEngine/Core/DeltaTimeSystem.h"
+#include "SpehsEngine/Core/HexColor.h"
 #include "SpehsEngine/Core/Inifile.h"
 #include "SpehsEngine/Core/Log.h"
 #include "SpehsEngine/Core/OS.h"
 #include "SpehsEngine/Core/RNG.h"
 #include "SpehsEngine/Core/Thread.h"
-#include "SpehsEngine/Core/ColorUtilityFunctions.h"
-#include "SpehsEngine/Core/HexColor.h"
 #include "SpehsEngine/Graphics/Camera.h"
+#include "SpehsEngine/Graphics/DefaultMaterials.h"
+#include "SpehsEngine/Graphics/DefaultShaderManager.h"
 #include "SpehsEngine/Graphics/GraphicsLib.h"
+#include "SpehsEngine/Graphics/Lights.h"
 #include "SpehsEngine/Graphics/Renderer.h"
 #include "SpehsEngine/Graphics/Scene.h"
-#include "SpehsEngine/Graphics/DefaultShaderManager.h"
-#include "SpehsEngine/Graphics/TextureManager.h"
-#include "SpehsEngine/Graphics/DefaultMaterials.h"
 #include "SpehsEngine/Graphics/Shape.h"
+#include "SpehsEngine/Graphics/TextureManager.h"
 #include "SpehsEngine/Graphics/View.h"
 #include "SpehsEngine/Graphics/Window.h"
 #include "SpehsEngine/Input/EventCatcher.h"
@@ -124,7 +125,7 @@ int main()
 	std::shared_ptr<TexturePathFinder> texturePathFinder = std::make_shared<TexturePathFinder>();
 	textureManager.setResourcePathFinder(texturePathFinder);
 
-	auto testShader = shaderManager.createShader("test", "vs_test.bin", "fs_test.bin");
+	//auto testShader = shaderManager.createShader("test", "vs_test.bin", "fs_test.bin");
 
 	auto testColor = textureManager.createTexture("testColor", "test_color.png");
 	auto testNormal = textureManager.createTexture("testNormal", "test_normal.png");
@@ -132,6 +133,24 @@ int main()
 	std::shared_ptr<se::graphics::PhongMaterial> phongMaterial = std::make_unique<se::graphics::PhongMaterial>(shaderManager);
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Color, testColor);
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Normal, testNormal);
+
+	se::graphics::AmbientLight ambientLight(se::hexColor(se::White), 0.1f);
+	scene.add(ambientLight);
+
+	se::graphics::PointLight pointLight;
+	pointLight.setRadius(1.0f, 25.0f);
+	pointLight.setIntensity(0.3f);
+	scene.add(pointLight);
+
+	se::graphics::DirectionalLight sunLight;
+	sunLight.setIntensity(0.3f);
+	scene.add(sunLight);
+
+	se::graphics::SpotLight spotLight;
+	spotLight.setCone(glm::radians(45.0f), glm::radians(90.0f));
+	spotLight.setRadius(00.1f, 50.0f);
+	spotLight.setPosition({ 0.0f, -5.0f, 0.0f });
+	scene.add(spotLight);
 
 	class ShapeObject
 	{
@@ -234,6 +253,12 @@ int main()
 			//const auto displaySize = renderer.getDisplaySize();
 			//window1.setX(se::rng::random(0, displaySize.x - window1.getWidth()));
 			//window1.setY(se::rng::random(0, displaySize.y - window1.getHeight()));
+		}
+
+		{
+			pointLight.setPosition(glm::vec3(0.0f, fabsf(sinf(se::time::now().asSeconds() * 0.5f)) * 10.0f, 0.0f));
+			sunLight.setDirection(glm::vec3(sinf(se::time::now().asSeconds() * 0.2f) * 0.5f, -1.0f, cosf(se::time::now().asSeconds() * 0.2f) * 0.5f));
+			spotLight.setDirection(glm::vec3(sinf(se::time::now().asSeconds() * 0.4f) * 0.6f, -1.0f, cosf(se::time::now().asSeconds() * 0.4f) * 0.6f));
 		}
 
 		if (window2.isQuitRequested())
