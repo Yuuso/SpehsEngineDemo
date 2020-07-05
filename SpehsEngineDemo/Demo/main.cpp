@@ -174,8 +174,8 @@ int main()
 			shape.setPosition(shape.getPosition() + direction * velocity * _deltaTime.asSeconds());
 			shape.setRotation(glm::rotate(shape.getRotation(), angularVelocity * _deltaTime.asSeconds(), axis));
 
-			//if (velocity < 0.0001f && angularVelocity < 0.0001f)
-			//	init();
+			if (velocity < 0.0001f && angularVelocity < 0.0001f)
+				init();
 		}
 
 	private:
@@ -256,9 +256,10 @@ int main()
 		}
 
 		{
-			pointLight.setPosition(glm::vec3(0.0f, fabsf(sinf(se::time::now().asSeconds() * 0.5f)) * 10.0f, 0.0f));
-			sunLight.setDirection(glm::vec3(sinf(se::time::now().asSeconds() * 0.2f) * 0.5f, -1.0f, cosf(se::time::now().asSeconds() * 0.2f) * 0.5f));
-			spotLight.setDirection(glm::vec3(sinf(se::time::now().asSeconds() * 0.4f) * 0.6f, -1.0f, cosf(se::time::now().asSeconds() * 0.4f) * 0.6f));
+			const double timeNowSeconds = se::time::now().asSeconds<double>();
+			pointLight.setPosition(glm::vec3(0.0f, (float)abs(sin(timeNowSeconds * 0.5)) * 10.0f, 0.0f));
+			sunLight.setDirection(glm::vec3((float)sin(timeNowSeconds * 0.2) * 0.5f, -1.0f, (float)cos(timeNowSeconds * 0.2) * 0.5f));
+			spotLight.setDirection(glm::vec3((float)sin(timeNowSeconds * 0.4) * 0.6f, -1.0f, (float)cos(timeNowSeconds * 0.4) * 0.6f));
 		}
 
 		if (window2.isQuitRequested())
