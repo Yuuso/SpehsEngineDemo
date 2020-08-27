@@ -116,6 +116,8 @@ int main()
 
 	CameraController cameraController(window1, camera, eventSignaler);
 
+	se::graphics::ResourceLoader resourceLoader;
+
 	se::graphics::DefaultShaderManager shaderManager;
 	se::graphics::TextureManager textureManager;
 
@@ -124,6 +126,7 @@ int main()
 
 	std::shared_ptr<TexturePathFinder> texturePathFinder = std::make_shared<TexturePathFinder>();
 	textureManager.setResourcePathFinder(texturePathFinder);
+	textureManager.setResourceLoader(resourceLoader);
 
 	//auto testShader = shaderManager.createShader("test", "vs_test.bin", "fs_test.bin");
 
@@ -278,6 +281,9 @@ int main()
 
 		deltaTimeSystem.deltaTimeSystemUpdate();
 		//inifile.update();
+
+		textureManager.update();
+		//shaderManager.update();
 
 		eventCatcher.pollEvents();
 		eventSignaler.signalEvents(eventCatcher);
