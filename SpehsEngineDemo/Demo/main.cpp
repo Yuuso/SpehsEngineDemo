@@ -2,6 +2,7 @@
 
 #include "CameraController.h"
 #include "DefaultResourcePathFinders.h"
+#include "Materials.h"
 #include "SpehsEngine/Core/ColorUtilityFunctions.h"
 #include "SpehsEngine/Core/Console.h"
 #include "SpehsEngine/Core/CoreLib.h"
@@ -57,7 +58,7 @@ int main()
 	window1.setHeight(900);
 	se::graphics::Renderer renderer(window1, se::graphics::RendererFlag::VSync
 										   | se::graphics::RendererFlag::MSAA2
-//										   , se::graphics::RendererBackend::OpenGL
+										   //, se::graphics::RendererBackend::OpenGL
 									);
 
 	se::graphics::Scene scene;
@@ -128,7 +129,7 @@ int main()
 	textureManager.setResourcePathFinder(texturePathFinder);
 	textureManager.setResourceLoader(resourceLoader);
 
-	//auto testShader = shaderManager.createShader("test", "vs_test.bin", "fs_test.bin");
+	auto testShader = shaderManager.createShader("test", "vs_test.bin", "fs_test.bin");
 
 	auto testColor = textureManager.createTexture("testColor", "test_color.png");
 	auto testNormal = textureManager.createTexture("testNormal", "test_normal.png");
@@ -136,6 +137,10 @@ int main()
 	std::shared_ptr<se::graphics::PhongMaterial> phongMaterial = std::make_unique<se::graphics::PhongMaterial>(shaderManager);
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Color, testColor);
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Normal, testNormal);
+
+	std::shared_ptr<TestMaterial> testMaterial = std::make_unique<TestMaterial>(shaderManager);
+	testMaterial->setTexture(se::graphics::MaterialTextureType::Color, testColor);
+	testMaterial->setTexture(se::graphics::MaterialTextureType::Normal, testNormal);
 
 	se::graphics::AmbientLight ambientLight(se::hexColor(se::White), 0.1f);
 	scene.add(ambientLight);
@@ -212,7 +217,7 @@ int main()
 	hudScene.add(hudShape);
 
 	se::graphics::Shape planeShape(4);
-	planeShape.setMaterial(phongMaterial);
+	planeShape.setMaterial(testMaterial);
 	planeShape.setScale(glm::vec3(50.0f));
 	planeShape.setPosition({ 0.0f, -10.0f, 0.0f });
 	planeShape.setColor(se::Color());
@@ -300,8 +305,8 @@ int main()
 		if (inputManager.isKeyPressed((unsigned)se::input::Key::F5))
 		{
 			se::log::info("Reloading shaders...", se::log::TextColor::BLUE);
+			shaderManager.purgeUnusedShaders();
 			shaderManager.reloadShaders();
-			//renderer.reloadDefaultUniforms();
 		}
 
 		if (inputManager.isQuitRequested())
