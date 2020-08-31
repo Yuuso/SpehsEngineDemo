@@ -117,13 +117,14 @@ int main()
 
 	CameraController cameraController(window1, camera, eventSignaler);
 
-	se::graphics::ResourceLoader resourceLoader;
+	se::graphics::ResourceLoader resourceLoader = se::graphics::makeResourceLoader();
 
 	se::graphics::DefaultShaderManager shaderManager;
 	se::graphics::TextureManager textureManager;
 
 	std::shared_ptr<ShaderPathFinder> shaderPathFinder = std::make_shared<ShaderPathFinder>();
 	shaderManager.setResourcePathFinder(shaderPathFinder);
+	shaderManager.setResourceLoader(resourceLoader);
 
 	std::shared_ptr<TexturePathFinder> texturePathFinder = std::make_shared<TexturePathFinder>();
 	textureManager.setResourcePathFinder(texturePathFinder);
@@ -133,6 +134,9 @@ int main()
 
 	auto testColor = textureManager.createTexture("testColor", "test_color.png");
 	auto testNormal = textureManager.createTexture("testNormal", "test_normal.png");
+
+	// Loading break until temp textures are a thing...
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 	std::shared_ptr<se::graphics::PhongMaterial> phongMaterial = std::make_unique<se::graphics::PhongMaterial>(shaderManager);
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Color, testColor);
@@ -287,8 +291,8 @@ int main()
 		deltaTimeSystem.deltaTimeSystemUpdate();
 		//inifile.update();
 
+		shaderManager.update();
 		textureManager.update();
-		//shaderManager.update();
 
 		eventCatcher.pollEvents();
 		eventSignaler.signalEvents(eventCatcher);
@@ -305,7 +309,7 @@ int main()
 		if (inputManager.isKeyPressed((unsigned)se::input::Key::F5))
 		{
 			se::log::info("Reloading shaders...", se::log::TextColor::BLUE);
-			shaderManager.purgeUnusedShaders();
+			//shaderManager.purgeUnusedShaders();
 			shaderManager.reloadShaders();
 		}
 
