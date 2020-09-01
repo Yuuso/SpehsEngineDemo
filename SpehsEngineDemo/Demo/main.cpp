@@ -135,15 +135,25 @@ int main()
 	auto testColor = textureManager.createTexture("testColor", "test_color.png");
 	auto testNormal = textureManager.createTexture("testNormal", "test_normal.png");
 
-	// Loading break until temp textures are a thing...
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	se::graphics::TextureInput textureInput;
+	textureInput.width = 2;
+	textureInput.height = 2;
+	textureInput.data = {	255,	0,		0,		255,
+							0,		255,	0,		255,
+							0,		0,		255,	255,
+							255,	0,		255,	255, };
+	se::graphics::TextureModes genModes;
+	genModes.sampleMin = se::graphics::TextureSamplingMode::Point;
+	genModes.sampleMag = se::graphics::TextureSamplingMode::Point;
+	genModes.sampleMip = se::graphics::TextureSamplingMode::Point;
+	auto genTexture = textureManager.createTexture("genTest", textureInput, genModes);
 
 	std::shared_ptr<se::graphics::PhongMaterial> phongMaterial = std::make_unique<se::graphics::PhongMaterial>(shaderManager);
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Color, testColor);
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Normal, testNormal);
 
 	std::shared_ptr<TestMaterial> testMaterial = std::make_unique<TestMaterial>(shaderManager);
-	testMaterial->setTexture(se::graphics::MaterialTextureType::Color, testColor);
+	testMaterial->setTexture(se::graphics::MaterialTextureType::Color, genTexture);
 	testMaterial->setTexture(se::graphics::MaterialTextureType::Normal, testNormal);
 
 	se::graphics::AmbientLight ambientLight(se::hexColor(se::White), 0.1f);
@@ -231,6 +241,11 @@ int main()
 
 	const auto initTime = se::time::now() - initStart;
 	se::log::info("Init time: " + std::to_string(initTime.asSeconds()) + " seconds", se::log::GREEN);
+
+	while (!shaderManager.allShadersReady())
+	{
+		shaderManager.update();
+	}
 
 	int frameN = 0;
 	se::time::Time lastObjectSpawned = se::time::Time::zero;
