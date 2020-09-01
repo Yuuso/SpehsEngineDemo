@@ -328,6 +328,12 @@ int main()
 			shaderManager.reloadShaders();
 		}
 
+		if (inputManager.isKeyPressed((unsigned)se::input::Key::F4))
+		{
+			se::log::info("Reloading textures...", se::log::TextColor::BLUE);
+			textureManager.reloadTextures();
+		}
+
 		if (inputManager.isQuitRequested())
 			break;
 	}
