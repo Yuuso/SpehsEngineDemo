@@ -117,7 +117,7 @@ int main()
 
 	CameraController cameraController(window1, camera, eventSignaler);
 
-	se::graphics::ResourceLoader resourceLoader = se::graphics::makeResourceLoader();
+	std::shared_ptr<se::graphics::ResourceLoader> resourceLoader = se::graphics::makeResourceLoader();
 
 	se::graphics::DefaultShaderManager shaderManager;
 	se::graphics::TextureManager textureManager;
@@ -130,10 +130,10 @@ int main()
 	textureManager.setResourcePathFinder(texturePathFinder);
 	textureManager.setResourceLoader(resourceLoader);
 
-	auto testShader = shaderManager.createShader("test", "vs_test.bin", "fs_test.bin");
+	auto testShader = shaderManager.create("test", "vs_test.bin", "fs_test.bin");
 
-	auto testColor = textureManager.createTexture("testColor", "test_color.png");
-	auto testNormal = textureManager.createTexture("testNormal", "test_normal.png");
+	auto testColor = textureManager.create("testColor", "test_color.png");
+	auto testNormal = textureManager.create("testNormal", "test_normal.png");
 
 	se::graphics::TextureInput textureInput;
 	textureInput.width = 2;
@@ -146,7 +146,7 @@ int main()
 	genModes.sampleMin = se::graphics::TextureSamplingMode::Point;
 	genModes.sampleMag = se::graphics::TextureSamplingMode::Point;
 	genModes.sampleMip = se::graphics::TextureSamplingMode::Point;
-	auto genTexture = textureManager.createTexture("genTest", textureInput, genModes);
+	auto genTexture = textureManager.create("genTest", textureInput, genModes);
 
 	std::shared_ptr<se::graphics::PhongMaterial> phongMaterial = std::make_unique<se::graphics::PhongMaterial>(shaderManager);
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Color, testColor);
@@ -242,10 +242,7 @@ int main()
 	const auto initTime = se::time::now() - initStart;
 	se::log::info("Init time: " + std::to_string(initTime.asSeconds()) + " seconds", se::log::GREEN);
 
-	while (!shaderManager.allShadersReady())
-	{
-		shaderManager.update();
-	}
+	//while (!shaderManager.allShadersReady()) shaderManager.update();
 
 	int frameN = 0;
 	se::time::Time lastObjectSpawned = se::time::Time::zero;
@@ -325,13 +322,13 @@ int main()
 		{
 			se::log::info("Reloading shaders...", se::log::TextColor::BLUE);
 			//shaderManager.purgeUnusedShaders();
-			shaderManager.reloadShaders();
+			shaderManager.reload();
 		}
 
 		if (inputManager.isKeyPressed((unsigned)se::input::Key::F4))
 		{
 			se::log::info("Reloading textures...", se::log::TextColor::BLUE);
-			textureManager.reloadTextures();
+			textureManager.reload();
 		}
 
 		if (inputManager.isQuitRequested())

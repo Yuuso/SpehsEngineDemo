@@ -25,7 +25,7 @@ public:
 private:
 
 	std::shared_ptr<se::graphics::Shader> shader;
-	std::vector<std::unique_ptr<se::graphics::MaterialTexture>> textures;
+	std::vector<std::shared_ptr<se::graphics::MaterialTexture>> textures;
 	se::graphics::PhongAttributes attributes;
 	std::shared_ptr<se::graphics::Uniform> attributesUniform;
 };
