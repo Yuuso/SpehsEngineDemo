@@ -48,3 +48,14 @@ public:
 		return DATA_PATH + "textures/" + _resource;
 	}
 };
+
+
+class FontPathFinder : public se::graphics::ResourcePathFinder
+{
+public:
+
+	std::string getPath(const std::string_view _resource) const override
+	{
+		return DATA_PATH + "fonts/" + _resource;
+	}
+};

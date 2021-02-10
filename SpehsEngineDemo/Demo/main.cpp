@@ -16,6 +16,7 @@
 #include "SpehsEngine/Graphics/Camera.h"
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
 #include "SpehsEngine/Graphics/DefaultShaderManager.h"
+#include "SpehsEngine/Graphics/FontManager.h"
 #include "SpehsEngine/Graphics/GraphicsLib.h"
 #include "SpehsEngine/Graphics/Lights.h"
 #include "SpehsEngine/Graphics/Renderer.h"
@@ -121,6 +122,7 @@ int main()
 
 	se::graphics::DefaultShaderManager shaderManager;
 	se::graphics::TextureManager textureManager;
+	se::graphics::FontManager fontManager;
 
 	std::shared_ptr<ShaderPathFinder> shaderPathFinder = std::make_shared<ShaderPathFinder>();
 	shaderManager.setResourcePathFinder(shaderPathFinder);
@@ -130,10 +132,22 @@ int main()
 	textureManager.setResourcePathFinder(texturePathFinder);
 	textureManager.setResourceLoader(resourceLoader);
 
+	std::shared_ptr<FontPathFinder> fontPathFinder = std::make_shared<FontPathFinder>();
+	fontManager.setResourcePathFinder(fontPathFinder);
+	fontManager.setResourceLoader(resourceLoader);
+
 	auto testShader = shaderManager.create("test", "vs_test.bin", "fs_test.bin");
 
 	auto testColor = textureManager.create("testColor", "test_color.png");
 	auto testNormal = textureManager.create("testNormal", "test_normal.png");
+
+	auto testFont = fontManager.create("test", "open-sans.regular.ttf", se::graphics::FontSize(6), se::graphics::defaultCharacterMap);
+	while (!testFont->ready())
+	{
+		fontManager.update();
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+	}
+	auto testFontTexture = testFont->getDebugTexture();
 
 	se::graphics::TextureInput textureInput;
 	textureInput.width = 2;
@@ -153,7 +167,7 @@ int main()
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Normal, testNormal);
 
 	std::shared_ptr<TestMaterial> testMaterial = std::make_unique<TestMaterial>(shaderManager);
-	testMaterial->setTexture(se::graphics::MaterialTextureType::Color, genTexture);
+	testMaterial->setTexture(se::graphics::MaterialTextureType::Color, testFontTexture);
 	testMaterial->setTexture(se::graphics::MaterialTextureType::Normal, testNormal);
 
 	se::graphics::AmbientLight ambientLight(se::hexColor(se::White), 0.1f);
@@ -305,6 +319,7 @@ int main()
 
 		shaderManager.update();
 		textureManager.update();
+		fontManager.update();
 
 		eventCatcher.pollEvents();
 		eventSignaler.signalEvents(eventCatcher);
