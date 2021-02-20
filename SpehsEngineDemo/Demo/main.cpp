@@ -19,6 +19,7 @@
 #include "SpehsEngine/Graphics/FontManager.h"
 #include "SpehsEngine/Graphics/GraphicsLib.h"
 #include "SpehsEngine/Graphics/Lights.h"
+#include "SpehsEngine/Graphics/Text.h"
 #include "SpehsEngine/Graphics/Renderer.h"
 #include "SpehsEngine/Graphics/Scene.h"
 #include "SpehsEngine/Graphics/Shape.h"
@@ -141,7 +142,7 @@ int main()
 	auto testColor = textureManager.create("testColor", "test_color.png");
 	auto testNormal = textureManager.create("testNormal", "test_normal.png");
 
-	auto testFont = fontManager.create("test", "open-sans.regular.ttf", se::graphics::FontSize(6), se::graphics::defaultCharacterMap);
+	auto testFont = fontManager.create("test", "open-sans.regular.ttf", se::graphics::FontSize(36), se::graphics::defaultCharacterSet);
 	while (!testFont->ready())
 	{
 		fontManager.update();
@@ -162,6 +163,9 @@ int main()
 	genModes.sampleMip = se::graphics::TextureSamplingMode::Point;
 	auto genTexture = textureManager.create("genTest", textureInput, genModes);
 
+	std::shared_ptr<se::graphics::FlatTextureMaterial> flatMaterial = std::make_unique<se::graphics::FlatTextureMaterial>(shaderManager);
+	flatMaterial->setTexture(genTexture);
+
 	std::shared_ptr<se::graphics::PhongMaterial> phongMaterial = std::make_unique<se::graphics::PhongMaterial>(shaderManager);
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Color, testColor);
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Normal, testNormal);
@@ -169,6 +173,21 @@ int main()
 	std::shared_ptr<TestMaterial> testMaterial = std::make_unique<TestMaterial>(shaderManager);
 	testMaterial->setTexture(se::graphics::MaterialTextureType::Color, testFontTexture);
 	testMaterial->setTexture(se::graphics::MaterialTextureType::Normal, testNormal);
+
+	std::shared_ptr<se::graphics::TextMaterial> textMaterial = std::make_unique<se::graphics::TextMaterial>(shaderManager);
+	textMaterial->setFont(testFont);
+
+	se::graphics::Text testText;
+	se::graphics::TextStyle style;
+	testText.setMaterial(textMaterial);
+	testText.insert("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
+	testText.insert("abcdrfghijklmnopqrstuvwxyz\n");
+	style.color = se::hexColor(0xff0000);
+	testText.setStyle(style);
+	testText.insert("1234567890\n");
+	testText.insert(u8"Á\n");
+	testText.setPosition({ -window1.getWidth() * 0.5f + 20.0f, 0.0f, -window1.getHeight() * 0.5f + 50.0f });
+	hudScene.add(testText);
 
 	se::graphics::AmbientLight ambientLight(se::hexColor(se::White), 0.1f);
 	scene.add(ambientLight);
@@ -236,7 +255,7 @@ int main()
 	std::vector<std::unique_ptr<ShapeObject>> objects;
 
 	se::graphics::Shape hudShape(4);
-	hudShape.setMaterial(phongMaterial);
+	hudShape.setMaterial(flatMaterial);
 	hudShape.setRenderMode(se::graphics::RenderMode::Dynamic);
 	hudShape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
 	hudShape.setColor(se::hexColor(se::Orange));

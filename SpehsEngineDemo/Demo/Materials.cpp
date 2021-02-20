@@ -20,8 +20,8 @@ TestMaterial::TestMaterial(se::graphics::ShaderManager& _shaderManager)
 
 void TestMaterial::bind()
 {
-	Bind(textures);
-	Bind(attributes, attributesUniform);
+	se::graphics::bind(textures);
+	se::graphics::bind(attributes, attributesUniform);
 }
 std::shared_ptr<se::graphics::Shader> TestMaterial::getShader()
 {
