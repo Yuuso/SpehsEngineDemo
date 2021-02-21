@@ -182,7 +182,7 @@ int main()
 	testText.setMaterial(textMaterial);
 	testText.insert("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
 	testText.insert("abcdrfghijklmnopqrstuvwxyz\n");
-	style.color = se::hexColor(0xff0000);
+	style.color = se::hexColor(se::Red);
 	testText.setStyle(style);
 	testText.insert("1234567890\n");
 	testText.insert(u8"Á\n");
