@@ -142,13 +142,13 @@ int main()
 	auto testColor = textureManager.create("testColor", "test_color.png");
 	auto testNormal = textureManager.create("testNormal", "test_normal.png");
 
-	auto testFont = fontManager.create("test", "open-sans.regular.ttf", se::graphics::FontSize(36), se::graphics::defaultCharacterSet);
-	while (!testFont->ready())
-	{
-		fontManager.update();
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-	}
-	auto testFontTexture = testFont->getDebugTexture();
+	auto testFont = fontManager.create("test", "open-sans.regular.ttf", se::graphics::FontSize(32, se::graphics::FontSizeType::Pixel), se::graphics::defaultCharacterSet);
+	//while (!testFont->ready())
+	//{
+	//	fontManager.update();
+	//	std::this_thread::sleep_for(std::chrono::seconds(1));
+	//}
+	//auto testFontTexture = testFont->getDebugTexture();
 
 	se::graphics::TextureInput textureInput;
 	textureInput.width = 2;
@@ -171,7 +171,7 @@ int main()
 	phongMaterial->setTexture(se::graphics::MaterialTextureType::Normal, testNormal);
 
 	std::shared_ptr<TestMaterial> testMaterial = std::make_unique<TestMaterial>(shaderManager);
-	testMaterial->setTexture(se::graphics::MaterialTextureType::Color, testFontTexture);
+	testMaterial->setTexture(se::graphics::MaterialTextureType::Color, testColor);
 	testMaterial->setTexture(se::graphics::MaterialTextureType::Normal, testNormal);
 
 	std::shared_ptr<se::graphics::TextMaterial> textMaterial = std::make_unique<se::graphics::TextMaterial>(shaderManager);
@@ -180,16 +180,18 @@ int main()
 	se::graphics::Text testText;
 	se::graphics::TextStyle style;
 	testText.setMaterial(textMaterial);
+	//testText.insert("\n");
+	//testText.insert("|\n");
 	testText.insert("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
 	testText.insert("abcdrfghijklmnopqrstuvwxyz\n");
 	style.color = se::hexColor(se::Red);
 	testText.setStyle(style);
 	testText.insert("1234567890\n");
 	testText.insert(u8"Á\n");
-	testText.setPosition({ -window1.getWidth() * 0.5f + 20.0f, 0.0f, -window1.getHeight() * 0.5f + 50.0f });
+	testText.setPosition({ -window1.getWidth() * 0.5f + 200.0f, 0.0f, -window1.getHeight() * 0.5f + 200.0f });
 	hudScene.add(testText);
 
-	se::graphics::AmbientLight ambientLight(se::hexColor(se::White), 0.1f);
+	se::graphics::AmbientLight ambientLight(se::hexColor(se::White), 0.5f);
 	scene.add(ambientLight);
 
 	se::graphics::PointLight pointLight;
@@ -198,23 +200,23 @@ int main()
 	scene.add(pointLight);
 
 	se::graphics::DirectionalLight sunLight;
-	sunLight.setIntensity(0.3f);
+	sunLight.setIntensity(0.2f);
 	scene.add(sunLight);
 
 	se::graphics::SpotLight spotLight;
-	spotLight.setCone(glm::radians(45.0f), glm::radians(90.0f));
-	spotLight.setRadius(00.1f, 50.0f);
-	spotLight.setPosition({ 0.0f, -5.0f, 0.0f });
+	spotLight.setCone(glm::radians(30.0f), glm::radians(45.0f));
+	spotLight.setRadius(0.1f, 50.0f);
+	spotLight.setPosition({ 0.0f, 0.0f, 0.0f });
 	scene.add(spotLight);
 
 	class ShapeObject
 	{
 	public:
 
-		ShapeObject(se::graphics::Scene& _scene, std::shared_ptr<se::graphics::Material> material)
-			: shape(se::rng::random(3, 11))
+		ShapeObject(se::graphics::Scene& _scene, std::shared_ptr<se::graphics::Material> _material)
+			: shape((se::graphics::ShapeType)se::rng::random(3, 12))
 		{
-			shape.setMaterial(material);
+			shape.setMaterial(_material);
 			_scene.add(shape);
 			shape.setScale(glm::vec3(se::rng::random(0.5f, 2.0f)));
 			//shape.setRenderMode(se::graphics::RenderMode::Static);
@@ -244,6 +246,7 @@ int main()
 
 			shape.setRenderMode((se::graphics::RenderMode)se::rng::random(0, 2));
 			shape.setPrimitiveType((se::graphics::PrimitiveType)se::rng::random(0, 2));
+			shape.setColor(se::randomBrightColor());
 		}
 
 		se::graphics::Shape shape;
@@ -254,23 +257,34 @@ int main()
 	};
 	std::vector<std::unique_ptr<ShapeObject>> objects;
 
-	se::graphics::Shape hudShape(4);
+	se::graphics::Shape hudShape(se::graphics::ShapeType::Square);
 	hudShape.setMaterial(flatMaterial);
 	hudShape.setRenderMode(se::graphics::RenderMode::Dynamic);
 	hudShape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
 	hudShape.setColor(se::hexColor(se::Orange));
 	hudShape.setScale(glm::vec3(20.0f));
-	hudShape.setPosition({ -window1.getWidth() * 0.5f + 20.0f, 0.0f, -window1.getHeight() * 0.5f + 50.0f });
+	hudShape.setPosition({ -window1.getWidth() * 0.5f + 20.0f, 0.0f, -window1.getHeight() * 0.5f + 100.0f });
 	hudScene.add(hudShape);
 
-	se::graphics::Shape planeShape(4);
+	se::graphics::Shape planeShape(se::graphics::ShapeType::Square);
 	planeShape.setMaterial(testMaterial);
 	planeShape.setScale(glm::vec3(50.0f));
 	planeShape.setPosition({ 0.0f, -10.0f, 0.0f });
 	planeShape.setColor(se::Color());
+	//planeShape.setRenderMode(se::graphics::RenderMode::Static);
+	//planeShape.setPrimitiveType(se::graphics::PrimitiveType::Lines);
 	scene.add(planeShape);
 
-	se::Console console;
+	se::graphics::Shape testShape(se::graphics::ShapeType::Ball/*, 8*/);
+	testShape.setMaterial(phongMaterial);
+	testShape.setScale(glm::vec3(3.0f));
+	testShape.setPosition({ 10.0f, -7.0f, 0.0f });
+	testShape.setColor(se::Color(1.5f, 1.5f, 1.5f));
+	//testShape.setRenderMode(se::graphics::RenderMode::Static);
+	//testShape.setPrimitiveType(se::graphics::PrimitiveType::Lines);
+	scene.add(testShape);
+
+	//se::Console console;
 
 	const auto initTime = se::time::now() - initStart;
 	se::log::info("Init time: " + std::to_string(initTime.asSeconds()) + " seconds", se::log::GREEN);
@@ -281,16 +295,17 @@ int main()
 	se::time::Time lastObjectSpawned = se::time::Time::zero;
 	se::time::Time lastObjectDeleted = se::time::Time::zero;
 	se::time::Time lastWindow2Hidden = se::time::Time::zero;
+	se::time::Time frameTimer = se::time::Time::zero;
 	while (true)
 	{
-		if (objects.size() < 100 &&
-			se::time::now() - lastObjectSpawned > se::time::fromSeconds(0.4f))
+		if (objects.size() < 11 &&
+			se::time::now() - lastObjectSpawned > se::time::fromSeconds(0.1f))
 		{
-			objects.emplace_back(std::make_unique<ShapeObject>(scene, phongMaterial));
+			objects.push_back(std::make_unique<ShapeObject>(scene, phongMaterial));
 			lastObjectSpawned = se::time::now();
 		}
-		else if (objects.size() > 0 &&
-				 se::time::now() - lastObjectDeleted > se::time::fromSeconds(1.2f))
+		else if (objects.size() > 10 &&
+				 se::time::now() - lastObjectDeleted > se::time::fromSeconds(0.1f))
 		{
 			objects.erase(objects.begin() + se::rng::random<size_t>(0, objects.size() - 1));
 			lastObjectDeleted = se::time::now();
@@ -350,6 +365,11 @@ int main()
 			object->update(deltaTimeSystem.deltaTime);
 
 		se::graphics::Renderer::debugTextPrintf(1, 1, "frame: %i", frameN++);
+		{
+			const se::time::Time frameTime = se::time::now() - frameTimer;
+			se::graphics::Renderer::debugTextPrintf(1, 2, "frame time: %i", (int)frameTime.asMilliseconds());
+			frameTimer = se::time::now();
+		}
 		renderer.render();
 
 		if (inputManager.isKeyPressed((unsigned)se::input::Key::F5))

@@ -84,7 +84,5 @@ void main()
 		specularColor = specularColor + specularFactor * specularStrength * attenuation * u_LightColor(i);	
 	}
 
-	vec4 outColor = v_color0 * texture2D(s_texColor, v_texcoord0) * vec4(ambientColor + diffuseColor + specularColor, 1.0);
-	vec4 tintColor = vec4(1.0, 0.0, 0.0, outColor.a);
-	gl_FragColor = mix(outColor, tintColor, 0.0003);
+	gl_FragColor = v_color0 * texture2D(s_texColor, v_texcoord0) * vec4(ambientColor + diffuseColor + specularColor, 1.0);
 }
