@@ -19,10 +19,11 @@
 #include "SpehsEngine/Graphics/FontManager.h"
 #include "SpehsEngine/Graphics/GraphicsLib.h"
 #include "SpehsEngine/Graphics/Lights.h"
-#include "SpehsEngine/Graphics/Text.h"
+#include "SpehsEngine/Graphics/Line.h"
 #include "SpehsEngine/Graphics/Renderer.h"
 #include "SpehsEngine/Graphics/Scene.h"
 #include "SpehsEngine/Graphics/Shape.h"
+#include "SpehsEngine/Graphics/Text.h"
 #include "SpehsEngine/Graphics/TextureManager.h"
 #include "SpehsEngine/Graphics/View.h"
 #include "SpehsEngine/Graphics/Window.h"
@@ -163,6 +164,8 @@ int main()
 	genModes.sampleMip = se::graphics::TextureSamplingMode::Point;
 	auto genTexture = textureManager.create("genTest", textureInput, genModes);
 
+	std::shared_ptr<se::graphics::FlatColorMaterial> colorMaterial = std::make_unique<se::graphics::FlatColorMaterial>(shaderManager);
+
 	std::shared_ptr<se::graphics::FlatTextureMaterial> flatMaterial = std::make_unique<se::graphics::FlatTextureMaterial>(shaderManager);
 	flatMaterial->setTexture(genTexture);
 
@@ -191,33 +194,57 @@ int main()
 	testText.setPosition({ -window1.getWidth() * 0.5f + 200.0f, 0.0f, -window1.getHeight() * 0.5f + 200.0f });
 	hudScene.add(testText);
 
-	se::graphics::AmbientLight ambientLight(se::hexColor(se::White), 0.5f);
+	se::graphics::AmbientLight ambientLight(se::hexColor(se::White), 0.2f);
 	scene.add(ambientLight);
 
 	se::graphics::PointLight pointLight;
-	pointLight.setRadius(1.0f, 25.0f);
-	pointLight.setIntensity(0.3f);
+	pointLight.setRadius(5.0f, 10.0f);
+	pointLight.setIntensity(0.5f);
 	scene.add(pointLight);
+	pointLight.setIntensity(0.0f);
+
+	std::shared_ptr<se::graphics::Primitive> pointLightDebugPrimitive = pointLight.getDebugPrimitive();
+	pointLightDebugPrimitive->setMaterial(colorMaterial);
+	scene.add(*pointLightDebugPrimitive.get());
 
 	se::graphics::DirectionalLight sunLight;
 	sunLight.setIntensity(0.2f);
 	scene.add(sunLight);
 
 	se::graphics::SpotLight spotLight;
-	spotLight.setCone(glm::radians(30.0f), glm::radians(45.0f));
-	spotLight.setRadius(0.1f, 50.0f);
+	spotLight.setCone(glm::radians(9.0f), glm::radians(45.0f));
+	spotLight.setRadius(52.0f, 52.0f);
 	spotLight.setPosition({ 0.0f, 0.0f, 0.0f });
 	scene.add(spotLight);
+
+	std::shared_ptr<se::graphics::Primitive> spotLightDebugPrimitive = spotLight.getDebugPrimitive();
+	spotLightDebugPrimitive->setMaterial(colorMaterial);
+	scene.add(*spotLightDebugPrimitive.get());
+
+	se::graphics::PointLight testLight;
+	testLight.setRadius(12.0f, 12.0f);
+	testLight.setIntensity(0.5f);
+	scene.add(testLight);
+
+	std::shared_ptr<se::graphics::Primitive> testLightDebugPrimitive = testLight.getDebugPrimitive();
+	testLightDebugPrimitive->setMaterial(colorMaterial);
+	scene.add(*testLightDebugPrimitive.get());
 
 	class ShapeObject
 	{
 	public:
 
-		ShapeObject(se::graphics::Scene& _scene, std::shared_ptr<se::graphics::Material> _material)
+		ShapeObject(se::graphics::Scene& _scene, std::shared_ptr<se::graphics::Material> _material, std::shared_ptr<se::graphics::Material> _trailMaterial)
 			: shape((se::graphics::ShapeType)se::rng::random(3, 12))
 		{
 			shape.setMaterial(_material);
+			trail.setMaterial(_trailMaterial);
+			trail.setRenderState(false);
 			_scene.add(shape);
+			_scene.add(trail);
+
+			objectColor = se::randomBrightColor();
+			shape.setColor(objectColor);
 			shape.setScale(glm::vec3(se::rng::random(0.5f, 2.0f)));
 			//shape.setRenderMode(se::graphics::RenderMode::Static);
 			//shape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
@@ -230,6 +257,13 @@ int main()
 
 			shape.setPosition(shape.getPosition() + direction * velocity * _deltaTime.asSeconds());
 			shape.setRotation(glm::rotate(shape.getRotation(), angularVelocity * _deltaTime.asSeconds(), axis));
+
+			trailCounter -= _deltaTime;
+			if (velocity > 0.1f && trailCounter <= se::time::Time::zero)
+			{
+				trailCounter = se::time::fromSeconds(0.3f);
+				trail.addPoint(shape.getPosition(), objectColor);
+			}
 
 			if (velocity < 0.0001f && angularVelocity < 0.0001f)
 				init();
@@ -246,10 +280,12 @@ int main()
 
 			shape.setRenderMode((se::graphics::RenderMode)se::rng::random(0, 2));
 			shape.setPrimitiveType((se::graphics::PrimitiveType)se::rng::random(0, 2));
-			shape.setColor(se::randomBrightColor());
 		}
 
 		se::graphics::Shape shape;
+		se::graphics::Line trail;
+		se::time::Time trailCounter;
+		se::Color objectColor;
 		glm::vec3 direction;
 		glm::vec3 axis;
 		float velocity;
@@ -266,23 +302,41 @@ int main()
 	hudShape.setPosition({ -window1.getWidth() * 0.5f + 20.0f, 0.0f, -window1.getHeight() * 0.5f + 100.0f });
 	hudScene.add(hudShape);
 
-	se::graphics::Shape planeShape(se::graphics::ShapeType::Square);
+	se::graphics::Shape planeShape(se::graphics::ShapeType::Cube);
+	planeShape.disableRenderFlag(se::graphics::RenderFlag::CullBackFace);
+	planeShape.enableRenderFlag(se::graphics::RenderFlag::CullFrontFace);
 	planeShape.setMaterial(testMaterial);
 	planeShape.setScale(glm::vec3(50.0f));
-	planeShape.setPosition({ 0.0f, -10.0f, 0.0f });
+	planeShape.setPosition({ 0.0f, 0.0f, 0.0f });
 	planeShape.setColor(se::Color());
 	//planeShape.setRenderMode(se::graphics::RenderMode::Static);
 	//planeShape.setPrimitiveType(se::graphics::PrimitiveType::Lines);
 	scene.add(planeShape);
 
-	se::graphics::Shape testShape(se::graphics::ShapeType::Ball/*, 8*/);
+	se::graphics::Shape testShape(se::graphics::ShapeType::Sphere/*, 8*/);
 	testShape.setMaterial(phongMaterial);
 	testShape.setScale(glm::vec3(3.0f));
 	testShape.setPosition({ 10.0f, -7.0f, 0.0f });
-	testShape.setColor(se::Color(1.5f, 1.5f, 1.5f));
+	//testShape.setColor(se::Color(1.5f, 1.5f, 1.5f));
 	//testShape.setRenderMode(se::graphics::RenderMode::Static);
 	//testShape.setPrimitiveType(se::graphics::PrimitiveType::Lines);
 	scene.add(testShape);
+
+	se::graphics::Line originX;
+	originX.addPoint(glm::vec3(0.0f), se::hexColor(se::HexColor::Red));
+	originX.addPoint(glm::vec3(1.0f, 0.0f, 0.0f), se::hexColor(se::HexColor::Red));
+	originX.setMaterial(colorMaterial);
+	scene.add(originX);
+	se::graphics::Line originZ;
+	originZ.addPoint(glm::vec3(0.0f), se::hexColor(se::HexColor::Green));
+	originZ.addPoint(glm::vec3(0.0f, 0.0f, 1.0f), se::hexColor(se::HexColor::Green));
+	originZ.setMaterial(colorMaterial);
+	scene.add(originZ);
+	se::graphics::Line originY;
+	originY.addPoint(glm::vec3(0.0f), se::hexColor(se::HexColor::Blue));
+	originY.addPoint(glm::vec3(0.0f, 1.0f, 0.0f), se::hexColor(se::HexColor::Blue));
+	originY.setMaterial(colorMaterial);
+	scene.add(originY);
 
 	//se::Console console;
 
@@ -298,14 +352,13 @@ int main()
 	se::time::Time frameTimer = se::time::Time::zero;
 	while (true)
 	{
-		if (objects.size() < 11 &&
+		if (objects.size() < 30 &&
 			se::time::now() - lastObjectSpawned > se::time::fromSeconds(0.1f))
 		{
-			objects.push_back(std::make_unique<ShapeObject>(scene, phongMaterial));
+			objects.push_back(std::make_unique<ShapeObject>(scene, phongMaterial, colorMaterial));
 			lastObjectSpawned = se::time::now();
 		}
-		else if (objects.size() > 10 &&
-				 se::time::now() - lastObjectDeleted > se::time::fromSeconds(0.1f))
+		else if (objects.size() > 10 && se::time::now() - lastObjectDeleted > se::time::fromSeconds(5.0f))
 		{
 			objects.erase(objects.begin() + se::rng::random<size_t>(0, objects.size() - 1));
 			lastObjectDeleted = se::time::now();
@@ -321,17 +374,18 @@ int main()
 				window2.remove(observerView2);
 				window2.setName("SpehsEngineDemo 2 (observerView2 inactive)");
 			}
-
-			//const auto displaySize = renderer.getDisplaySize();
-			//window1.setX(se::rng::random(0, displaySize.x - window1.getWidth()));
-			//window1.setY(se::rng::random(0, displaySize.y - window1.getHeight()));
 		}
 
 		{
 			const double timeNowSeconds = se::time::now().asSeconds<double>();
-			pointLight.setPosition(glm::vec3(0.0f, (float)abs(sin(timeNowSeconds * 0.5)) * 10.0f, 0.0f));
+			pointLight.setPosition(glm::vec3(0.0f, -6.0f + (float)abs(sin(timeNowSeconds * 0.5)) * 6.0f, 0.0f));
+			pointLight.setRadius(pointLight.getInnerRadius(), 15.0f + 10.0f * fabsf((float)sin(timeNowSeconds * 0.3)));
 			sunLight.setDirection(glm::vec3((float)sin(timeNowSeconds * 0.2) * 0.5f, -1.0f, (float)cos(timeNowSeconds * 0.2) * 0.5f));
-			spotLight.setDirection(glm::vec3((float)sin(timeNowSeconds * 0.4) * 0.6f, -1.0f, (float)cos(timeNowSeconds * 0.4) * 0.6f));
+
+			const glm::vec3 direction = glm::vec3((float)sin(timeNowSeconds * 0.4) * 0.5f, (float)cos(timeNowSeconds * 0.2) * 1.0f, (float)cos(timeNowSeconds * 0.3) * 0.5f);
+			spotLight.setDirection(direction);
+			const float cone = glm::radians(10.0f + 50.0f * fabsf((float)sin(timeNowSeconds * 0.3)));
+			spotLight.setCone(cone, cone);
 		}
 
 		if (window2.isQuitRequested())

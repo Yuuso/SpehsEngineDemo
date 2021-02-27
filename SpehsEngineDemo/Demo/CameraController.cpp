@@ -25,7 +25,7 @@ CameraController::CameraController(const se::graphics::Window& _window, se::grap
 
 void CameraController::update(const se::time::Time _deltaTime)
 {
-	static constexpr float MOVEMENT_SPEED = 10.0f;
+	static constexpr float MOVEMENT_SPEED = 17.0f;
 	static constexpr float ROTATION_SPEED = 0.1f;
 	static constexpr float TILT_SPEED = 0.4f;
 
