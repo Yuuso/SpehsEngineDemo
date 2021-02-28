@@ -3,7 +3,7 @@
 SETLOCAL
 CD /D %~dp0
 
-SET BUILD_SHADER=%SPEHSENGINE_ROOT%\tools\build_shader.bat
+SET BUILD_SHADER=%SPEHSENGINE_ROOT%\scripts\build_shader.bat
 SET SHADER_DATA_DIR=%CD%\..\..\bin\data\shaders
 SET EMBEDDED_PATH=%SPEHSENGINE_ROOT%\SpehsEngine\Graphics\EmbeddedShaders\source
 

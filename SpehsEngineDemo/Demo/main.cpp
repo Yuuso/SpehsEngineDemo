@@ -424,6 +424,12 @@ int main()
 			se::graphics::Renderer::debugTextPrintf(1, 2, "frame time: %i", (int)frameTime.asMilliseconds());
 			frameTimer = se::time::now();
 		}
+
+		if (inputManager.isKeyPressed((unsigned)se::input::Key::F8))
+		{
+			window1.requestScreenShot("screenshot_" + std::to_string(frameN));
+		}
+
 		renderer.render();
 
 		if (inputManager.isKeyPressed((unsigned)se::input::Key::F5))
