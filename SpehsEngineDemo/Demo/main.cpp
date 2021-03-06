@@ -348,8 +348,6 @@ int main()
 	scene.add(originY);
 
 	se::graphics::Model testModel;
-	while(!testModelData->ready())
-		modelDataManager.update();
 	testModel.loadModelData(testModelData);
 	testModel.setMaterial(phongMaterial);
 	scene.add(testModel);
@@ -467,10 +465,6 @@ int main()
 			se::log::info("Reloading textures and models...", se::log::TextColor::BLUE);
 			textureManager.reload();
 			modelDataManager.reload();
-			while (!testModelData->ready())
-				modelDataManager.update();
-			testModel.reloadModeData();
-			scene.add(testModel);
 		}
 
 		if (inputManager.isQuitRequested())
