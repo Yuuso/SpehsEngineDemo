@@ -59,3 +59,14 @@ public:
 		return DATA_PATH + "fonts/" + _resource;
 	}
 };
+
+
+class ModelPathFinder : public se::graphics::ResourcePathFinder
+{
+public:
+
+	std::string getPath(const std::string_view _resource) const override
+	{
+		return DATA_PATH + "models/" + _resource;
+	}
+};

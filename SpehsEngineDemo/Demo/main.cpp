@@ -20,6 +20,8 @@
 #include "SpehsEngine/Graphics/GraphicsLib.h"
 #include "SpehsEngine/Graphics/Lights.h"
 #include "SpehsEngine/Graphics/Line.h"
+#include "SpehsEngine/Graphics/Model.h"
+#include "SpehsEngine/Graphics/ModelDataManager.h"
 #include "SpehsEngine/Graphics/Renderer.h"
 #include "SpehsEngine/Graphics/Scene.h"
 #include "SpehsEngine/Graphics/Shape.h"
@@ -125,6 +127,7 @@ int main()
 	se::graphics::DefaultShaderManager shaderManager;
 	se::graphics::TextureManager textureManager;
 	se::graphics::FontManager fontManager;
+	se::graphics::ModelDataManager modelDataManager;
 
 	std::shared_ptr<ShaderPathFinder> shaderPathFinder = std::make_shared<ShaderPathFinder>();
 	shaderManager.setResourcePathFinder(shaderPathFinder);
@@ -138,6 +141,10 @@ int main()
 	fontManager.setResourcePathFinder(fontPathFinder);
 	fontManager.setResourceLoader(resourceLoader);
 
+	std::shared_ptr<ModelPathFinder> modelPathFinder = std::make_shared<ModelPathFinder>();
+	modelDataManager.setResourcePathFinder(modelPathFinder);
+	modelDataManager.setResourceLoader(resourceLoader);
+
 	auto testShader = shaderManager.create("test", "vs_test.bin", "fs_test.bin");
 
 	auto testColor = textureManager.create("testColor", "test_color.png");
@@ -150,6 +157,8 @@ int main()
 	//	std::this_thread::sleep_for(std::chrono::seconds(1));
 	//}
 	//auto testFontTexture = testFont->getDebugTexture();
+
+	auto testModelData = modelDataManager.create("test", "test.fbx");
 
 	se::graphics::TextureInput textureInput;
 	textureInput.width = 2;
@@ -278,7 +287,7 @@ int main()
 			velocity = se::rng::random(3.0f, 6.0f);
 			angularVelocity = se::rng::random(5.0f, 15.0f);
 
-			shape.setRenderMode((se::graphics::RenderMode)se::rng::random(0, 2));
+			//shape.setRenderMode((se::graphics::RenderMode)se::rng::random(0, 1));
 			shape.setPrimitiveType((se::graphics::PrimitiveType)se::rng::random(0, 2));
 		}
 
@@ -328,15 +337,22 @@ int main()
 	originX.setMaterial(colorMaterial);
 	scene.add(originX);
 	se::graphics::Line originZ;
-	originZ.addPoint(glm::vec3(0.0f), se::hexColor(se::HexColor::Green));
-	originZ.addPoint(glm::vec3(0.0f, 0.0f, 1.0f), se::hexColor(se::HexColor::Green));
+	originZ.addPoint(glm::vec3(0.0f), se::hexColor(se::HexColor::Blue));
+	originZ.addPoint(glm::vec3(0.0f, 0.0f, 1.0f), se::hexColor(se::HexColor::Blue));
 	originZ.setMaterial(colorMaterial);
 	scene.add(originZ);
 	se::graphics::Line originY;
-	originY.addPoint(glm::vec3(0.0f), se::hexColor(se::HexColor::Blue));
-	originY.addPoint(glm::vec3(0.0f, 1.0f, 0.0f), se::hexColor(se::HexColor::Blue));
+	originY.addPoint(glm::vec3(0.0f), se::hexColor(se::HexColor::Green));
+	originY.addPoint(glm::vec3(0.0f, 1.0f, 0.0f), se::hexColor(se::HexColor::Green));
 	originY.setMaterial(colorMaterial);
 	scene.add(originY);
+
+	se::graphics::Model testModel;
+	while(!testModelData->ready())
+		modelDataManager.update();
+	testModel.loadModelData(testModelData);
+	testModel.setMaterial(phongMaterial);
+	scene.add(testModel);
 
 	//se::Console console;
 
@@ -386,6 +402,11 @@ int main()
 			spotLight.setDirection(direction);
 			const float cone = glm::radians(10.0f + 50.0f * fabsf((float)sin(timeNowSeconds * 0.3)));
 			spotLight.setCone(cone, cone);
+
+
+			testModel.setPosition({ (float)cos(timeNowSeconds * 0.2), (float)sin(timeNowSeconds * 0.2), (float)cos(timeNowSeconds * 0.2) });
+			testModel.setScale(glm::vec3(0.5f + fabsf((float)sin(timeNowSeconds * 0.3))));
+			testModel.setRotation(glm::quatLookAt(glm::normalize(direction), glm::vec3(0.0f, 1.0f, 0.0f)));
 		}
 
 		if (window2.isQuitRequested())
@@ -408,6 +429,7 @@ int main()
 		shaderManager.update();
 		textureManager.update();
 		fontManager.update();
+		modelDataManager.update();
 
 		eventCatcher.pollEvents();
 		eventSignaler.signalEvents(eventCatcher);
@@ -418,10 +440,11 @@ int main()
 		for (auto&& object : objects)
 			object->update(deltaTimeSystem.deltaTime);
 
-		se::graphics::Renderer::debugTextPrintf(1, 1, "frame: %i", frameN++);
+		se::graphics::Renderer::debugTextPrintf(1, 1, "loading: %u", resourceLoader->numTasksLeft());
+		se::graphics::Renderer::debugTextPrintf(1, 2, "frame: %i", frameN++);
 		{
 			const se::time::Time frameTime = se::time::now() - frameTimer;
-			se::graphics::Renderer::debugTextPrintf(1, 2, "frame time: %i", (int)frameTime.asMilliseconds());
+			se::graphics::Renderer::debugTextPrintf(1, 3, "frame time: %i", (int)frameTime.asMilliseconds());
 			frameTimer = se::time::now();
 		}
 
@@ -441,8 +464,13 @@ int main()
 
 		if (inputManager.isKeyPressed((unsigned)se::input::Key::F4))
 		{
-			se::log::info("Reloading textures...", se::log::TextColor::BLUE);
+			se::log::info("Reloading textures and models...", se::log::TextColor::BLUE);
 			textureManager.reload();
+			modelDataManager.reload();
+			while (!testModelData->ready())
+				modelDataManager.update();
+			testModel.reloadModeData();
+			scene.add(testModel);
 		}
 
 		if (inputManager.isQuitRequested())
