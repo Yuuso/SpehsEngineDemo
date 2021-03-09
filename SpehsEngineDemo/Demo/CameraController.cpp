@@ -2,6 +2,7 @@
 #include "CameraController.h"
 
 #include "boost/bind.hpp"
+#include "SpehsEngine/Input/MouseUtilityFunctions.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/common.hpp"
@@ -25,11 +26,15 @@ CameraController::CameraController(const se::graphics::Window& _window, se::grap
 
 void CameraController::update(const se::time::Time _deltaTime)
 {
-	static constexpr float MOVEMENT_SPEED = 17.0f;
-	static constexpr float ROTATION_SPEED = 0.1f;
+	static constexpr float MOVEMENT_SPEED = 12.0f;
+	static constexpr float ROTATION_SPEED = 0.08f;
 	static constexpr float TILT_SPEED = 0.4f;
 
-	const glm::vec3 position = camera.getPosition() + movement * MOVEMENT_SPEED * _deltaTime.asSeconds();
+	float moveSpeed = MOVEMENT_SPEED;
+	if (boosting)
+		moveSpeed *= 3;
+
+	const glm::vec3 position = camera.getPosition() + movement * moveSpeed * _deltaTime.asSeconds();
 	const glm::vec3 direction = glm::rotate(glm::rotate(camera.getDirection	(), rotation.y * ROTATION_SPEED * _deltaTime.asSeconds(), -camera.getLeft()),
 																			   rotation.x * ROTATION_SPEED * _deltaTime.asSeconds(), -camera.getUp());
 	const glm::vec3 up = glm::rotate(glm::normalize(glm::cross(direction, camera.getLeft())), tilt * TILT_SPEED * _deltaTime.asSeconds(), direction);
@@ -37,6 +42,16 @@ void CameraController::update(const se::time::Time _deltaTime)
 	camera.setDirection(direction);
 	camera.setPosition(position);
 	camera.setUp(up);
+
+	if (mouseButtonReleaseConnection.connected())
+	{
+		se::input::setShowCursor(false);
+		se::input::setMousePosition({ window.getWidth() / 2, window.getHeight() / 2 });
+	}
+	else
+	{
+		se::input::setShowCursor(true);
+	}
 }
 
 void CameraController::preUpdateCallback()
@@ -45,6 +60,7 @@ void CameraController::preUpdateCallback()
 	movement = glm::mix(movement, glm::vec3(0.0f), 0.2f);
 	rotation = glm::mix(rotation, glm::vec2(0.0f), 0.2f);
 	tilt = glm::mix(tilt, 0.0f, 0.2f);
+	boosting = false;
 }
 void CameraController::postUpdateCallback()
 {
@@ -92,6 +108,9 @@ bool CameraController::keyboardDownCallback(const se::input::KeyboardDownEvent& 
 		case se::input::Key::E:
 			tilt += 1.0f;
 			return true;
+		case se::input::Key::LSHIFT:
+			boosting = true;
+			return true;
 	}
 	return false;
 }
@@ -102,6 +121,7 @@ bool CameraController::mouseButtonPressCallback(const se::input::MouseButtonPres
 	switch (_event.button)
 	{
 		case se::input::MouseButton::right:
+			savedMousePos = se::input::getMousePosition();
 			eventSignaler.connectToMouseButtonReleaseSignal(mouseButtonReleaseConnection, boost::bind(&CameraController::mouseButtonReleaseCallback, this, boost::placeholders::_1), 0);
 			return true;
 	}
@@ -115,6 +135,7 @@ bool CameraController::mouseButtonReleaseCallback(const se::input::MouseButtonRe
 	{
 		case se::input::MouseButton::right:
 			mouseButtonReleaseConnection.disconnect();
+			se::input::setMousePosition(savedMousePos);
 			return true;
 	}
 	return false;
@@ -126,7 +147,7 @@ bool CameraController::mouseMotionCallback(const se::input::MouseMotionEvent& _e
 	if (mouseButtonReleaseConnection.connected()
 		&& receivingHover)
 	{
-		rotation += _event.translation;
+		rotation += _event.position - glm::vec2(window.getWidth() / 2.0f, window.getHeight() / 2.0f);
 		return true;
 	}
 	return false;

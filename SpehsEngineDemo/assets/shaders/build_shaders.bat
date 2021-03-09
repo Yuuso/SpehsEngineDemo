@@ -10,6 +10,7 @@ SET EMBEDDED_PATH=%SPEHSENGINE_ROOT%\SpehsEngine\Graphics\EmbeddedShaders\source
 
 REM Copy shader includes
 XCOPY %EMBEDDED_PATH%\*.sh /y
+XCOPY %EMBEDDED_PATH%\varying.def.sc /y
 
 
 REM Clear old shaders

@@ -34,6 +34,8 @@ private:
 	glm::vec2 rotation = glm::vec2(0.0f);
 	float tilt = 0.0f;
 	bool receivingHover = false;
+	bool boosting = false;
+	glm::ivec2 savedMousePos;
 
 	boost::signals2::scoped_connection preUpdateConnection;
 	boost::signals2::scoped_connection postUpdateConnection;
