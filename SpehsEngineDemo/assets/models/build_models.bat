@@ -13,6 +13,8 @@ MKDIR %TARGET_LOC%
 XCOPY *.fbx %TARGET_LOC%\ /y
 XCOPY *.dae %TARGET_LOC%\ /y
 XCOPY *.obj %TARGET_LOC%\ /y
+XCOPY *.gltf %TARGET_LOC%\ /y
+XCOPY *.glb %TARGET_LOC%\ /y
 
 
 PAUSE

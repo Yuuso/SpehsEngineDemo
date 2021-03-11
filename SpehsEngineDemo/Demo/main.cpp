@@ -156,7 +156,8 @@ int main()
 	auto testFont = fontManager.create("test", "open-sans.regular.ttf", se::graphics::FontSize(32, se::graphics::FontSizeType::Pixel), se::graphics::defaultCharacterSet);
 
 	auto testModelData = modelDataManager.create("test", "test.fbx");
-	auto animModelData = modelDataManager.create("anim", "walking_cube.fbx");
+	auto animModelData = modelDataManager.create("anim", "walking_cube.gltf");
+	auto jumpModelData = modelDataManager.create("jump", "jumping_cube.glb");
 	auto icosphereModelData = modelDataManager.create("ico", "icosphere.fbx");
 
 	se::graphics::TextureModes genModes;
@@ -408,9 +409,17 @@ int main()
 	se::graphics::Model animModel;
 	animModel.loadModelData(animModelData);
 	animModel.setMaterial(testMaterial);
-	animModel.setColor(se::hexColor(se::HexColor::PaleGoldenrod));
 	animModel.setPosition(glm::vec3(0.0f, -20.0f, 0.0f));
+	animModel.startAnimation("Walk");
 	scene.add(animModel);
+
+	se::graphics::Model jumpModel;
+	jumpModel.loadModelData(jumpModelData);
+	jumpModel.setMaterial(flatPhongMaterial);
+	jumpModel.setColor(se::hexColor(se::HexColor::Coral));
+	jumpModel.setPosition(glm::vec3(15.0f, -25.0f, 15.0f));
+	jumpModel.startAnimation("Jump");
+	scene.add(jumpModel);
 
 	//se::Console console;
 
