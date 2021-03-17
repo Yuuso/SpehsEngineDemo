@@ -63,7 +63,7 @@ int main()
 	window1.setHeight(900);
 	se::graphics::Renderer renderer(window1, se::graphics::RendererFlag::VSync
 										   | se::graphics::RendererFlag::MSAA2
-										   //, se::graphics::RendererBackend::OpenGL
+										   //, se::graphics::RendererBackend::OpenGLES
 									);
 
 	se::graphics::Scene scene;
@@ -122,7 +122,7 @@ int main()
 
 	CameraController cameraController(window1, camera, eventSignaler);
 
-	std::shared_ptr<se::graphics::ResourceLoader> resourceLoader = se::graphics::makeResourceLoader(4);
+	std::shared_ptr<se::graphics::ResourceLoader> resourceLoader = se::graphics::makeResourceLoader(8);
 
 	se::graphics::DefaultShaderManager shaderManager;
 	se::graphics::TextureManager textureManager;
@@ -145,10 +145,13 @@ int main()
 	modelDataManager.setResourcePathFinder(modelPathFinder);
 	modelDataManager.setResourceLoader(resourceLoader);
 
-	auto testShader = shaderManager.create("test", "vs_test.bin", "fs_test.bin");
+	shaderManager.create("test", "vs_test.bin", "fs_test.bin");
+	shaderManager.create("test_anim", "vs_test_anim.bin", "fs_test.bin");
 
 	auto testColor = textureManager.create("testColor", "test_color.png");
 	auto testNormal = textureManager.create("testNormal", "test_normal.png");
+
+	auto demonColor = textureManager.create("balldemon", "balldemon.png");
 
 	auto stoneColor = textureManager.create("stoneColor", "stone_color.png");
 	auto stoneNormal = textureManager.create("stoneNormal", "stone_normal.png");
@@ -158,7 +161,10 @@ int main()
 	auto testModelData = modelDataManager.create("test", "test.fbx");
 	auto animModelData = modelDataManager.create("anim", "walking_cube.gltf");
 	auto jumpModelData = modelDataManager.create("jump", "jumping_cube.glb");
+	auto demonModelData = modelDataManager.create("demon", "ball_demon.gltf");
+	auto rotorTestModelData = modelDataManager.create("rotortest", "rotor_test.glb");
 	auto icosphereModelData = modelDataManager.create("ico", "icosphere.fbx");
+	auto simpleModelData = modelDataManager.create("simple", "simple.gltf");
 
 	se::graphics::TextureModes genModes;
 	genModes.sampleMin = se::graphics::TextureSamplingMode::Point;
@@ -199,9 +205,21 @@ int main()
 	phongMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
 	phongMaterial->setTexture(se::graphics::PhongTextureType::Normal, testNormal);
 
+	std::shared_ptr<se::graphics::SkinnedPhongMaterial> skinnedPhongMaterial = std::make_unique<se::graphics::SkinnedPhongMaterial>(shaderManager);
+	skinnedPhongMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
+	skinnedPhongMaterial->setTexture(se::graphics::PhongTextureType::Normal, testNormal);
+
 	std::shared_ptr<TestMaterial> testMaterial = std::make_unique<TestMaterial>(shaderManager);
 	testMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
 	testMaterial->setTexture(se::graphics::PhongTextureType::Normal, testNormal);
+
+	std::shared_ptr<AnimMaterial> animMaterial = std::make_unique<AnimMaterial>(shaderManager);
+	animMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
+	animMaterial->setTexture(se::graphics::PhongTextureType::Normal, testNormal);
+
+	std::shared_ptr<AnimMaterial> demonMaterial = std::make_unique<AnimMaterial>(shaderManager);
+	demonMaterial->setTexture(se::graphics::PhongTextureType::Color, demonColor);
+	demonMaterial->setTexture(se::graphics::PhongTextureType::Normal, flatNormalTexture);
 
 	std::shared_ptr<TestMaterial> stoneMaterial = std::make_unique<TestMaterial>(shaderManager);
 	stoneMaterial->setTexture(se::graphics::PhongTextureType::Color, stoneColor);
@@ -254,7 +272,7 @@ int main()
 
 
 	se::graphics::SpotLight cameraLight;
-	cameraLight.setCone(glm::radians(19.0f), glm::radians(20.0f));
+	cameraLight.setCone(glm::radians(29.0f), glm::radians(40.0f));
 	cameraLight.setRadius(0.0f, 100.0f);
 	scene.add(cameraLight);
 
@@ -271,7 +289,7 @@ int main()
 		{
 			shape.setMaterial(_material);
 			trail.setMaterial(_trailMaterial);
-			trail.enableRenderFlag(se::graphics::RenderFlag::Blending);
+			trail.enableRenderFlags(se::graphics::RenderFlag::Blending);
 			trail.setRenderState(false);
 			_scene.add(shape);
 			_scene.add(trail);
@@ -313,9 +331,9 @@ int main()
 			angularVelocity = se::rng::random(5.0f, 15.0f);
 
 			//shape.setRenderMode((se::graphics::RenderMode)se::rng::random(0, 1));
-			shape.setPrimitiveType((se::graphics::PrimitiveType)se::rng::random(0, 2), shapeGenerator);
+			shape.setPrimitiveType((se::graphics::PrimitiveType)se::rng::random(1, 3), shapeGenerator);
 			shape.generate((se::graphics::ShapeType)se::rng::random(3, 13), shapeParams, &shapeGenerator);
-			shape.disableRenderFlag(se::graphics::RenderFlag::CullBackFace);
+			shape.disableRenderFlags(se::graphics::RenderFlag::CullBackFace);
 
 			trail.addPoint(shape.getPosition());
 		}
@@ -353,8 +371,8 @@ int main()
 	boxShapeParams.generateTangents = true;
 	se::graphics::Shape boxShape;
 	boxShape.generate(se::graphics::ShapeType::Cube, boxShapeParams, &shapeGenerator);
-	boxShape.disableRenderFlag(se::graphics::RenderFlag::CullBackFace);
-	boxShape.enableRenderFlag(se::graphics::RenderFlag::CullFrontFace);
+	boxShape.disableRenderFlags(se::graphics::RenderFlag::CullBackFace);
+	boxShape.enableRenderFlags(se::graphics::RenderFlag::CullFrontFace);
 	boxShape.setMaterial(testMaterial);
 	boxShape.setScale(glm::vec3(50.0f));
 	boxShape.setPosition({ 0.0f, 0.0f, 0.0f });
@@ -364,7 +382,7 @@ int main()
 
 	se::graphics::Shape planeShape;
 	planeShape.generate(se::graphics::ShapeType::Square, defaultShapeParams, &shapeGenerator);
-	planeShape.disableRenderFlag(se::graphics::RenderFlag::CullBackFace);
+	planeShape.disableRenderFlags(se::graphics::RenderFlag::CullBackFace);
 	planeShape.setMaterial(stoneMaterial);
 	planeShape.setScale(glm::vec3(20.0f));
 	scene.add(planeShape);
@@ -420,6 +438,26 @@ int main()
 	jumpModel.setPosition(glm::vec3(15.0f, -25.0f, 15.0f));
 	jumpModel.startAnimation("Jump");
 	scene.add(jumpModel);
+
+	se::graphics::Model ballTestModel;
+	ballTestModel.loadModelData(rotorTestModelData);
+	ballTestModel.setMaterial(phongMaterial);
+	ballTestModel.setPosition(glm::vec3(-15.0f, -25.0f, -15.0f));
+	ballTestModel.startAnimation("rotor_move.L");
+	scene.add(ballTestModel);
+
+	se::graphics::Model demonModel;
+	demonModel.loadModelData(demonModelData);
+	demonModel.setMaterial(demonMaterial);
+	demonModel.setPosition(glm::vec3(-15.0f, -25.0f, 15.0f));
+	scene.add(demonModel);
+
+	se::graphics::Model simpleModel;
+	simpleModel.loadModelData(simpleModelData);
+	simpleModel.setMaterial(skinnedPhongMaterial);
+	simpleModel.setPosition(glm::vec3(-15.0f, -25.0f, 0.0f));
+	simpleModel.startAnimation("Wobble");
+	scene.add(simpleModel);
 
 	//se::Console console;
 
@@ -521,6 +559,15 @@ int main()
 			const se::time::Time frameTime = se::time::now() - frameTimer;
 			se::graphics::Renderer::debugTextPrintf(1, 3, "frame time: %i", (int)frameTime.asMilliseconds());
 			frameTimer = se::time::now();
+		}
+
+		if (inputManager.isKeyDown((unsigned)se::input::Key::SPACE))
+		{
+			demonModel.startAnimation("Run");
+		}
+		else
+		{
+			demonModel.startAnimation("Idle");
 		}
 
 		if (inputManager.isKeyPressed((unsigned)se::input::Key::F8))

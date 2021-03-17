@@ -13,3 +13,10 @@ public:
 
 	TestMaterial(se::graphics::DefaultShaderManager& _shaderManager);
 };
+
+class AnimMaterial : public se::graphics::PhongMaterial
+{
+public:
+
+	AnimMaterial(se::graphics::DefaultShaderManager& _shaderManager);
+};

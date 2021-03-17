@@ -1,6 +1,5 @@
 $input v_position, v_normal, v_tangent, v_bitangent, v_texcoord0
 
-#include "bgfx_shader.sh"
 #include "se_shader.sh"
 #include "se_lights.sh"
 #include "se_materials.sh"
