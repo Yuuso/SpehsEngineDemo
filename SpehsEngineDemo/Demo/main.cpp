@@ -232,6 +232,8 @@ int main()
 	std::shared_ptr<se::graphics::TextMaterial> textMaterial = std::make_unique<se::graphics::TextMaterial>(shaderManager);
 	textMaterial->setFont(testFont);
 
+	testFont->waitUntilReady();
+
 	se::graphics::Text testText;
 	se::graphics::TextStyle style;
 	testText.setMaterial(textMaterial);
@@ -529,7 +531,7 @@ int main()
 			window2.show();
 		}
 
-		deltaTimeSystem.deltaTimeSystemUpdate();
+		deltaTimeSystem.update();
 		//inifile.update();
 
 		shaderManager.update();
@@ -561,13 +563,20 @@ int main()
 			frameTimer = se::time::now();
 		}
 
+		constexpr se::time::Time animFade = se::time::fromMilliseconds(500);
 		if (inputManager.isKeyDown((unsigned)se::input::Key::SPACE))
 		{
-			demonModel.startAnimation("Run");
+			if (!demonModel.isAnimationActive("Run"))
+			{
+				demonModel.stopAnimations(animFade);
+				demonModel.startAnimation("Run", animFade);
+				demonModel.setAnimationSpeed(2.0f, "Run");
+			}
 		}
-		else
+		else if (!demonModel.isAnimationActive("Idle"))
 		{
-			demonModel.startAnimation("Idle");
+			demonModel.stopAnimations(animFade);
+			demonModel.startAnimation("Idle", animFade);
 		}
 
 		if (inputManager.isKeyPressed((unsigned)se::input::Key::F8))
