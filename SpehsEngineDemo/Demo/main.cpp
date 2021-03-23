@@ -70,6 +70,7 @@ int main()
 	se::graphics::Camera camera;
 	se::graphics::View view(scene, camera);
 	window1.add(view);
+	camera.setFar(50000.0f);
 	//camera.setProjection(se::graphics::Projection::Orthographic);
 	//camera.setZoom(0.01f);
 
@@ -208,6 +209,10 @@ int main()
 	std::shared_ptr<se::graphics::SkinnedPhongMaterial> skinnedPhongMaterial = std::make_unique<se::graphics::SkinnedPhongMaterial>(shaderManager);
 	skinnedPhongMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
 	skinnedPhongMaterial->setTexture(se::graphics::PhongTextureType::Normal, testNormal);
+
+	std::shared_ptr<se::graphics::InstancedPhongMaterial> instancedPhongMaterial = std::make_unique<se::graphics::InstancedPhongMaterial>(shaderManager);
+	instancedPhongMaterial->setTexture(se::graphics::PhongTextureType::Color, whiteTexture);
+	instancedPhongMaterial->setTexture(se::graphics::PhongTextureType::Normal, flatNormalTexture);
 
 	std::shared_ptr<TestMaterial> testMaterial = std::make_unique<TestMaterial>(shaderManager);
 	testMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
@@ -461,6 +466,23 @@ int main()
 	simpleModel.startAnimation("Wobble");
 	scene.add(simpleModel);
 
+	se::graphics::Shape instanceShape;
+	instanceShape.generate(se::graphics::ShapeType::Cube, defaultShapeParams, &shapeGenerator);
+	instanceShape.setMaterial(instancedPhongMaterial);
+	std::shared_ptr<se::graphics::InstanceBuffer> shapeInstances = std::make_shared<se::graphics::InstanceBuffer>();
+	constexpr int size = 25;
+	shapeInstances->resize(size * size);
+	size_t index = 0;
+	for (int x = -size/2; x < size/2; x++)
+	for (int z = -size/2; z < size/2; z++)
+	{
+		se::graphics::InstanceData data;
+		data.position = glm::vec3((float)x * 3.0f, -100.0f, (float)z * 3.0f);
+		shapeInstances->set(index++, data);
+	}
+	instanceShape.setInstances(shapeInstances);
+	scene.add(instanceShape);
+
 	//se::Console console;
 
 	const auto initTime = se::time::now() - initStart;
@@ -563,20 +585,21 @@ int main()
 			frameTimer = se::time::now();
 		}
 
-		constexpr se::time::Time animFade = se::time::fromMilliseconds(500);
+		constexpr se::time::Time runFade = se::time::fromMilliseconds(400);
+		constexpr se::time::Time idleFade = se::time::fromMilliseconds(200);
 		if (inputManager.isKeyDown((unsigned)se::input::Key::SPACE))
 		{
 			if (!demonModel.isAnimationActive("Run"))
 			{
-				demonModel.stopAnimations(animFade);
-				demonModel.startAnimation("Run", animFade);
+				demonModel.stopAnimations(runFade);
+				demonModel.startAnimation("Run", runFade);
 				demonModel.setAnimationSpeed(2.0f, "Run");
 			}
 		}
 		else if (!demonModel.isAnimationActive("Idle"))
 		{
-			demonModel.stopAnimations(animFade);
-			demonModel.startAnimation("Idle", animFade);
+			demonModel.stopAnimations(idleFade);
+			demonModel.startAnimation("Idle", idleFade);
 		}
 
 		if (inputManager.isKeyPressed((unsigned)se::input::Key::F8))
