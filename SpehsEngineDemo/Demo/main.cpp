@@ -214,6 +214,10 @@ int main()
 	instancedPhongMaterial->setTexture(se::graphics::PhongTextureType::Color, whiteTexture);
 	instancedPhongMaterial->setTexture(se::graphics::PhongTextureType::Normal, flatNormalTexture);
 
+	std::shared_ptr<se::graphics::SkinnedInstancedPhongMaterial> skinnedInstancedPhongMaterial = std::make_unique<se::graphics::SkinnedInstancedPhongMaterial>(shaderManager);
+	skinnedInstancedPhongMaterial->setTexture(se::graphics::PhongTextureType::Color, whiteTexture);
+	skinnedInstancedPhongMaterial->setTexture(se::graphics::PhongTextureType::Normal, flatNormalTexture);
+
 	std::shared_ptr<TestMaterial> testMaterial = std::make_unique<TestMaterial>(shaderManager);
 	testMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
 	testMaterial->setTexture(se::graphics::PhongTextureType::Normal, testNormal);
@@ -279,8 +283,9 @@ int main()
 
 
 	se::graphics::SpotLight cameraLight;
-	cameraLight.setCone(glm::radians(29.0f), glm::radians(40.0f));
-	cameraLight.setRadius(0.0f, 100.0f);
+	cameraLight.setCone(glm::radians(35.0f), glm::radians(40.0f));
+	cameraLight.setRadius(0.0f, 10000.0f);
+	//cameraLight.setIntensity(0.8f);
 	scene.add(cameraLight);
 
 
@@ -425,10 +430,25 @@ int main()
 	testModel.setMaterial(testMaterial);
 	scene.add(testModel);
 
+	std::shared_ptr<se::graphics::InstanceBuffer> modelInstances = std::make_shared<se::graphics::InstanceBuffer>();
+	{
+		constexpr int size = 6;
+		modelInstances->resize(size * size);
+		size_t index = 0;
+		for (int x = -size / 2; x < size / 2; x++)
+			for (int z = -size / 2; z < size / 2; z++)
+			{
+				se::graphics::InstanceData data;
+				data.position = glm::vec3((float)x * 3.0f, 0.0f, (float)z * 3.0f);
+				modelInstances->set(index++, data);
+			}
+	}
+
 	se::graphics::Model testModel2;
 	testModel2.loadModelData(icosphereModelData);
-	testModel2.setMaterial(testMaterial);
+	testModel2.setMaterial(instancedPhongMaterial);
 	testModel2.setPosition(glm::vec3(4.0f, -20.0f, 4.0f));
+	testModel2.setInstances(modelInstances);
 	scene.add(testModel2);
 
 	se::graphics::Model animModel;
@@ -440,10 +460,11 @@ int main()
 
 	se::graphics::Model jumpModel;
 	jumpModel.loadModelData(jumpModelData);
-	jumpModel.setMaterial(flatPhongMaterial);
+	jumpModel.setMaterial(instancedPhongMaterial);
 	jumpModel.setColor(se::hexColor(se::HexColor::Coral));
 	jumpModel.setPosition(glm::vec3(15.0f, -25.0f, 15.0f));
 	jumpModel.startAnimation("Jump");
+	jumpModel.setInstances(modelInstances);
 	scene.add(jumpModel);
 
 	se::graphics::Model ballTestModel;
@@ -455,8 +476,10 @@ int main()
 
 	se::graphics::Model demonModel;
 	demonModel.loadModelData(demonModelData);
-	demonModel.setMaterial(demonMaterial);
+	//demonModel.setMaterial(demonMaterial);
+	demonModel.setMaterial(skinnedInstancedPhongMaterial);
 	demonModel.setPosition(glm::vec3(-15.0f, -25.0f, 15.0f));
+	demonModel.setInstances(modelInstances);
 	scene.add(demonModel);
 
 	se::graphics::Model simpleModel;
@@ -469,19 +492,22 @@ int main()
 	se::graphics::Shape instanceShape;
 	instanceShape.generate(se::graphics::ShapeType::Cube, defaultShapeParams, &shapeGenerator);
 	instanceShape.setMaterial(instancedPhongMaterial);
-	std::shared_ptr<se::graphics::InstanceBuffer> shapeInstances = std::make_shared<se::graphics::InstanceBuffer>();
-	constexpr int size = 25;
-	shapeInstances->resize(size * size);
-	size_t index = 0;
-	for (int x = -size/2; x < size/2; x++)
-	for (int z = -size/2; z < size/2; z++)
-	{
-		se::graphics::InstanceData data;
-		data.position = glm::vec3((float)x * 3.0f, -100.0f, (float)z * 3.0f);
-		shapeInstances->set(index++, data);
-	}
-	instanceShape.setInstances(shapeInstances);
 	scene.add(instanceShape);
+
+	std::shared_ptr<se::graphics::InstanceBuffer> shapeInstances = std::make_shared<se::graphics::InstanceBuffer>();
+	{
+		constexpr int size = 30;
+		shapeInstances->resize(size * size);
+		size_t index = 0;
+		for (int x = -size / 2; x < size / 2; x++)
+		for (int z = -size / 2; z < size / 2; z++)
+		{
+			se::graphics::InstanceData data;
+			data.position = glm::vec3((float)x * 3.0f, -100.0f, (float)z * 3.0f);
+			shapeInstances->set(index++, data);
+		}
+		instanceShape.setInstances(shapeInstances);
+	}
 
 	//se::Console console;
 
@@ -537,6 +563,16 @@ int main()
 			testModel.setPosition({ (float)cos(timeNowSeconds * 0.2), (float)sin(timeNowSeconds * 0.2), (float)cos(timeNowSeconds * 0.2) });
 			testModel.setScale(glm::vec3(0.5f + fabsf((float)sin(timeNowSeconds * 0.3))));
 			testModel.setRotation(glm::quatLookAt(glm::normalize(direction), glm::vec3(0.0f, 1.0f, 0.0f)));
+
+			for (size_t i = 0; i < shapeInstances->size(); i++)
+			{
+				if (se::rng::weightedCoin(0.01))
+				{
+					se::graphics::InstanceData data = shapeInstances->get(i);
+					data.rotation = se::rng::rotation();
+					shapeInstances->set(i, data);
+				}
+			}
 		}
 
 		if (window2.isQuitRequested())
