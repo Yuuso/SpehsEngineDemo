@@ -1,0 +1,37 @@
+#pragma once
+
+#include "SpehsEngine/Graphics/Scene.h"
+#include "SpehsEngine/Graphics/Shape.h"
+#include "SpehsEngine/Graphics/DefaultMaterials.h"
+#include "SpehsEngine/Graphics/DefaultShaderManager.h"
+#include "SpehsEngine/Graphics/TextureManager.h"
+#include <memory>
+#include <vector>
+
+
+class ParticleSystem
+{
+public:
+
+	ParticleSystem(se::graphics::Scene& _scene, se::graphics::DefaultShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager, se::graphics::ShapeGenerator& _shapeGen);
+
+	void update(const se::time::Time _deltaTime);
+
+private:
+
+	struct Particle
+	{
+		glm::vec3 velocity;
+		float anglularVelocity;
+		se::time::Time lifeTime;
+		se::graphics::BillboardInstanceData instanceData;
+	};
+
+	std::shared_ptr<se::graphics::InstanceBuffer> instanceBuffer;
+	std::shared_ptr<se::graphics::FlatTextureMaterial> material;
+	se::graphics::Shape shape;
+
+	std::vector<Particle> particles;
+	const glm::vec3 spawnPosition = glm::vec3(0.0f, -25.0f, 0.0f);
+	se::time::Time spawnTimer = se::time::Time::zero;
+};

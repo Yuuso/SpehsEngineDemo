@@ -2,6 +2,7 @@
 
 #include "CameraController.h"
 #include "DefaultResourcePathFinders.h"
+#include "ParticleSystem.h"
 #include "Materials.h"
 #include "SpehsEngine/Core/ColorUtilityFunctions.h"
 #include "SpehsEngine/Core/Console.h"
@@ -63,7 +64,7 @@ int main()
 	window1.setHeight(900);
 	se::graphics::Renderer renderer(window1, se::graphics::RendererFlag::VSync
 										   | se::graphics::RendererFlag::MSAA2
-										   //, se::graphics::RendererBackend::OpenGLES
+										   , se::graphics::RendererBackend::OpenGLES
 									);
 
 	se::graphics::Scene scene;
@@ -206,27 +207,11 @@ int main()
 	phongMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
 	phongMaterial->setTexture(se::graphics::PhongTextureType::Normal, testNormal);
 
-	std::shared_ptr<se::graphics::SkinnedPhongMaterial> skinnedPhongMaterial = std::make_unique<se::graphics::SkinnedPhongMaterial>(shaderManager);
-	skinnedPhongMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
-	skinnedPhongMaterial->setTexture(se::graphics::PhongTextureType::Normal, testNormal);
-
-	std::shared_ptr<se::graphics::InstancedPhongMaterial> instancedPhongMaterial = std::make_unique<se::graphics::InstancedPhongMaterial>(shaderManager);
-	instancedPhongMaterial->setTexture(se::graphics::PhongTextureType::Color, whiteTexture);
-	instancedPhongMaterial->setTexture(se::graphics::PhongTextureType::Normal, flatNormalTexture);
-
-	std::shared_ptr<se::graphics::SkinnedInstancedPhongMaterial> skinnedInstancedPhongMaterial = std::make_unique<se::graphics::SkinnedInstancedPhongMaterial>(shaderManager);
-	skinnedInstancedPhongMaterial->setTexture(se::graphics::PhongTextureType::Color, whiteTexture);
-	skinnedInstancedPhongMaterial->setTexture(se::graphics::PhongTextureType::Normal, flatNormalTexture);
-
 	std::shared_ptr<TestMaterial> testMaterial = std::make_unique<TestMaterial>(shaderManager);
 	testMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
 	testMaterial->setTexture(se::graphics::PhongTextureType::Normal, testNormal);
 
-	std::shared_ptr<AnimMaterial> animMaterial = std::make_unique<AnimMaterial>(shaderManager);
-	animMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
-	animMaterial->setTexture(se::graphics::PhongTextureType::Normal, testNormal);
-
-	std::shared_ptr<AnimMaterial> demonMaterial = std::make_unique<AnimMaterial>(shaderManager);
+	std::shared_ptr<TestMaterial> demonMaterial = std::make_unique<TestMaterial>(shaderManager);
 	demonMaterial->setTexture(se::graphics::PhongTextureType::Color, demonColor);
 	demonMaterial->setTexture(se::graphics::PhongTextureType::Normal, flatNormalTexture);
 
@@ -300,6 +285,7 @@ int main()
 			: shapeGenerator(_shapeGenerator)
 		{
 			shape.setMaterial(_material);
+			shape.enableRenderFlags(se::graphics::RenderFlag::BillboardSpherical);
 			trail.setMaterial(_trailMaterial);
 			trail.enableRenderFlags(se::graphics::RenderFlag::Blending);
 			trail.setRenderState(false);
@@ -325,7 +311,9 @@ int main()
 			angularVelocity = glm::max(0.0f, angularVelocity - 3.0f * _deltaTime.asSeconds());
 
 			shape.setPosition(shape.getPosition() + direction * velocity * _deltaTime.asSeconds());
-			shape.setRotation(glm::rotate(shape.getRotation(), angularVelocity * _deltaTime.asSeconds(), axis));
+			if (!shape.checkRenderFlags(se::graphics::RenderFlag::BillboardSpherical) &&
+				!shape.checkRenderFlags(se::graphics::RenderFlag::BillboardCylindrical))
+				shape.setRotation(glm::rotate(shape.getRotation(), angularVelocity * _deltaTime.asSeconds(), axis));
 
 			trail.getPoint(trail.numPoints() - 1) = shape.getPosition();
 
@@ -430,25 +418,28 @@ int main()
 	testModel.setMaterial(testMaterial);
 	scene.add(testModel);
 
-	std::shared_ptr<se::graphics::InstanceBuffer> modelInstances = std::make_shared<se::graphics::InstanceBuffer>();
+	std::shared_ptr<se::graphics::InstanceBuffer> modelInstances = std::make_shared<se::graphics::InstanceBuffer>(se::graphics::InstanceBufferType::Transform);
 	{
 		constexpr int size = 6;
 		modelInstances->resize(size * size);
 		size_t index = 0;
 		for (int x = -size / 2; x < size / 2; x++)
+		{
 			for (int z = -size / 2; z < size / 2; z++)
 			{
-				se::graphics::InstanceData data;
+				se::graphics::TransformInstanceData data;
 				data.position = glm::vec3((float)x * 3.0f, 0.0f, (float)z * 3.0f);
 				modelInstances->set(index++, data);
 			}
+		}
 	}
 
 	se::graphics::Model testModel2;
 	testModel2.loadModelData(icosphereModelData);
-	testModel2.setMaterial(instancedPhongMaterial);
+	testModel2.setMaterial(phongMaterial);
 	testModel2.setPosition(glm::vec3(4.0f, -20.0f, 4.0f));
 	testModel2.setInstances(modelInstances);
+	testModel2.setPrimitiveType(se::graphics::PrimitiveType::Points);
 	scene.add(testModel2);
 
 	se::graphics::Model animModel;
@@ -460,7 +451,7 @@ int main()
 
 	se::graphics::Model jumpModel;
 	jumpModel.loadModelData(jumpModelData);
-	jumpModel.setMaterial(instancedPhongMaterial);
+	jumpModel.setMaterial(phongMaterial);
 	jumpModel.setColor(se::hexColor(se::HexColor::Coral));
 	jumpModel.setPosition(glm::vec3(15.0f, -25.0f, 15.0f));
 	jumpModel.startAnimation("Jump");
@@ -477,37 +468,41 @@ int main()
 	se::graphics::Model demonModel;
 	demonModel.loadModelData(demonModelData);
 	//demonModel.setMaterial(demonMaterial);
-	demonModel.setMaterial(skinnedInstancedPhongMaterial);
+	demonModel.setMaterial(phongMaterial);
 	demonModel.setPosition(glm::vec3(-15.0f, -25.0f, 15.0f));
 	demonModel.setInstances(modelInstances);
 	scene.add(demonModel);
 
 	se::graphics::Model simpleModel;
 	simpleModel.loadModelData(simpleModelData);
-	simpleModel.setMaterial(skinnedPhongMaterial);
+	simpleModel.setMaterial(phongMaterial);
 	simpleModel.setPosition(glm::vec3(-15.0f, -25.0f, 0.0f));
 	simpleModel.startAnimation("Wobble");
 	scene.add(simpleModel);
 
 	se::graphics::Shape instanceShape;
 	instanceShape.generate(se::graphics::ShapeType::Cube, defaultShapeParams, &shapeGenerator);
-	instanceShape.setMaterial(instancedPhongMaterial);
+	instanceShape.setMaterial(phongMaterial);
 	scene.add(instanceShape);
 
-	std::shared_ptr<se::graphics::InstanceBuffer> shapeInstances = std::make_shared<se::graphics::InstanceBuffer>();
+	std::shared_ptr<se::graphics::InstanceBuffer> shapeInstances = std::make_shared<se::graphics::InstanceBuffer>(se::graphics::InstanceBufferType::Transform);
 	{
 		constexpr int size = 30;
 		shapeInstances->resize(size * size);
 		size_t index = 0;
 		for (int x = -size / 2; x < size / 2; x++)
-		for (int z = -size / 2; z < size / 2; z++)
 		{
-			se::graphics::InstanceData data;
-			data.position = glm::vec3((float)x * 3.0f, -100.0f, (float)z * 3.0f);
-			shapeInstances->set(index++, data);
+			for (int z = -size / 2; z < size / 2; z++)
+			{
+				se::graphics::TransformInstanceData data;
+				data.position = glm::vec3((float)x * 3.0f, -100.0f, (float)z * 3.0f);
+				shapeInstances->set(index++, data);
+			}
 		}
 		instanceShape.setInstances(shapeInstances);
 	}
+
+	ParticleSystem particleSystem(scene, shaderManager, textureManager, shapeGenerator);
 
 	//se::Console console;
 
@@ -526,7 +521,7 @@ int main()
 		if (objects.size() < 30 &&
 			se::time::now() - lastObjectSpawned > se::time::fromSeconds(0.1f))
 		{
-			objects.push_back(std::make_unique<ShapeObject>(scene, flatPhongMaterial, colorMaterial, shapeGenerator));
+			objects.push_back(std::make_unique<ShapeObject>(scene, flatMaterial, colorMaterial, shapeGenerator));
 			lastObjectSpawned = se::time::now();
 		}
 		else if (objects.size() > 10 && se::time::now() - lastObjectDeleted > se::time::fromSeconds(5.0f))
@@ -568,7 +563,7 @@ int main()
 			{
 				if (se::rng::weightedCoin(0.01))
 				{
-					se::graphics::InstanceData data = shapeInstances->get(i);
+					se::graphics::TransformInstanceData data = shapeInstances->getTransformData(i);
 					data.rotation = se::rng::rotation();
 					shapeInstances->set(i, data);
 				}
@@ -610,6 +605,7 @@ int main()
 		cameraLight.setPosition(camera.getPosition());
 		cameraLight.setDirection(camera.getDirection());
 
+		particleSystem.update(deltaTimeSystem.deltaTime);
 		for (auto&& object : objects)
 			object->update(deltaTimeSystem.deltaTime);
 
