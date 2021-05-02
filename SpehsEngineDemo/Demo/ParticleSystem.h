@@ -4,6 +4,7 @@
 #include "SpehsEngine/Graphics/Shape.h"
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
 #include "SpehsEngine/Graphics/DefaultShaderManager.h"
+#include "SpehsEngine/Graphics/InstanceBuffer.h"
 #include "SpehsEngine/Graphics/TextureManager.h"
 #include <memory>
 #include <vector>
@@ -27,11 +28,11 @@ private:
 		se::graphics::BillboardInstanceData instanceData;
 	};
 
-	std::shared_ptr<se::graphics::InstanceBuffer> instanceBuffer;
+	se::graphics::InstanceBuffer<se::graphics::BillboardInstanceData> instanceBuffer;
 	std::shared_ptr<se::graphics::FlatTextureMaterial> material;
 	se::graphics::Shape shape;
 
 	std::vector<Particle> particles;
-	const glm::vec3 spawnPosition = glm::vec3(0.0f, -25.0f, 0.0f);
+	const glm::vec3 spawnPosition = glm::vec3(0.0f, -25.0f, -50.0f);
 	se::time::Time spawnTimer = se::time::Time::zero;
 };

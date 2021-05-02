@@ -8,7 +8,6 @@ using namespace se::graphics;
 
 ParticleSystem::ParticleSystem(se::graphics::Scene& _scene, DefaultShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager, ShapeGenerator& _shapeGen)
 {
-	instanceBuffer = std::make_shared<InstanceBuffer>(InstanceBufferType::Billboard);
 	material = std::make_unique<FlatTextureMaterial>(_shaderManager);
 	auto texture = _textureManager.create("particle_texture", "wonky_smoke_atlas.png");
 	material->setTexture(texture);
@@ -20,7 +19,7 @@ ParticleSystem::ParticleSystem(se::graphics::Scene& _scene, DefaultShaderManager
 	shape.enableRenderFlags(RenderFlag::Blending);
 	shape.disableRenderFlags(RenderFlag::DepthWrite);
 	shape.setScale(glm::vec3(3.0f));
-	shape.setInstances(instanceBuffer);
+	shape.setInstances(instanceBuffer.getBuffer());
 	shape.setMaterial(material);
 	_scene.add(shape);
 
@@ -42,7 +41,7 @@ void ParticleSystem::update(const se::time::Time _deltaTime)
 		particle.anglularVelocity = se::rng::random(-1.0f, 1.0f);
 		particle.lifeTime = se::time::fromSeconds(se::rng::random(5.0, 9.0));
 
-		instanceBuffer->grow(1);
+		instanceBuffer.grow(1);
 
 		spawnTimer = se::time::fromSeconds(se::rng::random(0.05, 0.2));
 	}
@@ -53,14 +52,14 @@ void ParticleSystem::update(const se::time::Time _deltaTime)
 		if (particles[i].lifeTime <= se::time::Time::zero)
 		{
 			particles.erase(particles.begin() + i);
-			instanceBuffer->erase(i);
+			instanceBuffer.erase(i);
 			continue;
 		}
 
 		Particle& particle = particles[i];
 		particle.instanceData.position += particle.velocity * _deltaTime.asSeconds();
-		particle.instanceData.rotationAngle += particle.anglularVelocity * _deltaTime.asSeconds();
-		instanceBuffer->set(i, particle.instanceData);
+		//particle.instanceData.rotationAngle += particle.anglularVelocity * _deltaTime.asSeconds();
+		instanceBuffer.set(i, particle.instanceData);
 
 		i++;
 	}

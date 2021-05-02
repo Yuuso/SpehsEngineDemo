@@ -19,6 +19,7 @@
 #include "SpehsEngine/Graphics/DefaultShaderManager.h"
 #include "SpehsEngine/Graphics/FontManager.h"
 #include "SpehsEngine/Graphics/GraphicsLib.h"
+#include "SpehsEngine/Graphics/InstanceBuffer.h"
 #include "SpehsEngine/Graphics/Lights.h"
 #include "SpehsEngine/Graphics/Line.h"
 #include "SpehsEngine/Graphics/Model.h"
@@ -64,7 +65,7 @@ int main()
 	window1.setHeight(900);
 	se::graphics::Renderer renderer(window1, se::graphics::RendererFlag::VSync
 										   | se::graphics::RendererFlag::MSAA2
-										   , se::graphics::RendererBackend::OpenGLES
+										   //, se::graphics::RendererBackend::OpenGLES
 									);
 
 	se::graphics::Scene scene;
@@ -418,18 +419,18 @@ int main()
 	testModel.setMaterial(testMaterial);
 	scene.add(testModel);
 
-	std::shared_ptr<se::graphics::InstanceBuffer> modelInstances = std::make_shared<se::graphics::InstanceBuffer>(se::graphics::InstanceBufferType::Transform);
+	se::graphics::InstanceBuffer<se::graphics::TransformInstanceData> modelInstances;
 	{
 		constexpr int size = 6;
-		modelInstances->resize(size * size);
+		modelInstances.resize(size * size);
 		size_t index = 0;
 		for (int x = -size / 2; x < size / 2; x++)
 		{
 			for (int z = -size / 2; z < size / 2; z++)
 			{
 				se::graphics::TransformInstanceData data;
-				data.position = glm::vec3((float)x * 3.0f, 0.0f, (float)z * 3.0f);
-				modelInstances->set(index++, data);
+				data.setPosition(glm::vec3((float)x * 3.0f, 0.0f, (float)z * 3.0f));
+				modelInstances.set(index++, data);
 			}
 		}
 	}
@@ -438,7 +439,7 @@ int main()
 	testModel2.loadModelData(icosphereModelData);
 	testModel2.setMaterial(phongMaterial);
 	testModel2.setPosition(glm::vec3(4.0f, -20.0f, 4.0f));
-	testModel2.setInstances(modelInstances);
+	testModel2.setInstances(modelInstances.getBuffer());
 	testModel2.setPrimitiveType(se::graphics::PrimitiveType::Points);
 	scene.add(testModel2);
 
@@ -455,7 +456,7 @@ int main()
 	jumpModel.setColor(se::hexColor(se::HexColor::Coral));
 	jumpModel.setPosition(glm::vec3(15.0f, -25.0f, 15.0f));
 	jumpModel.startAnimation("Jump");
-	jumpModel.setInstances(modelInstances);
+	jumpModel.setInstances(modelInstances.getBuffer());
 	scene.add(jumpModel);
 
 	se::graphics::Model ballTestModel;
@@ -470,7 +471,7 @@ int main()
 	//demonModel.setMaterial(demonMaterial);
 	demonModel.setMaterial(phongMaterial);
 	demonModel.setPosition(glm::vec3(-15.0f, -25.0f, 15.0f));
-	demonModel.setInstances(modelInstances);
+	demonModel.setInstances(modelInstances.getBuffer());
 	scene.add(demonModel);
 
 	se::graphics::Model simpleModel;
@@ -480,27 +481,27 @@ int main()
 	simpleModel.startAnimation("Wobble");
 	scene.add(simpleModel);
 
-	se::graphics::Shape instanceShape;
-	instanceShape.generate(se::graphics::ShapeType::Cube, defaultShapeParams, &shapeGenerator);
-	instanceShape.setMaterial(phongMaterial);
-	scene.add(instanceShape);
-
-	std::shared_ptr<se::graphics::InstanceBuffer> shapeInstances = std::make_shared<se::graphics::InstanceBuffer>(se::graphics::InstanceBufferType::Transform);
+	se::graphics::InstanceBuffer<se::graphics::TransformInstanceData> shapeInstances;
 	{
 		constexpr int size = 30;
-		shapeInstances->resize(size * size);
+		shapeInstances.resize(size * size);
 		size_t index = 0;
 		for (int x = -size / 2; x < size / 2; x++)
 		{
 			for (int z = -size / 2; z < size / 2; z++)
 			{
 				se::graphics::TransformInstanceData data;
-				data.position = glm::vec3((float)x * 3.0f, -100.0f, (float)z * 3.0f);
-				shapeInstances->set(index++, data);
+				data.setPosition(glm::vec3((float)x * 3.0f, -100.0f, (float)z * 3.0f));
+				shapeInstances.set(index++, data);
 			}
 		}
-		instanceShape.setInstances(shapeInstances);
 	}
+
+	se::graphics::Shape instanceShape;
+	instanceShape.generate(se::graphics::ShapeType::Cube, defaultShapeParams, &shapeGenerator);
+	instanceShape.setMaterial(phongMaterial);
+	scene.add(instanceShape);
+	instanceShape.setInstances(shapeInstances.getBuffer());
 
 	ParticleSystem particleSystem(scene, shaderManager, textureManager, shapeGenerator);
 
@@ -559,13 +560,13 @@ int main()
 			testModel.setScale(glm::vec3(0.5f + fabsf((float)sin(timeNowSeconds * 0.3))));
 			testModel.setRotation(glm::quatLookAt(glm::normalize(direction), glm::vec3(0.0f, 1.0f, 0.0f)));
 
-			for (size_t i = 0; i < shapeInstances->size(); i++)
+			for (size_t i = 0; i < shapeInstances.size(); i++)
 			{
 				if (se::rng::weightedCoin(0.01))
 				{
-					se::graphics::TransformInstanceData data = shapeInstances->getTransformData(i);
-					data.rotation = se::rng::rotation();
-					shapeInstances->set(i, data);
+					se::graphics::TransformInstanceData data = shapeInstances.get(i);
+					data.setRotation(se::rng::rotation());
+					shapeInstances.set(i, data);
 				}
 			}
 		}
