@@ -151,6 +151,8 @@ int main()
 	shaderManager.create("test", "vs_test.bin", "fs_test.bin");
 	shaderManager.create("test_anim", "vs_test_anim.bin", "fs_test.bin");
 
+	auto skyboxColor = textureManager.create("skybox", "skybox.ktx");
+
 	auto testColor = textureManager.create("testColor", "test_color.png");
 	auto testNormal = textureManager.create("testNormal", "test_normal.png");
 
@@ -227,7 +229,11 @@ int main()
 	std::shared_ptr<se::graphics::TextMaterial> textMaterial = std::make_unique<se::graphics::TextMaterial>(shaderManager);
 	textMaterial->setFont(testFont);
 
-	testFont->waitUntilReady();
+	std::shared_ptr<se::graphics::SkyboxMaterial> skyboxMaterial = std::make_unique<se::graphics::SkyboxMaterial>(shaderManager);
+	skyboxMaterial->setTexture(skyboxColor);
+
+
+	//testFont->waitUntilReady();
 
 	se::graphics::Text testText;
 	se::graphics::TextStyle style;
@@ -354,6 +360,26 @@ int main()
 	se::graphics::ShapeParameters defaultShapeParams;
 	defaultShapeParams.generateNormals = true;
 	defaultShapeParams.generateTangents = true;
+
+
+	se::graphics::ShapeParameters skyboxShapeParams;
+	skyboxShapeParams.generateNormals = false;
+	skyboxShapeParams.invertNormals = true;
+	skyboxShapeParams.generateTangents = false;
+	se::graphics::Shape skybox;
+	skybox.generate(se::graphics::ShapeType::Box, skyboxShapeParams, &shapeGenerator);
+	skybox.disableRenderFlags(se::graphics::RenderFlag::CullBackFace);
+	skybox.disableRenderFlags(se::graphics::RenderFlag::DepthWrite);
+	skybox.disableRenderFlags(se::graphics::RenderFlag::DepthTestLess);
+	skybox.enableRenderFlags(se::graphics::RenderFlag::DepthTestLEqual);
+	skybox.setMaterial(skyboxMaterial);
+	// NOTE: rotating skybox does not work with static render mode!
+	//skybox.setRenderMode(se::graphics::RenderMode::Static);
+	//skybox.setPosition(camera.getPosition());
+	scene.add(skybox);
+
+	// TODO: Cubemap textures don't work with temp textures!
+	skyboxColor->waitUntilReady();
 
 
 	se::graphics::Shape hudShape;
@@ -559,6 +585,8 @@ int main()
 			testModel.setPosition({ (float)cos(timeNowSeconds * 0.2), (float)sin(timeNowSeconds * 0.2), (float)cos(timeNowSeconds * 0.2) });
 			testModel.setScale(glm::vec3(0.5f + fabsf((float)sin(timeNowSeconds * 0.3))));
 			testModel.setRotation(glm::quatLookAt(glm::normalize(direction), glm::vec3(0.0f, 1.0f, 0.0f)));
+
+			skybox.setRotation(glm::rotate(skybox.getRotation(), 0.01f * deltaTimeSystem.deltaSeconds, glm::vec3(1.0f, 0.2f, 0.0f)));
 
 			for (size_t i = 0; i < shapeInstances.size(); i++)
 			{
