@@ -628,15 +628,25 @@ int main()
 		eventSignaler.signalEvents(eventCatcher);
 		inputManager.update(eventCatcher);
 
-		ImGui::SetNextWindowPos({ 150.0f, 150.0f }, ImGuiCond_Once);
+		ImGui::SetNextWindowPos({ 50.0f, 100.0f }, ImGuiCond_Once);
 		ImGui::SetNextWindowSize({ 300.0f, 80.0f }, ImGuiCond_Once);
-		bool imguiWindowVisible;
 		{
 			ImGui::ScopedFont monoFont(se::imgui::ImGuiFont::Mono);
-			imguiWindowVisible = ImGui::Begin("TEST Testing 123");
+			ImGui::Begin("TEST Testing 123");
 		}
-		if (imguiWindowVisible)
-			ImGui::Text("Lorem ipsum 456\nNewline");
+		ImGui::Text("Lorem ipsum 456\nNewline");
+		ImGui::End();
+
+		ImGui::SetNextWindowPos({ 50.0f, 500.0f }, ImGuiCond_Once);
+		ImGui::SetNextWindowSize({ 300.0f, 300.0f }, ImGuiCond_Once);
+		if (ImGui::Begin("More testing"))
+		{
+			ImGui::Image(stoneColor, { 0.2f, 0.2f });
+			if (ImGui::ImageButton(genTexture, { 20.0f, 20.0f }))
+			{
+				se::log::info("button test");
+			}
+		}
 		ImGui::End();
 
 		cameraController.update(deltaTimeSystem.deltaTime);
