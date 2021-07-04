@@ -35,6 +35,8 @@
 #include "SpehsEngine/Input/EventSignaler.h"
 #include "SpehsEngine/Input/InputLib.h"
 #include "SpehsEngine/Input/InputManager.h"
+#include "SpehsEngine/ImGui/Utility/BackendWrapper.h"
+#include "SpehsEngine/ImGui/Utility/ImGuiUtility.h"
 
 
 int main()
@@ -385,11 +387,12 @@ int main()
 	se::graphics::Shape hudShape;
 	hudShape.generate(se::graphics::ShapeType::Square/*, se::graphics::ShapeParameters(), &shapeGenerator*/);
 	hudShape.setMaterial(flatMaterial);
+	hudShape.disableRenderFlags(se::graphics::RenderFlag::CullBackFace);
 	hudShape.setRenderMode(se::graphics::RenderMode::Dynamic);
 	hudShape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
 	hudShape.setColor(se::hexColor(se::Orange));
-	hudShape.setScale(glm::vec3(20.0f));
-	hudShape.setPosition({ -window1.getWidth() * 0.5f + 20.0f, 0.0f, -window1.getHeight() * 0.5f + 100.0f });
+	hudShape.setScale(glm::vec3(30.0f));
+	hudShape.setPosition({ -window1.getWidth() * 0.5f + 20.0f, 0.0f, window1.getHeight() * 0.5f - 50.0f });
 	hudScene.add(hudShape);
 
 	se::graphics::ShapeParameters boxShapeParams;
@@ -531,7 +534,7 @@ int main()
 
 	ParticleSystem particleSystem(scene, shaderManager, textureManager, shapeGenerator);
 
-	//se::Console console;
+	se::imgui::BackendWrapper imguiBackend(eventSignaler, 0, renderer);
 
 	const auto initTime = se::time::now() - initStart;
 	se::log::info("Init time: " + std::to_string(initTime.asSeconds()) + " seconds", se::log::GREEN);
@@ -625,6 +628,17 @@ int main()
 		eventSignaler.signalEvents(eventCatcher);
 		inputManager.update(eventCatcher);
 
+		ImGui::SetNextWindowPos({ 150.0f, 150.0f }, ImGuiCond_Once);
+		ImGui::SetNextWindowSize({ 300.0f, 80.0f }, ImGuiCond_Once);
+		bool imguiWindowVisible;
+		{
+			ImGui::ScopedFont monoFont(se::imgui::ImGuiFont::Mono);
+			imguiWindowVisible = ImGui::Begin("TEST Testing 123");
+		}
+		if (imguiWindowVisible)
+			ImGui::Text("Lorem ipsum 456\nNewline");
+		ImGui::End();
+
 		cameraController.update(deltaTimeSystem.deltaTime);
 
 		if (inputManager.isKeyPressed((unsigned)se::input::Key::X))
@@ -668,6 +682,7 @@ int main()
 			window1.requestScreenShot("screenshot_" + std::to_string(frameN));
 		}
 
+		imguiBackend.render();
 		renderer.render();
 
 		if (inputManager.isKeyPressed((unsigned)se::input::Key::F5))
