@@ -17,9 +17,8 @@ CameraController::CameraController(const se::graphics::Window& _window, se::grap
 {
 	eventSignaler.connectToPreUpdateSignal(			preUpdateConnection,			boost::bind(&CameraController::preUpdateCallback,			this));
 	eventSignaler.connectToPostUpdateSignal(		postUpdateConnection,			boost::bind(&CameraController::postUpdateCallback,			this));
-	eventSignaler.connectToKeyboardPressSignal(		keyboardPressConnection,		boost::bind(&CameraController::keyboardPressCallback,		this, boost::placeholders::_1), 0);
-	eventSignaler.connectToKeyboardDownSignal(		keyboardDownConnection,			boost::bind(&CameraController::keyboardDownCallback,		this, boost::placeholders::_1), 0);
-	eventSignaler.connectToMouseButtonPressSignal(	mouseButtonPressConnection,		boost::bind(&CameraController::mouseButtonPressCallback,	this, boost::placeholders::_1), 0);
+	eventSignaler.connectToKeyboardSignal(			keyboardConnection,				boost::bind(&CameraController::keyboardCallback,			this, boost::placeholders::_1), 0);
+	eventSignaler.connectToMouseButtonSignal(		mouseButtonConnection,			boost::bind(&CameraController::mouseButtonCallback,			this, boost::placeholders::_1), 0);
 	eventSignaler.connectToMouseMotionSignal(		mouseMotionConnection,			boost::bind(&CameraController::mouseMotionCallback,			this, boost::placeholders::_1), 0);
 	eventSignaler.connectToMouseHoverSignal(		mouseHoverConnection,			boost::bind(&CameraController::mouseHoverCallback,			this, boost::placeholders::_1), 0);
 }
@@ -43,7 +42,7 @@ void CameraController::update(const se::time::Time _deltaTime)
 	camera.setPosition(position);
 	camera.setUp(up);
 
-	if (mouseButtonReleaseConnection.connected())
+	if (mouseMovementActive)
 	{
 		se::input::setShowCursor(false);
 		se::input::setMousePosition({ window.getWidth() / 2, window.getHeight() / 2 });
@@ -67,76 +66,79 @@ void CameraController::postUpdateCallback()
 	if (glm::length(movement) > 1.0f)
 		movement = glm::normalize(movement);
 }
-bool CameraController::keyboardPressCallback(const se::input::KeyboardPressEvent& _event)
+bool CameraController::keyboardCallback(const se::input::KeyboardEvent& _event)
 {
 	if (!window.getKeyboardFocus())
 		return false;
-	if (_event.key == se::input::Key::BACKSPACE)
+	if (_event.type == se::input::KeyboardEvent::Type::Press)
 	{
-		camera = initialState;
-		return true;
+		if (_event.key == se::input::Key::BACKSPACE)
+		{
+			camera = initialState;
+			return true;
+		}
+	}
+	else if (_event.type == se::input::KeyboardEvent::Type::Hold)
+	{
+		switch (_event.key)
+		{
+			case se::input::Key::W:
+				movement += camera.getDirection();
+				return true;
+			case se::input::Key::S:
+				movement += -camera.getDirection();
+				return true;
+			case se::input::Key::A:
+				movement += camera.getLeft();
+				return true;
+			case se::input::Key::D:
+				movement += -camera.getLeft();
+				return true;
+			case se::input::Key::R:
+				movement += camera.getUp();
+				return true;
+			case se::input::Key::F:
+				movement += -camera.getUp();
+				return true;
+			case se::input::Key::Q:
+				tilt -= 1.0f;
+				return true;
+			case se::input::Key::E:
+				tilt += 1.0f;
+				return true;
+			case se::input::Key::LSHIFT:
+				boosting = true;
+				return true;
+		}
+	}
+	else if (_event.type == se::input::KeyboardEvent::Type::Release)
+	{
 	}
 	return false;
 }
-bool CameraController::keyboardDownCallback(const se::input::KeyboardDownEvent& _event)
-{
-	if (!window.getKeyboardFocus())
-		return false;
-	switch (_event.key)
-	{
-		case se::input::Key::W:
-			movement += camera.getDirection();
-			return true;
-		case se::input::Key::S:
-			movement += -camera.getDirection();
-			return true;
-		case se::input::Key::A:
-			movement += camera.getLeft();
-			return true;
-		case se::input::Key::D:
-			movement += -camera.getLeft();
-			return true;
-		case se::input::Key::R:
-			movement += camera.getUp();
-			return true;
-		case se::input::Key::F:
-			movement += -camera.getUp();
-			return true;
-		case se::input::Key::Q:
-			tilt -= 1.0f;
-			return true;
-		case se::input::Key::E:
-			tilt += 1.0f;
-			return true;
-		case se::input::Key::LSHIFT:
-			boosting = true;
-			return true;
-	}
-	return false;
-}
-bool CameraController::mouseButtonPressCallback(const se::input::MouseButtonPressEvent& _event)
-{
-	if (!window.getMouseFocus())
-		return false;
-	switch (_event.button)
-	{
-		case se::input::MouseButton::right:
-			savedMousePos = se::input::getMousePosition();
-			eventSignaler.connectToMouseButtonReleaseSignal(mouseButtonReleaseConnection, boost::bind(&CameraController::mouseButtonReleaseCallback, this, boost::placeholders::_1), 0);
-			return true;
-	}
-	return false;
-}
-bool CameraController::mouseButtonReleaseCallback(const se::input::MouseButtonReleaseEvent& _event)
+bool CameraController::mouseButtonCallback(const se::input::MouseButtonEvent& _event)
 {
 	if (!window.getMouseFocus())
 		return false;
-	switch (_event.button)
+	if (_event.type == se::input::MouseButtonEvent::Type::Press)
 	{
-		case se::input::MouseButton::right:
-			mouseButtonReleaseConnection.disconnect();
-			se::input::setMousePosition(savedMousePos);
-			return true;
+		switch (_event.button)
+		{
+			case se::input::MouseButton::right:
+				savedMousePos = se::input::getMousePosition();
+				mouseMovementActive = true;
+				return true;
+		}
+	}
+	else if (_event.type == se::input::MouseButtonEvent::Type::Release)
+	{
+		switch (_event.button)
+		{
+			case se::input::MouseButton::right:
+				se::input::setMousePosition(savedMousePos);
+				mouseMovementActive = false;
+				return true;
+		}
 	}
 	return false;
 }
@@ -144,8 +146,7 @@ bool CameraController::mouseMotionCallback(const se::input::MouseMotionEvent& _e
 {
 	if (!window.getMouseFocus())
 		return false;
-	if (mouseButtonReleaseConnection.connected()
-		&& receivingHover)
+	if (mouseMovementActive && receivingHover)
 	{
 		rotation += _event.position - glm::vec2(window.getWidth() / 2.0f, window.getHeight() / 2.0f);
 		return true;
@@ -156,7 +157,7 @@ bool CameraController::mouseHoverCallback(const se::input::MouseHoverEvent&)
 {
 	if (!window.getMouseFocus())
 		return false;
-	if (mouseButtonReleaseConnection.connected())
+	if (mouseMovementActive)
 	{
 		receivingHover = true;
 		return true;

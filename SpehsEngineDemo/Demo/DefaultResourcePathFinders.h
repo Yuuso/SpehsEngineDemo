@@ -1,16 +1,16 @@
 #pragma once
 
-#include "SpehsEngine/Graphics/ResourcePathFinder.h"
-#include "SpehsEngine/Graphics/Renderer.h"
+#include "SpehsEngine/Core/ResourcePathFinder.h"
 #include "SpehsEngine/Core/SE_Assert.h"
 #include "SpehsEngine/Core/StringViewUtilityFunctions.h"
+#include "SpehsEngine/Graphics/Renderer.h"
 #include <string>
 
 
 static const std::string DATA_PATH = "data/";
 
 
-class ShaderPathFinder : public se::graphics::ResourcePathFinder
+class ShaderPathFinder : public se::ResourcePathFinder
 {
 public:
 
@@ -39,7 +39,7 @@ public:
 };
 
 
-class TexturePathFinder : public se::graphics::ResourcePathFinder
+class TexturePathFinder : public se::ResourcePathFinder
 {
 public:
 
@@ -50,7 +50,7 @@ public:
 };
 
 
-class FontPathFinder : public se::graphics::ResourcePathFinder
+class FontPathFinder : public se::ResourcePathFinder
 {
 public:
 
@@ -61,7 +61,7 @@ public:
 };
 
 
-class ModelPathFinder : public se::graphics::ResourcePathFinder
+class ModelPathFinder : public se::ResourcePathFinder
 {
 public:
 

@@ -6,7 +6,7 @@
 
 using namespace se::graphics;
 
-ParticleSystem::ParticleSystem(se::graphics::Scene& _scene, DefaultShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager, ShapeGenerator& _shapeGen)
+ParticleSystem::ParticleSystem(se::graphics::Scene& _scene, ShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager, ShapeGenerator& _shapeGen)
 {
 	material = std::make_unique<FlatTextureMaterial>(_shaderManager);
 	auto texture = _textureManager.create("particle_texture", "wonky_smoke_atlas.png");

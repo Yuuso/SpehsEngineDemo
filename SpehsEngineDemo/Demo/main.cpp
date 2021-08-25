@@ -5,7 +5,6 @@
 #include "ParticleSystem.h"
 #include "Materials.h"
 #include "SpehsEngine/Core/ColorUtilityFunctions.h"
-#include "SpehsEngine/Core/Console.h"
 #include "SpehsEngine/Core/CoreLib.h"
 #include "SpehsEngine/Core/DeltaTimeSystem.h"
 #include "SpehsEngine/Core/HexColor.h"
@@ -16,7 +15,7 @@
 #include "SpehsEngine/Core/Thread.h"
 #include "SpehsEngine/Graphics/Camera.h"
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
-#include "SpehsEngine/Graphics/DefaultShaderManager.h"
+#include "SpehsEngine/Graphics/ShaderManager.h"
 #include "SpehsEngine/Graphics/FontManager.h"
 #include "SpehsEngine/Graphics/GraphicsLib.h"
 #include "SpehsEngine/Graphics/InstanceBuffer.h"
@@ -129,7 +128,7 @@ int main()
 
 	std::shared_ptr<se::graphics::ResourceLoader> resourceLoader = se::graphics::makeResourceLoader(8);
 
-	se::graphics::DefaultShaderManager shaderManager;
+	se::graphics::ShaderManager shaderManager;
 	se::graphics::TextureManager textureManager;
 	se::graphics::FontManager fontManager;
 	se::graphics::ModelDataManager modelDataManager;
@@ -137,6 +136,7 @@ int main()
 	std::shared_ptr<ShaderPathFinder> shaderPathFinder = std::make_shared<ShaderPathFinder>();
 	shaderManager.setResourcePathFinder(shaderPathFinder);
 	shaderManager.setResourceLoader(resourceLoader);
+	shaderManager.createDefaultShaders();
 
 	std::shared_ptr<TexturePathFinder> texturePathFinder = std::make_shared<TexturePathFinder>();
 	textureManager.setResourcePathFinder(texturePathFinder);
@@ -145,6 +145,7 @@ int main()
 	std::shared_ptr<FontPathFinder> fontPathFinder = std::make_shared<FontPathFinder>();
 	fontManager.setResourcePathFinder(fontPathFinder);
 	fontManager.setResourceLoader(resourceLoader);
+	fontManager.createDefaultFonts();
 
 	std::shared_ptr<ModelPathFinder> modelPathFinder = std::make_shared<ModelPathFinder>();
 	modelDataManager.setResourcePathFinder(modelPathFinder);
@@ -164,6 +165,7 @@ int main()
 	auto stoneNormal = textureManager.create("stoneNormal", "stone_normal.png");
 
 	auto testFont = fontManager.create("test", "open-sans.regular.ttf", se::graphics::FontSize(32, se::graphics::FontSizeType::Pixel), se::graphics::defaultCharacterSet);
+	auto embeddedFont = fontManager.find("AnonymousPro-Regular");
 
 	auto testModelData = modelDataManager.create("test", "test.fbx");
 	auto animModelData = modelDataManager.create("anim", "walking_cube.gltf");
@@ -231,6 +233,9 @@ int main()
 	std::shared_ptr<se::graphics::TextMaterial> textMaterial = std::make_unique<se::graphics::TextMaterial>(shaderManager);
 	textMaterial->setFont(testFont);
 
+	std::shared_ptr<se::graphics::TextMaterial> embeddedTextMaterial = std::make_unique<se::graphics::TextMaterial>(shaderManager);
+	embeddedTextMaterial->setFont(embeddedFont);
+
 	std::shared_ptr<se::graphics::SkyboxMaterial> skyboxMaterial = std::make_unique<se::graphics::SkyboxMaterial>(shaderManager);
 	skyboxMaterial->setTexture(skyboxColor);
 
@@ -250,6 +255,12 @@ int main()
 	testText.insert(u8"Á\n");
 	testText.setPosition({ -window1.getWidth() * 0.5f + 200.0f, 0.0f, -window1.getHeight() * 0.5f + 200.0f });
 	hudScene.add(testText);
+
+	se::graphics::Text embeddedFontText;
+	embeddedFontText.setMaterial(embeddedTextMaterial);
+	embeddedFontText.insert("abcdrfghijklmnopqrstuvwxyz\n");
+	embeddedFontText.setPosition({ -window1.getWidth() * 0.5f + 200.0f, 0.0f, -window1.getHeight() * 0.5f + 400.0f });
+	hudScene.add(embeddedFontText);
 
 	se::graphics::AmbientLight ambientLight(se::hexColor(se::White), 0.05f);
 	scene.add(ambientLight);

@@ -3,7 +3,7 @@
 #include "SpehsEngine/Graphics/Scene.h"
 #include "SpehsEngine/Graphics/Shape.h"
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
-#include "SpehsEngine/Graphics/DefaultShaderManager.h"
+#include "SpehsEngine/Graphics/ShaderManager.h"
 #include "SpehsEngine/Graphics/InstanceBuffer.h"
 #include "SpehsEngine/Graphics/TextureManager.h"
 #include <memory>
@@ -14,7 +14,7 @@ class ParticleSystem
 {
 public:
 
-	ParticleSystem(se::graphics::Scene& _scene, se::graphics::DefaultShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager, se::graphics::ShapeGenerator& _shapeGen);
+	ParticleSystem(se::graphics::Scene& _scene, se::graphics::ShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager, se::graphics::ShapeGenerator& _shapeGen);
 
 	void update(const se::time::Time _deltaTime);
 

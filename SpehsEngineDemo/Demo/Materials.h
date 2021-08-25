@@ -11,5 +11,5 @@ class TestMaterial : public se::graphics::PhongMaterial
 {
 public:
 
-	TestMaterial(se::graphics::DefaultShaderManager& _shaderManager);
+	TestMaterial(se::graphics::ShaderManager& _shaderManager);
 };

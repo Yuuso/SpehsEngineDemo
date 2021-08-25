@@ -19,10 +19,8 @@ private:
 	void preUpdateCallback();
 	void postUpdateCallback();
 	bool mouseHoverCallback(const se::input::MouseHoverEvent& _event);
-	bool keyboardPressCallback(const se::input::KeyboardPressEvent& _event);
-	bool keyboardDownCallback(const se::input::KeyboardDownEvent& _event);
-	bool mouseButtonPressCallback(const se::input::MouseButtonPressEvent& _event);
-	bool mouseButtonReleaseCallback(const se::input::MouseButtonReleaseEvent& _event);
+	bool keyboardCallback(const se::input::KeyboardEvent& _event);
+	bool mouseButtonCallback(const se::input::MouseButtonEvent& _event);
 	bool mouseMotionCallback(const se::input::MouseMotionEvent& _event);
 
 	se::graphics::Camera& camera;
@@ -33,6 +31,7 @@ private:
 	glm::vec3 movement = glm::vec3(0.0f);
 	glm::vec2 rotation = glm::vec2(0.0f);
 	float tilt = 0.0f;
+	bool mouseMovementActive = false;
 	bool receivingHover = false;
 	bool boosting = false;
 	glm::ivec2 savedMousePos;
@@ -40,9 +39,7 @@ private:
 	boost::signals2::scoped_connection preUpdateConnection;
 	boost::signals2::scoped_connection postUpdateConnection;
 	boost::signals2::scoped_connection mouseHoverConnection;
-	boost::signals2::scoped_connection keyboardPressConnection;
-	boost::signals2::scoped_connection keyboardDownConnection;
-	boost::signals2::scoped_connection mouseButtonPressConnection;
-	boost::signals2::scoped_connection mouseButtonReleaseConnection;
+	boost::signals2::scoped_connection keyboardConnection;
+	boost::signals2::scoped_connection mouseButtonConnection;
 	boost::signals2::scoped_connection mouseMotionConnection;
 };

@@ -3,7 +3,7 @@
 
 
 
-TestMaterial::TestMaterial(se::graphics::DefaultShaderManager& _shaderManager)
+TestMaterial::TestMaterial(se::graphics::ShaderManager& _shaderManager)
 	: se::graphics::PhongMaterial(_shaderManager)
 {
 	setShader(_shaderManager.find("test"), se::graphics::ShaderVariant::Default);
