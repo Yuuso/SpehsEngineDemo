@@ -29,7 +29,7 @@ private:
 	};
 
 	se::graphics::InstanceBuffer<se::graphics::BillboardInstanceData> instanceBuffer;
-	std::shared_ptr<se::graphics::FlatTextureMaterial> material;
+	std::shared_ptr<se::graphics::Material> material;
 	se::graphics::Shape shape;
 
 	std::vector<Particle> particles;

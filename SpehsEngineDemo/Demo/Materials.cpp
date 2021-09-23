@@ -1,11 +1,15 @@
 #include "stdafx.h"
 #include "Materials.h"
 
+#include "SpehsEngine/Graphics/DefaultMaterials.h"
+
+using namespace se::graphics;
 
 
-TestMaterial::TestMaterial(se::graphics::ShaderManager& _shaderManager)
-	: se::graphics::PhongMaterial(_shaderManager)
+std::shared_ptr<Material> createTestMaterial(ShaderManager& _shaderManager)
 {
-	setShader(_shaderManager.find("test"), se::graphics::ShaderVariant::Default);
-	setShader(_shaderManager.find("test_anim"), se::graphics::ShaderVariant::Skinned);
+	auto material = createMaterial(DefaultMaterialType::Phong, _shaderManager);
+	material->setShader(_shaderManager.find("test"), ShaderVariant::Default);
+	material->setShader(_shaderManager.find("test_anim"), ShaderVariant::Skinned);
+	return material;
 }

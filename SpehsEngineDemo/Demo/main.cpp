@@ -205,38 +205,38 @@ int main()
 	blackTextureInput.data = {0, 0, 0, 0};
 	auto blackTexture = textureManager.create("blackTexture", blackTextureInput, genModes);
 
-	std::shared_ptr<se::graphics::FlatColorMaterial> colorMaterial = std::make_unique<se::graphics::FlatColorMaterial>(shaderManager);
+	std::shared_ptr<se::graphics::Material> colorMaterial = se::graphics::createMaterial(se::graphics::DefaultMaterialType::FlatColor, shaderManager);
 
-	std::shared_ptr<se::graphics::FlatTextureMaterial> flatMaterial = std::make_unique<se::graphics::FlatTextureMaterial>(shaderManager);
+	std::shared_ptr<se::graphics::Material> flatMaterial = se::graphics::createMaterial(se::graphics::DefaultMaterialType::FlatTexture, shaderManager);
 	flatMaterial->setTexture(genTexture);
 
-	std::shared_ptr<se::graphics::PhongMaterial> phongMaterial = std::make_unique<se::graphics::PhongMaterial>(shaderManager);
-	phongMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
-	phongMaterial->setTexture(se::graphics::PhongTextureType::Normal, testNormal);
+	std::shared_ptr<se::graphics::Material> phongMaterial = se::graphics::createMaterial(se::graphics::DefaultMaterialType::Phong, shaderManager);
+	phongMaterial->setTexture(testColor, se::graphics::PhongTextureType::Color);
+	phongMaterial->setTexture(testNormal, se::graphics::PhongTextureType::Normal);
 
-	std::shared_ptr<TestMaterial> testMaterial = std::make_unique<TestMaterial>(shaderManager);
-	testMaterial->setTexture(se::graphics::PhongTextureType::Color, testColor);
-	testMaterial->setTexture(se::graphics::PhongTextureType::Normal, testNormal);
+	std::shared_ptr<se::graphics::Material> testMaterial = createTestMaterial(shaderManager);
+	testMaterial->setTexture(testColor, se::graphics::PhongTextureType::Color);
+	testMaterial->setTexture(testNormal, se::graphics::PhongTextureType::Normal);
 
-	std::shared_ptr<TestMaterial> demonMaterial = std::make_unique<TestMaterial>(shaderManager);
-	demonMaterial->setTexture(se::graphics::PhongTextureType::Color, demonColor);
-	demonMaterial->setTexture(se::graphics::PhongTextureType::Normal, flatNormalTexture);
+	std::shared_ptr<se::graphics::Material> demonMaterial = createTestMaterial(shaderManager);
+	demonMaterial->setTexture(demonColor, se::graphics::PhongTextureType::Color);
+	demonMaterial->setTexture(flatNormalTexture, se::graphics::PhongTextureType::Normal);
 
-	std::shared_ptr<TestMaterial> stoneMaterial = std::make_unique<TestMaterial>(shaderManager);
-	stoneMaterial->setTexture(se::graphics::PhongTextureType::Color, stoneColor);
-	stoneMaterial->setTexture(se::graphics::PhongTextureType::Normal, stoneNormal);
+	std::shared_ptr<se::graphics::Material> stoneMaterial = createTestMaterial(shaderManager);
+	stoneMaterial->setTexture(stoneColor, se::graphics::PhongTextureType::Color);
+	stoneMaterial->setTexture(stoneNormal, se::graphics::PhongTextureType::Normal);
 
-	std::shared_ptr<se::graphics::PhongMaterial> flatPhongMaterial = std::make_unique<se::graphics::PhongMaterial>(shaderManager);
-	flatPhongMaterial->setTexture(se::graphics::PhongTextureType::Color, whiteTexture);
-	flatPhongMaterial->setTexture(se::graphics::PhongTextureType::Normal, flatNormalTexture);
+	std::shared_ptr<se::graphics::Material> flatPhongMaterial = se::graphics::createMaterial(se::graphics::DefaultMaterialType::Phong, shaderManager);
+	flatPhongMaterial->setTexture(whiteTexture, se::graphics::PhongTextureType::Color);
+	flatPhongMaterial->setTexture(flatNormalTexture, se::graphics::PhongTextureType::Normal);
 
-	std::shared_ptr<se::graphics::TextMaterial> textMaterial = std::make_unique<se::graphics::TextMaterial>(shaderManager);
+	std::shared_ptr<se::graphics::Material> textMaterial = se::graphics::createMaterial(se::graphics::DefaultMaterialType::Text, shaderManager);
 	textMaterial->setFont(testFont);
 
-	std::shared_ptr<se::graphics::TextMaterial> embeddedTextMaterial = std::make_unique<se::graphics::TextMaterial>(shaderManager);
+	std::shared_ptr<se::graphics::Material> embeddedTextMaterial = se::graphics::createMaterial(se::graphics::DefaultMaterialType::Text, shaderManager);
 	embeddedTextMaterial->setFont(embeddedFont);
 
-	std::shared_ptr<se::graphics::SkyboxMaterial> skyboxMaterial = std::make_unique<se::graphics::SkyboxMaterial>(shaderManager);
+	std::shared_ptr<se::graphics::Material> skyboxMaterial = se::graphics::createMaterial(se::graphics::DefaultMaterialType::Skybox, shaderManager);
 	skyboxMaterial->setTexture(skyboxColor);
 
 
