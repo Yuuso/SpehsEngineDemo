@@ -252,7 +252,7 @@ int main()
 	style.color = se::hexColor(se::Red);
 	testText.setStyle(style);
 	testText.insert("1234567890\n");
-	testText.insert(u8"Á\n");
+	testText.insert(U"Á\n");
 	testText.setPosition({ -window1.getWidth() * 0.5f + 200.0f, 0.0f, -window1.getHeight() * 0.5f + 200.0f });
 	hudScene.add(testText);
 
@@ -487,7 +487,7 @@ int main()
 	animModel.loadModelData(animModelData);
 	animModel.setMaterial(testMaterial);
 	animModel.setPosition(glm::vec3(0.0f, -20.0f, 0.0f));
-	animModel.startAnimation("Walk");
+	animModel.getAnimator().start("Walk");
 	scene.add(animModel);
 
 	se::graphics::Model jumpModel;
@@ -495,7 +495,7 @@ int main()
 	jumpModel.setMaterial(phongMaterial);
 	jumpModel.setColor(se::hexColor(se::HexColor::Coral));
 	jumpModel.setPosition(glm::vec3(15.0f, -25.0f, 15.0f));
-	jumpModel.startAnimation("Jump");
+	jumpModel.getAnimator().start("Jump");
 	jumpModel.setInstances(modelInstances.getBuffer());
 	scene.add(jumpModel);
 
@@ -503,7 +503,7 @@ int main()
 	ballTestModel.loadModelData(rotorTestModelData);
 	ballTestModel.setMaterial(phongMaterial);
 	ballTestModel.setPosition(glm::vec3(-15.0f, -25.0f, -15.0f));
-	ballTestModel.startAnimation("rotor_move.L");
+	ballTestModel.getAnimator().start("rotor_move.L");
 	scene.add(ballTestModel);
 
 	se::graphics::Model demonModel;
@@ -518,7 +518,7 @@ int main()
 	simpleModel.loadModelData(simpleModelData);
 	simpleModel.setMaterial(phongMaterial);
 	simpleModel.setPosition(glm::vec3(-15.0f, -25.0f, 0.0f));
-	simpleModel.startAnimation("Wobble");
+	simpleModel.getAnimator().start("Wobble");
 	scene.add(simpleModel);
 
 	se::graphics::InstanceBuffer<se::graphics::TransformInstanceData> shapeInstances;
@@ -685,17 +685,17 @@ int main()
 		constexpr se::time::Time idleFade = se::time::fromMilliseconds(200);
 		if (inputManager.isKeyDown((unsigned)se::input::Key::SPACE))
 		{
-			if (!demonModel.isAnimationActive("Run"))
+			if (!demonModel.getAnimator().isPlaying("Run"))
 			{
-				demonModel.stopAnimations(runFade);
-				demonModel.startAnimation("Run", runFade);
-				demonModel.setAnimationSpeed(2.0f, "Run");
+				demonModel.getAnimator().stopAll(runFade);
+				demonModel.getAnimator().start("Run", runFade);
+				demonModel.getAnimator().setSpeed("Run", 2.0f);
 			}
 		}
-		else if (!demonModel.isAnimationActive("Idle"))
+		else if (!demonModel.getAnimator().isPlaying("Idle"))
 		{
-			demonModel.stopAnimations(idleFade);
-			demonModel.startAnimation("Idle", idleFade);
+			demonModel.getAnimator().stopAll(idleFade);
+			demonModel.getAnimator().start("Idle", idleFade);
 		}
 
 		if (inputManager.isKeyPressed((unsigned)se::input::Key::F8))
