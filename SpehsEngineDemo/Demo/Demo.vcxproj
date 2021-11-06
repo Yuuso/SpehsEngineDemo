@@ -109,7 +109,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\lib\;$(SolutionDir)bin\;$(SPEHSENGINE_ROOT)Dependencies\lib\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\$(Configuration)\$(PlatformToolset)\;$(SPEHSENGINE_ROOT)bin\$(Platform)\$(Configuration)\$(PlatformToolset)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -127,7 +127,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\lib\;$(SolutionDir)bin\;$(SPEHSENGINE_ROOT)Dependencies\lib\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\$(Configuration)\$(PlatformToolset)\;$(SPEHSENGINE_ROOT)bin\$(Platform)\$(Configuration)\$(PlatformToolset)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -149,7 +149,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\lib\;$(SolutionDir)bin\;$(SPEHSENGINE_ROOT)Dependencies\lib\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\$(Configuration)\$(PlatformToolset)\;$(SPEHSENGINE_ROOT)bin\$(Platform)\$(Configuration)\$(PlatformToolset)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
@@ -172,12 +172,13 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\lib\;$(SolutionDir)bin\;$(SPEHSENGINE_ROOT)Dependencies\lib\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\$(Configuration)\$(PlatformToolset)\;$(SPEHSENGINE_ROOT)bin\$(Platform)\$(Configuration)\$(PlatformToolset)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CameraController.cpp" />
+    <ClCompile Include="GUITest.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Materials.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
@@ -191,6 +192,7 @@
   <ItemGroup>
     <ClInclude Include="CameraController.h" />
     <ClInclude Include="DefaultResourcePathFinders.h" />
+    <ClInclude Include="GUITest.h" />
     <ClInclude Include="Materials.h" />
     <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="stdafx.h" />

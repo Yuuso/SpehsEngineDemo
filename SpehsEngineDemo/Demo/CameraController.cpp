@@ -34,8 +34,8 @@ void CameraController::update(const se::time::Time _deltaTime)
 		moveSpeed *= 3;
 
 	const glm::vec3 position = camera.getPosition() + movement * moveSpeed * _deltaTime.asSeconds();
-	const glm::vec3 direction = glm::rotate(glm::rotate(camera.getDirection	(), rotation.y * ROTATION_SPEED * _deltaTime.asSeconds(), -camera.getLeft()),
-																			   rotation.x * ROTATION_SPEED * _deltaTime.asSeconds(), -camera.getUp());
+	const glm::vec3 direction = glm::rotate(glm::rotate(camera.getDirection	(), rotation.y * ROTATION_SPEED * _deltaTime.asSeconds(), camera.getLeft()),
+																				rotation.x * ROTATION_SPEED * _deltaTime.asSeconds(), -camera.getUp());
 	const glm::vec3 up = glm::rotate(glm::normalize(glm::cross(direction, camera.getLeft())), tilt * TILT_SPEED * _deltaTime.asSeconds(), direction);
 
 	camera.setDirection(direction);

@@ -2,6 +2,7 @@
 
 #include "CameraController.h"
 #include "DefaultResourcePathFinders.h"
+#include "GUITest.h"
 #include "ParticleSystem.h"
 #include "Materials.h"
 #include "SpehsEngine/Core/ColorUtilityFunctions.h"
@@ -15,7 +16,6 @@
 #include "SpehsEngine/Core/Thread.h"
 #include "SpehsEngine/Graphics/Camera.h"
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
-#include "SpehsEngine/Graphics/ShaderManager.h"
 #include "SpehsEngine/Graphics/FontManager.h"
 #include "SpehsEngine/Graphics/GraphicsLib.h"
 #include "SpehsEngine/Graphics/InstanceBuffer.h"
@@ -25,11 +25,13 @@
 #include "SpehsEngine/Graphics/ModelDataManager.h"
 #include "SpehsEngine/Graphics/Renderer.h"
 #include "SpehsEngine/Graphics/Scene.h"
+#include "SpehsEngine/Graphics/ShaderManager.h"
 #include "SpehsEngine/Graphics/Shape.h"
 #include "SpehsEngine/Graphics/Text.h"
 #include "SpehsEngine/Graphics/TextureManager.h"
 #include "SpehsEngine/Graphics/View.h"
 #include "SpehsEngine/Graphics/Window.h"
+#include "SpehsEngine/GUI/GUILib.h"
 #include "SpehsEngine/Input/EventCatcher.h"
 #include "SpehsEngine/Input/EventSignaler.h"
 #include "SpehsEngine/Input/InputLib.h"
@@ -45,6 +47,7 @@ int main()
 	se::CoreLib core;
 	se::InputLib input;
 	se::GraphicsLib graphics;
+	se::GUILib gui;
 
 	//se::Inifile inifile("demo");
 	//inifile.read();
@@ -242,6 +245,8 @@ int main()
 
 	//testFont->waitUntilReady();
 
+	GUITest guitest(window1, shaderManager, textureManager);
+
 	se::graphics::Text testText;
 	se::graphics::TextStyle style;
 	testText.setMaterial(textMaterial);
@@ -249,7 +254,7 @@ int main()
 	//testText.insert("|\n");
 	testText.insert("ABCDEFGHIJKLMNOPQRSTUVWXYZ\n");
 	testText.insert("abcdrfghijklmnopqrstuvwxyz\n");
-	style.color = se::hexColor(se::Red);
+	style.color = se::Color(se::Red);
 	testText.setStyle(style);
 	testText.insert("1234567890\n");
 	testText.insert(U"Á\n");
@@ -262,7 +267,7 @@ int main()
 	embeddedFontText.setPosition({ -window1.getWidth() * 0.5f + 200.0f, 0.0f, -window1.getHeight() * 0.5f + 400.0f });
 	hudScene.add(embeddedFontText);
 
-	se::graphics::AmbientLight ambientLight(se::hexColor(se::White), 0.05f);
+	se::graphics::AmbientLight ambientLight(se::Color(se::White), 0.05f);
 	scene.add(ambientLight);
 
 	se::graphics::PointLight pointLight;
@@ -401,7 +406,7 @@ int main()
 	hudShape.disableRenderFlags(se::graphics::RenderFlag::CullBackFace);
 	hudShape.setRenderMode(se::graphics::RenderMode::Dynamic);
 	hudShape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
-	hudShape.setColor(se::hexColor(se::Orange));
+	hudShape.setColor(se::Color(se::Orange));
 	hudShape.setScale(glm::vec3(30.0f));
 	hudShape.setPosition({ -window1.getWidth() * 0.5f + 20.0f, 0.0f, window1.getHeight() * 0.5f - 50.0f });
 	hudScene.add(hudShape);
@@ -438,19 +443,19 @@ int main()
 	se::graphics::Line originX;
 	originX.addPoint(glm::vec3(0.0f));
 	originX.addPoint(glm::vec3(1.0f, 0.0f, 0.0f));
-	originX.setColor(se::hexColor(se::HexColor::Red));
+	originX.setColor(se::Color(se::HexColor::Red));
 	originX.setMaterial(colorMaterial);
 	scene.add(originX);
 	se::graphics::Line originZ;
 	originZ.addPoint(glm::vec3(0.0f));
 	originZ.addPoint(glm::vec3(0.0f, 0.0f, 1.0f));
-	originZ.setColor(se::hexColor(se::HexColor::Blue));
+	originZ.setColor(se::Color(se::HexColor::Blue));
 	originZ.setMaterial(colorMaterial);
 	scene.add(originZ);
 	se::graphics::Line originY;
 	originY.addPoint(glm::vec3(0.0f));
 	originY.addPoint(glm::vec3(0.0f, 1.0f, 0.0f));
-	originY.setColor(se::hexColor(se::HexColor::Green));
+	originY.setColor(se::Color(se::HexColor::Green));
 	originY.setMaterial(colorMaterial);
 	scene.add(originY);
 
@@ -493,7 +498,7 @@ int main()
 	se::graphics::Model jumpModel;
 	jumpModel.loadModelData(jumpModelData);
 	jumpModel.setMaterial(phongMaterial);
-	jumpModel.setColor(se::hexColor(se::HexColor::Coral));
+	jumpModel.setColor(se::Color(se::HexColor::Coral));
 	jumpModel.setPosition(glm::vec3(15.0f, -25.0f, 15.0f));
 	jumpModel.getAnimator().start("Jump");
 	jumpModel.setInstances(modelInstances.getBuffer());
@@ -702,6 +707,8 @@ int main()
 		{
 			window1.requestScreenShot("screenshot_" + std::to_string(frameN));
 		}
+
+		guitest.update(deltaTimeSystem.deltaTime);
 
 		imguiBackend.render();
 		renderer.render();
