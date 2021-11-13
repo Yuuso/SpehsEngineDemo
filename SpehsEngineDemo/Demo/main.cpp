@@ -80,16 +80,6 @@ int main()
 	//camera.setProjection(se::graphics::Projection::Orthographic);
 	//camera.setZoom(0.01f);
 
-	se::graphics::Scene hudScene;
-	se::graphics::Camera hudCamera;
-	se::graphics::View hudView(hudScene, hudCamera);
-	window1.add(hudView);
-	hudView.setClearFlags(se::graphics::ViewClearFlag::ClearDepth);
-	hudCamera.setUp({ 0.0f, 0.0f, -1.0f });
-	hudCamera.setPosition({ 0.0f, 1.0f, 0.0f });
-	hudCamera.setDirection({ 0.0f, -1.0f, 0.0f });
-	hudCamera.setProjection(se::graphics::Projection::Orthographic);
-
 	se::graphics::Window window2;
 	if (renderer.getRendererBackend() != se::graphics::RendererBackend::OpenGL &&
 		renderer.getRendererBackend() != se::graphics::RendererBackend::Vulkan) // TODO: There has to be a way to fix this!
@@ -245,7 +235,7 @@ int main()
 
 	//testFont->waitUntilReady();
 
-	GUITest guitest(window1, shaderManager, textureManager);
+	GUITest guitest(window1, shaderManager, textureManager, fontManager);
 
 	se::graphics::Text testText;
 	se::graphics::TextStyle style;
@@ -258,14 +248,15 @@ int main()
 	testText.setStyle(style);
 	testText.insert("1234567890\n");
 	testText.insert(U"Á\n");
-	testText.setPosition({ -window1.getWidth() * 0.5f + 200.0f, 0.0f, -window1.getHeight() * 0.5f + 200.0f });
-	hudScene.add(testText);
+	testText.setScale(glm::vec3(0.02f));
+	testText.setPosition(glm::vec3(0.0f, -24.99f, 0.0f));
+	testText.enableRenderFlags(se::graphics::RenderFlag::DepthTestLess);
+	scene.add(testText);
 
-	se::graphics::Text embeddedFontText;
-	embeddedFontText.setMaterial(embeddedTextMaterial);
-	embeddedFontText.insert("abcdrfghijklmnopqrstuvwxyz\n");
-	embeddedFontText.setPosition({ -window1.getWidth() * 0.5f + 200.0f, 0.0f, -window1.getHeight() * 0.5f + 400.0f });
-	hudScene.add(embeddedFontText);
+	//se::graphics::Text embeddedFontText;
+	//embeddedFontText.setMaterial(embeddedTextMaterial);
+	//embeddedFontText.insert("abcdrfghijklmnopqrstuvwxyz\n");
+	//scene.add(embeddedFontText);
 
 	se::graphics::AmbientLight ambientLight(se::Color(se::White), 0.05f);
 	scene.add(ambientLight);
@@ -399,17 +390,6 @@ int main()
 	// TODO: Cubemap textures don't work with temp textures!
 	skyboxColor->waitUntilReady();
 
-
-	se::graphics::Shape hudShape;
-	hudShape.generate(se::graphics::ShapeType::Square/*, se::graphics::ShapeParameters(), &shapeGenerator*/);
-	hudShape.setMaterial(flatMaterial);
-	hudShape.disableRenderFlags(se::graphics::RenderFlag::CullBackFace);
-	hudShape.setRenderMode(se::graphics::RenderMode::Dynamic);
-	hudShape.setPrimitiveType(se::graphics::PrimitiveType::Triangles);
-	hudShape.setColor(se::Color(se::Orange));
-	hudShape.setScale(glm::vec3(30.0f));
-	hudShape.setPosition({ -window1.getWidth() * 0.5f + 20.0f, 0.0f, window1.getHeight() * 0.5f - 50.0f });
-	hudScene.add(hudShape);
 
 	se::graphics::ShapeParameters boxShapeParams;
 	boxShapeParams.generateNormals = true;
@@ -644,8 +624,8 @@ int main()
 		eventSignaler.signalEvents(eventCatcher);
 		inputManager.update(eventCatcher);
 
-		ImGui::SetNextWindowPos({ 50.0f, 100.0f }, ImGuiCond_Once);
-		ImGui::SetNextWindowSize({ 300.0f, 80.0f }, ImGuiCond_Once);
+		ImGui::SetNextWindowPos({ 50.0f, 100.0f }, ImGuiCond_FirstUseEver);
+		ImGui::SetNextWindowSize({ 300.0f, 80.0f }, ImGuiCond_FirstUseEver);
 		{
 			ImGui::ScopedFont monoFont(se::imgui::ImGuiFont::Mono);
 			ImGui::Begin("TEST Testing 123");
@@ -657,8 +637,8 @@ int main()
 		ImGui::SetNextWindowSize({ 300.0f, 300.0f }, ImGuiCond_Once);
 		if (ImGui::Begin("More testing"))
 		{
-			ImGui::Image(stoneColor, { 0.2f, 0.2f });
-			if (ImGui::ImageButton(genTexture, { 20.0f, 20.0f }))
+			ImGui::Image(*stoneColor, { 0.2f, 0.2f });
+			if (ImGui::ImageButton(*genTexture, { 20.0f, 20.0f }))
 			{
 				se::log::info("button test");
 			}

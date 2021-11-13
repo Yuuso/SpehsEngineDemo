@@ -44,12 +44,7 @@ void CameraController::update(const se::time::Time _deltaTime)
 
 	if (mouseMovementActive)
 	{
-		se::input::setShowCursor(false);
 		se::input::setMousePosition({ window.getWidth() / 2, window.getHeight() / 2 });
-	}
-	else
-	{
-		se::input::setShowCursor(true);
 	}
 }
 
@@ -118,15 +113,16 @@ bool CameraController::keyboardCallback(const se::input::KeyboardEvent& _event)
 }
 bool CameraController::mouseButtonCallback(const se::input::MouseButtonEvent& _event)
 {
-	if (!window.getMouseFocus())
-		return false;
 	if (_event.type == se::input::MouseButtonEvent::Type::Press)
 	{
+		if (!window.getMouseFocus())
+			return false;
 		switch (_event.button)
 		{
 			case se::input::MouseButton::right:
 				savedMousePos = se::input::getMousePosition();
 				mouseMovementActive = true;
+				se::input::setShowCursor(false);
 				return true;
 		}
 	}
@@ -137,6 +133,7 @@ bool CameraController::mouseButtonCallback(const se::input::MouseButtonEvent& _e
 			case se::input::MouseButton::right:
 				se::input::setMousePosition(savedMousePos);
 				mouseMovementActive = false;
+				se::input::setShowCursor(true);
 				return true;
 		}
 	}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SpehsEngine/Graphics/Window.h"
+#include "SpehsEngine/Graphics/FontManager.h"
 #include "SpehsEngine/Graphics/ShaderManager.h"
 #include "SpehsEngine/Graphics/TextureManager.h"
 #include "SpehsEngine/GUI/GUIView.h"
@@ -13,7 +14,7 @@
 class GUITest
 {
 public:
-	GUITest(se::graphics::Window& _window, se::graphics::ShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager);
+	GUITest(se::graphics::Window& _window, se::graphics::ShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager, se::graphics::FontManager& _fontManager);
 	void update(se::time::Time _deltaTime);
 
 private:
