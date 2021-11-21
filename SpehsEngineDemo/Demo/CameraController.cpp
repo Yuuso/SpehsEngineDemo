@@ -15,12 +15,13 @@ CameraController::CameraController(const se::graphics::Window& _window, se::grap
 	, eventSignaler(_eventSignaler)
 	, window(_window)
 {
+	constexpr int cameraControllerinputPriority = se::input::EventSignaler::minPriority;
 	eventSignaler.connectToPreUpdateSignal(			preUpdateConnection,			boost::bind(&CameraController::preUpdateCallback,			this));
 	eventSignaler.connectToPostUpdateSignal(		postUpdateConnection,			boost::bind(&CameraController::postUpdateCallback,			this));
-	eventSignaler.connectToKeyboardSignal(			keyboardConnection,				boost::bind(&CameraController::keyboardCallback,			this, boost::placeholders::_1), 0);
-	eventSignaler.connectToMouseButtonSignal(		mouseButtonConnection,			boost::bind(&CameraController::mouseButtonCallback,			this, boost::placeholders::_1), 0);
-	eventSignaler.connectToMouseMotionSignal(		mouseMotionConnection,			boost::bind(&CameraController::mouseMotionCallback,			this, boost::placeholders::_1), 0);
-	eventSignaler.connectToMouseHoverSignal(		mouseHoverConnection,			boost::bind(&CameraController::mouseHoverCallback,			this, boost::placeholders::_1), 0);
+	eventSignaler.connectToKeyboardSignal(			keyboardConnection,				boost::bind(&CameraController::keyboardCallback,			this, boost::placeholders::_1), cameraControllerinputPriority);
+	eventSignaler.connectToMouseButtonSignal(		mouseButtonConnection,			boost::bind(&CameraController::mouseButtonCallback,			this, boost::placeholders::_1), cameraControllerinputPriority);
+	eventSignaler.connectToMouseMotionSignal(		mouseMotionConnection,			boost::bind(&CameraController::mouseMotionCallback,			this, boost::placeholders::_1), cameraControllerinputPriority);
+	eventSignaler.connectToMouseHoverSignal(		mouseHoverConnection,			boost::bind(&CameraController::mouseHoverCallback,			this, boost::placeholders::_1), cameraControllerinputPriority);
 }
 
 void CameraController::update(const se::time::Time _deltaTime)

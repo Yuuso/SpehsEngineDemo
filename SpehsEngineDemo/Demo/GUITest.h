@@ -7,6 +7,7 @@
 #include "SpehsEngine/GUI/GUIView.h"
 #include "SpehsEngine/GUI/GUIElement.h"
 #include "SpehsEngine/GUI/GUIShape.h"
+#include "SpehsEngine/Input/InputManager.h"
 #include <vector>
 #include <memory>
 
@@ -14,12 +15,11 @@
 class GUITest
 {
 public:
-	GUITest(se::graphics::Window& _window, se::graphics::ShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager, se::graphics::FontManager& _fontManager);
+	GUITest(se::graphics::Window& _window, se::graphics::ShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager, se::graphics::FontManager& _fontManager, se::input::InputManager& _inputManager);
 	void update(se::time::Time _deltaTime);
 
 private:
+	se::input::InputManager& inputManager;
 	se::gui::GUIView view;
-	std::vector<std::shared_ptr<se::gui::GUIElement>> elements;
-
-	std::shared_ptr<se::gui::GUIShape> testElement;
+	se::gui::GUIShape root;
 };

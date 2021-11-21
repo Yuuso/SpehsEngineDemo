@@ -235,7 +235,7 @@ int main()
 
 	//testFont->waitUntilReady();
 
-	GUITest guitest(window1, shaderManager, textureManager, fontManager);
+	GUITest guitest(window1, shaderManager, textureManager, fontManager, inputManager);
 
 	se::graphics::Text testText;
 	se::graphics::TextStyle style;

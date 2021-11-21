@@ -1,70 +1,120 @@
 #include "stdafx.h"
 #include "GUITest.h"
 
+#include "SpehsEngine/Core/RNG.h"
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
 #include "SpehsEngine/GUI/GUIShape.h"
+#include "SpehsEngine/GUI/GUIStack.h"
 #include "SpehsEngine/GUI/GUIText.h"
 
 using namespace se::gui;
+using namespace se::gui::unit_literals;
 
 
-GUITest::GUITest(se::graphics::Window& _window, se::graphics::ShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager, se::graphics::FontManager& _fontManager)
+GUITest::GUITest(se::graphics::Window& _window,
+				 se::graphics::ShaderManager& _shaderManager,
+				 se::graphics::TextureManager& _textureManager,
+				 se::graphics::FontManager& _fontManager,
+				 se::input::InputManager& _inputManager)
 	: view(_shaderManager, _textureManager, _fontManager)
+	, inputManager(_inputManager)
 {
 	_window.add(view.getView());
 
-	using namespace se::gui::unit_literals;
-
-	auto root = std::make_shared<GUIShape>();
-	root->setSize({ 1.0_view, 1.0_view });
-	root->setColor(se::Color(se::HexColor::Black).withAlpha(0.8f));
-	view.add(*root);
-	elements.push_back(root);
-
-	testElement = std::make_shared<GUIShape>();
-	testElement->setPosition({ 0.5_view, 0.5_view });
-	testElement->setSize({ 400.0f, 200.0f });
-	testElement->setColor(se::Color(se::HexColor::Bisque).withAlpha(0.9f));
-	testElement->setAnchor(VerticalAlignment::Center, HorizontalAlignment::Center);
-	root->addChild(*testElement);
+	root.setSize({ 1.0_view, 1.0_view });
+	root.setColor(se::Color(se::HexColor::Black).withAlpha(0.8f));
+	view.add(root);
 
 	std::shared_ptr<GUIShape> tempShape;
 	std::shared_ptr<GUIText> tempText;
+
+	tempShape = std::make_shared<GUIShape>();
+	tempShape->setPosition({ 0.5_view, 0.5_view });
+	tempShape->setSize({ 400.0_px, 200.0_px });
+	tempShape->setColor(se::Color(se::HexColor::Bisque).withAlpha(0.9f));
+	tempShape->setAnchor(VerticalAlignment::Center, HorizontalAlignment::Center);
+	root.addChild(tempShape);
 
 	tempShape = std::make_shared<GUIShape>();
 	tempShape->setTexture("test.png");
 	tempShape->setSize({ 0.5_ph, 0.5_ph });
 	tempShape->setVerticalAnchor(VerticalAlignment::Center);
 	tempShape->setVerticalAlignment(VerticalAlignment::Center);
-	testElement->addChild(*tempShape);
-	elements.push_back(tempShape);
+	//tempShape->setClipping(true);
+	root.getChild(0)->addChild(tempShape);
 
 	tempText = std::make_shared<GUIText>();
 	tempText->insert("TEST");
+	tempText->setWidth(2_pw);
+	tempText->setHeight(2_ph);
 	tempText->setColor(se::Color(se::HexColor::Green));
 	tempText->setAnchor(VerticalAlignment::Center, HorizontalAlignment::Center);
 	tempText->setAlignment(VerticalAlignment::Center, HorizontalAlignment::Center);
-	tempShape->addChild(*tempText);
-	elements.push_back(tempText);
+	tempShape->addChild(tempText);
 
 	tempShape = std::make_shared<GUIShape>();
 	tempShape->setSize({ 0.5_ph, 0.5_ph });
 	tempShape->setAnchor(VerticalAlignment::Center, HorizontalAlignment::Right);
 	tempShape->setAlignment(VerticalAlignment::Center, HorizontalAlignment::Right);
 	tempShape->setColor(se::Color(se::HexColor::DarkSeaGreen));
-	testElement->addChild(*tempShape);
-	elements.push_back(tempShape);
+	auto parentIndex = root.getChild(0)->addChild(tempShape);
 
 	tempShape = std::make_shared<GUIShape>();
 	tempShape->setTexture("test.png");
 	tempShape->setSize({ 0.9_parent, 0.9_parent });
-	tempShape->setMargin(Margin(0.05_parent));
-	elements.back()->addChild(*tempShape);
-	elements.push_back(tempShape);
+	tempShape->setPosition({ 0.05_parent, 0.05_parent });
+	root.getChild(0)->getChild(parentIndex)->addChild(tempShape);
+
+	auto dup = root.getChild(0)->clone();
+	dup->setPosition({ 0_px, 0_px });
+	dup->setAnchor(VerticalAlignment::Top, HorizontalAlignment::Left);
+	root.addChild(dup);
+
+
+	auto vstack = std::make_shared<GUIStack>();
+	vstack->setWidth(0.2_vw);
+	vstack->setPadding(2_px);
+	vstack->setAnchor(VerticalAnchor::Center, HorizontalAnchor::Right);
+	vstack->setAlignment(VerticalAlignment::Center, HorizontalAlignment::Right);
+
+	tempShape = std::make_shared<GUIShape>();
+	tempShape->setSize(1_parent);
+	tempShape->setPosition(0_px);
+	tempShape->setColor(se::Color(se::HexColor::DimGray).withAlpha(0.8f));
+	tempShape->setZIndex(-1);
+	vstack->addChild(tempShape);
+
+	auto hstack = std::make_shared<GUIStack>();
+	hstack->setOrientation(StackOrientation::Horizontal);
+	hstack->setHorizontalAnchor(HorizontalAnchor::Center);
+	hstack->setHorizontalAlignment(HorizontalAlignment::Center);
+	hstack->setPadding(2_px);
+	hstack->setHeight(30_px);
+	for (size_t i = 0; i < 10; i++)
+	{
+		auto stackChild = std::make_shared<GUIShape>();
+		stackChild->setSize({ GUIUnit(se::rng::random(10.0f, 20.0f), GUIUnitType::Pixels), GUIUnit(se::rng::random(15.0f, 30.0f), GUIUnitType::Pixels) });
+		hstack->addChild(stackChild);
+	}
+	vstack->addChild(hstack);
+
+	for (size_t i = 0; i < 10; i++)
+	{
+		auto stackChild = std::make_shared<GUIShape>();
+		stackChild->setHorizontalAnchor(HorizontalAnchor::Center);
+		stackChild->setHorizontalAlignment(HorizontalAlignment::Center);
+		stackChild->setSize({ GUIUnit(se::rng::random(0.5f, 1.0f), GUIUnitType::ParentWidth), GUIUnit(se::rng::random(15.0f, 30.0f), GUIUnitType::Pixels) });
+		vstack->addChild(stackChild);
+	}
+	root.addChild(vstack);
 }
 void GUITest::update([[maybe_unused]] se::time::Time _deltaTime)
 {
-	//testElement->setPosition(testElement->getPosition().value() + glm::vec2(5.0f) * _deltaTime.asSeconds());
-	//testElement->setRotation(testElement->getRotation() + 0.5f * _deltaTime.asSeconds());
-	//testElement->setScale(glm::vec2(1.0f + 0.4f * fabsf(sinf(se::time::now().asSeconds()))));
+	root.getChild(1)->setPosition(root.getChild(1)->getPosition() + GUIVec2(0.5_px) * _deltaTime.asSeconds());
+	root.getChild(1)->setRotation(root.getChild(1)->getRotation() + 0.5f * _deltaTime.asSeconds());
+	root.getChild(1)->setScale(glm::vec2(1.0f + 0.4f * fabsf(sinf(se::time::now().asSeconds()))));
+
+	auto mouseCoords = inputManager.getMouseCoords();
+	if (root.getChild(0)->hitTest(mouseCoords))
+		se::log::info("BOO");
 }
