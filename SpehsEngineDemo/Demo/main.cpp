@@ -235,7 +235,7 @@ int main()
 
 	//testFont->waitUntilReady();
 
-	GUITest guitest(window1, shaderManager, textureManager, fontManager, inputManager);
+	GUITest guitest(window1, shaderManager, textureManager, fontManager, eventSignaler);
 
 	se::graphics::Text testText;
 	se::graphics::TextStyle style;
@@ -303,7 +303,7 @@ int main()
 			shape.setMaterial(_material);
 			shape.enableRenderFlags(se::graphics::RenderFlag::BillboardSpherical);
 			trail.setMaterial(_trailMaterial);
-			trail.enableRenderFlags(se::graphics::RenderFlag::Blending);
+			trail.enableRenderFlags(se::graphics::RenderFlag::BlendAlpha);
 			trail.setRenderState(false);
 			_scene.add(shape);
 			_scene.add(trail);
@@ -378,9 +378,9 @@ int main()
 	se::graphics::Shape skybox;
 	skybox.generate(se::graphics::ShapeType::Box, skyboxShapeParams, &shapeGenerator);
 	skybox.disableRenderFlags(se::graphics::RenderFlag::CullBackFace);
-	skybox.disableRenderFlags(se::graphics::RenderFlag::DepthWrite);
+	skybox.disableRenderFlags(se::graphics::RenderFlag::WriteDepth);
 	skybox.disableRenderFlags(se::graphics::RenderFlag::DepthTestLess);
-	skybox.enableRenderFlags(se::graphics::RenderFlag::DepthTestLEqual);
+	skybox.enableRenderFlags(se::graphics::RenderFlag::DepthTestLessOrEqual);
 	skybox.setMaterial(skyboxMaterial);
 	// NOTE: rotating skybox does not work with static render mode!
 	//skybox.setRenderMode(se::graphics::RenderMode::Static);

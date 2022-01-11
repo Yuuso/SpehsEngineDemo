@@ -16,8 +16,8 @@ ParticleSystem::ParticleSystem(Scene& _scene, ShaderManager& _shaderManager, Tex
 	params.uvScale = 0.5f;
 	shape.generate(ShapeType::Square, params, &_shapeGen);
 	shape.enableRenderFlags(RenderFlag::BillboardSpherical);
-	shape.enableRenderFlags(RenderFlag::Blending);
-	shape.disableRenderFlags(RenderFlag::DepthWrite);
+	shape.enableRenderFlags(RenderFlag::BlendAlpha);
+	shape.disableRenderFlags(RenderFlag::WriteDepth);
 	shape.setScale(glm::vec3(3.0f));
 	shape.setInstances(instanceBuffer.getBuffer());
 	shape.setMaterial(material);

@@ -15,11 +15,11 @@
 class GUITest
 {
 public:
-	GUITest(se::graphics::Window& _window, se::graphics::ShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager, se::graphics::FontManager& _fontManager, se::input::InputManager& _inputManager);
+	GUITest(se::graphics::Window& _window, se::graphics::ShaderManager& _shaderManager, se::graphics::TextureManager& _textureManager,
+			se::graphics::FontManager& _fontManager, se::input::EventSignaler& _eventSignaler);
 	void update(se::time::Time _deltaTime);
 
 private:
-	se::input::InputManager& inputManager;
 	se::gui::GUIView view;
 	se::gui::GUIShape root;
 };

@@ -15,9 +15,8 @@ GUITest::GUITest(se::graphics::Window& _window,
 				 se::graphics::ShaderManager& _shaderManager,
 				 se::graphics::TextureManager& _textureManager,
 				 se::graphics::FontManager& _fontManager,
-				 se::input::InputManager& _inputManager)
-	: view(_shaderManager, _textureManager, _fontManager)
-	, inputManager(_inputManager)
+				 se::input::EventSignaler& _eventSignaler)
+	: view(_shaderManager, _textureManager, _fontManager, _eventSignaler, 465)
 {
 	_window.add(view.getView());
 
@@ -33,6 +32,15 @@ GUITest::GUITest(se::graphics::Window& _window,
 	tempShape->setSize({ 400.0_px, 200.0_px });
 	tempShape->setColor(se::Color(se::HexColor::Bisque).withAlpha(0.9f));
 	tempShape->setAnchor(VerticalAlignment::Center, HorizontalAlignment::Center);
+	tempShape->onClick([]{ se::log::info("click!"); });
+	{
+		GUIElementProperties hoverProps;
+		hoverProps.color = se::Color(se::HexColor::Pink);
+		tempShape->setHoverProperties(hoverProps);
+		GUIElementProperties pressedProps;
+		pressedProps.scale = glm::vec2(0.98f);
+		tempShape->setPressedProperties(pressedProps);
+	}
 	root.addChild(tempShape);
 
 	tempShape = std::make_shared<GUIShape>();
@@ -41,12 +49,20 @@ GUITest::GUITest(se::graphics::Window& _window,
 	tempShape->setVerticalAnchor(VerticalAlignment::Center);
 	tempShape->setVerticalAlignment(VerticalAlignment::Center);
 	//tempShape->setClipping(true);
+	{
+		GUIElementProperties hoverProps;
+		hoverProps.color = se::Color(se::HexColor::Yellow);
+		tempShape->setHoverProperties(hoverProps);
+		GUIElementProperties pressedProps;
+		pressedProps.scale = glm::vec2(0.98f);
+		tempShape->setPressedProperties(pressedProps);
+	}
 	root.getChild(0)->addChild(tempShape);
 
 	tempText = std::make_shared<GUIText>();
 	tempText->insert("TEST");
-	tempText->setWidth(2_pw);
-	tempText->setHeight(2_ph);
+	tempText->setWidth(1_pw);
+	tempText->setHeight(1_ph);
 	tempText->setColor(se::Color(se::HexColor::Green));
 	tempText->setAnchor(VerticalAlignment::Center, HorizontalAlignment::Center);
 	tempText->setAlignment(VerticalAlignment::Center, HorizontalAlignment::Center);
@@ -113,8 +129,4 @@ void GUITest::update([[maybe_unused]] se::time::Time _deltaTime)
 	root.getChild(1)->setPosition(root.getChild(1)->getPosition() + GUIVec2(0.5_px) * _deltaTime.asSeconds());
 	root.getChild(1)->setRotation(root.getChild(1)->getRotation() + 0.5f * _deltaTime.asSeconds());
 	root.getChild(1)->setScale(glm::vec2(1.0f + 0.4f * fabsf(sinf(se::time::now().asSeconds()))));
-
-	auto mouseCoords = inputManager.getMouseCoords();
-	if (root.getChild(0)->hitTest(mouseCoords))
-		se::log::info("BOO");
 }
