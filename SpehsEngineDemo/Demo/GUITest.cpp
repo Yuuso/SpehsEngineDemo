@@ -32,7 +32,7 @@ GUITest::GUITest(se::graphics::Window& _window,
 	tempShape->setSize({ 400.0_px, 200.0_px });
 	tempShape->setColor(se::Color(se::HexColor::Bisque).withAlpha(0.9f));
 	tempShape->setAnchor(VerticalAlignment::Center, HorizontalAlignment::Center);
-	tempShape->onClick([]{ se::log::info("click!"); });
+	tempShape->onClick([](GUIElement&){ se::log::info("click!"); });
 	{
 		GUIElementProperties hoverProps;
 		hoverProps.color = se::Color(se::HexColor::Pink);
