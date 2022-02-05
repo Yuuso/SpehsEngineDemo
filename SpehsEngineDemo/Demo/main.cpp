@@ -3,8 +3,13 @@
 #include "CameraController.h"
 #include "DefaultResourcePathFinders.h"
 #include "GUITest.h"
-#include "ParticleSystem.h"
 #include "Materials.h"
+#include "ParticleSystem.h"
+#include "SpehsEngine/Audio/AudioEngine.h"
+#include "SpehsEngine/Audio/AudioLib.h"
+#include "SpehsEngine/Audio/AudioManager.h"
+#include "SpehsEngine/Audio/AudioSource.h"
+#include "SpehsEngine/Audio/Bus.h"
 #include "SpehsEngine/Core/ColorUtilityFunctions.h"
 #include "SpehsEngine/Core/CoreLib.h"
 #include "SpehsEngine/Core/DeltaTimeSystem.h"
@@ -32,12 +37,12 @@
 #include "SpehsEngine/Graphics/View.h"
 #include "SpehsEngine/Graphics/Window.h"
 #include "SpehsEngine/GUI/GUILib.h"
+#include "SpehsEngine/ImGui/Utility/BackendWrapper.h"
+#include "SpehsEngine/ImGui/Utility/ImGuiUtility.h"
 #include "SpehsEngine/Input/EventCatcher.h"
 #include "SpehsEngine/Input/EventSignaler.h"
 #include "SpehsEngine/Input/InputLib.h"
 #include "SpehsEngine/Input/InputManager.h"
-#include "SpehsEngine/ImGui/Utility/BackendWrapper.h"
-#include "SpehsEngine/ImGui/Utility/ImGuiUtility.h"
 
 
 int main()
@@ -48,6 +53,7 @@ int main()
 	se::InputLib input;
 	se::GraphicsLib graphics;
 	se::GUILib gui;
+	se::AudioLib audio;
 
 	//se::Inifile inifile("demo");
 	//inifile.read();
@@ -60,6 +66,26 @@ int main()
 	se::input::EventCatcher eventCatcher;
 	se::input::InputManager inputManager;
 	se::input::EventSignaler eventSignaler;
+
+	se::audio::AudioEngine audioEngine;
+	//audioEngine.setAutoVelocityEnabled(true);
+	se::audio::AudioManager audioManager;
+
+	auto audioPathFinder = std::make_shared<AudioPathFinder>();
+	auto audioResourceLoader = se::audio::makeResourceLoader(4);
+	audioManager.setResourceLoader(audioResourceLoader);
+	audioManager.setResourcePathFinder(audioPathFinder);
+
+	auto musicResource = audioManager.stream("bg_music", "mission_overview_002.ogg");
+	musicResource->waitUntilReady();
+
+	se::audio::AudioSource musicSource;
+	musicSource.setOutput(audioEngine.getMasterBus());
+	musicSource.setResource(musicResource);
+	musicSource.setVolume(0.5f);
+	musicSource.setLooping(true);
+	//musicSource.play();
+	musicSource.playBackground();
 
 	se::graphics::Window window1;
 	//window1.setResizable(false);
@@ -689,6 +715,11 @@ int main()
 		}
 
 		guitest.update(deltaTimeSystem.deltaTime);
+
+		audioEngine.setListenerDirection(camera.getDirection());
+		audioEngine.setListenerPosition(camera.getPosition());
+		audioEngine.setListenerUp(camera.getUp());
+		audioEngine.update();
 
 		imguiBackend.render();
 		renderer.render();

@@ -70,3 +70,14 @@ public:
 		return DATA_PATH + "models/" + _resource;
 	}
 };
+
+
+class AudioPathFinder : public se::ResourcePathFinder
+{
+public:
+
+	std::string getPath(const std::string_view _resource) const override
+	{
+		return DATA_PATH + "audio/" + _resource;
+	}
+};

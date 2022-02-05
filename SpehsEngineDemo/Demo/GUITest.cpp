@@ -23,6 +23,7 @@ GUITest::GUITest(se::graphics::Window& _window,
 	root.setSize({ 1.0_view, 1.0_view });
 	root.setColor(se::Color(se::HexColor::Black).withAlpha(0.8f));
 	view.add(root);
+	root.setVisible(false);
 
 	std::shared_ptr<GUIShape> tempShape;
 	std::shared_ptr<GUIText> tempText;

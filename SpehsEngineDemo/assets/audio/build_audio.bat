@@ -1,0 +1,19 @@
+
+@ECHO OFF
+SETLOCAL
+CD /D %~dp0
+
+SET TARGET_LOC=%CD%\..\..\bin\data\audio
+
+REM Clear old fonts
+IF EXIST %TARGET_LOC% RMDIR /S /Q %TARGET_LOC%
+MKDIR %TARGET_LOC%
+
+
+XCOPY *.wav %TARGET_LOC%\ /y
+XCOPY *.ogg %TARGET_LOC%\ /y
+XCOPY *.mp3 %TARGET_LOC%\ /y
+
+
+PAUSE
+EXIT \B 0
