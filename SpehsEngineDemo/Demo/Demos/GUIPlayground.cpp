@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "GUITest.h"
+#include "Demo/Demos/GUIPlayground.h"
 
 #include "SpehsEngine/Core/RNG.h"
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
@@ -11,19 +11,20 @@ using namespace se::gui;
 using namespace se::gui::unit_literals;
 
 
-GUITest::GUITest(se::graphics::Window& _window,
-				 se::graphics::ShaderManager& _shaderManager,
-				 se::graphics::TextureManager& _textureManager,
-				 se::graphics::FontManager& _fontManager,
-				 se::input::EventSignaler& _eventSignaler)
-	: view(_shaderManager, _textureManager, _fontManager, _eventSignaler, 465)
+GUIPlayground::GUIPlayground(DemoContext& _context)
+	: DemoApplication(_context)
+	, view(_context.shaderManager, _context.textureManager, _context.fontManager, _context.eventSignaler, 465)
 {
-	_window.add(view.getView());
+}
+
+void GUIPlayground::init()
+{
+	demoContext.mainWindow.add(view.getView());
 
 	root.setSize({ 1.0_view, 1.0_view });
-	root.setColor(se::Color(se::HexColor::Black).withAlpha(0.8f));
+	root.setColor(se::Color(se::HexColor::Black)/*.withAlpha(0.8f)*/);
 	view.add(root);
-	root.setVisible(false);
+	//root.setVisible(false);
 
 	std::shared_ptr<GUIShape> tempShape;
 	std::shared_ptr<GUIText> tempText;
@@ -124,10 +125,23 @@ GUITest::GUITest(se::graphics::Window& _window,
 		vstack->addChild(stackChild);
 	}
 	root.addChild(vstack);
+
+	demoContext.mainWindow.setBorderless(false);
+	demoContext.mainWindow.setWidth(1600);
+	demoContext.mainWindow.setHeight(900);
+	demoContext.mainWindow.setCenteredX();
+	demoContext.mainWindow.setCenteredY();
+	demoContext.mainWindow.show();
 }
-void GUITest::update([[maybe_unused]] se::time::Time _deltaTime)
+GUIPlayground::~GUIPlayground()
 {
-	root.getChild(1)->setPosition(root.getChild(1)->getPosition() + GUIVec2(0.5_px) * _deltaTime.asSeconds());
-	root.getChild(1)->setRotation(root.getChild(1)->getRotation() + 0.5f * _deltaTime.asSeconds());
+	root.clearChildren();
+	view.remove(root);
+}
+bool GUIPlayground::update()
+{
+	root.getChild(1)->setPosition(root.getChild(1)->getPosition() + GUIVec2(0.5_px) * demoContext.deltaTimeSystem.deltaSeconds);
+	root.getChild(1)->setRotation(root.getChild(1)->getRotation() + 0.5f * demoContext.deltaTimeSystem.deltaSeconds);
 	root.getChild(1)->setScale(glm::vec2(1.0f + 0.4f * fabsf(sinf(se::time::now().asSeconds()))));
+	return true;
 }
