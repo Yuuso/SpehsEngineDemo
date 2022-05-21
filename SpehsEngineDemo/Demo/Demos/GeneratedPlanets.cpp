@@ -142,9 +142,10 @@ void GeneratedPlanets::generateMaterial()
 	noiseNormalInput.data.resize(4 * normalCubeFaceSize * normalCubeFaceSize * 6);
 
 	TextureInput noiseRoughnessInput;
+	noiseRoughnessInput.format = TextureInput::Format::R8;
 	noiseRoughnessInput.width = noiseRoughnessInput.height = roughnessCubeFaceSize;
 	noiseRoughnessInput.isCubemap = true;
-	noiseRoughnessInput.data.resize(4 * roughnessCubeFaceSize * roughnessCubeFaceSize * 6);
+	noiseRoughnessInput.data.resize(1 * roughnessCubeFaceSize * roughnessCubeFaceSize * 6);
 
 	/// How the cube map data is structured (bgfx docs have faces 2 & 3 swapped?):
 	///
@@ -270,10 +271,10 @@ void GeneratedPlanets::generateMaterial()
 			if (elevation < planetParams.seaLevel)
 			{
 				// Shiny water
-				return se::Color(0.0f, 0.0f, 0.0f);
+				return 0.0f;
 			}
 			// Rough land
-			return se::Color(1.0f, 1.0f, 1.0f);
+			return 1.0f;
 		};
 
 	size_t colorDataIndex = 0;
@@ -296,12 +297,9 @@ void GeneratedPlanets::generateMaterial()
 		};
 	size_t roughnessDataIndex = 0;
 	auto pushRoughnessData =
-		[&](se::Color _color)
+		[&](float roughness)
 		{
-			noiseRoughnessInput.data[roughnessDataIndex++] = static_cast<uint8_t>(_color.r * UINT8_MAX);
-			noiseRoughnessInput.data[roughnessDataIndex++] = static_cast<uint8_t>(_color.g * UINT8_MAX);
-			noiseRoughnessInput.data[roughnessDataIndex++] = static_cast<uint8_t>(_color.b * UINT8_MAX);
-			noiseRoughnessInput.data[roughnessDataIndex++] = UINT8_MAX;
+			noiseRoughnessInput.data[roughnessDataIndex++] = static_cast<uint8_t>(roughness * UINT8_MAX);
 		};
 
 	auto cubemapGenerator =
