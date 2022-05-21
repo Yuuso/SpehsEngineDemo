@@ -9,7 +9,7 @@ using namespace se::graphics;
 
 DemoContext::DemoContext()
 	: mainWindow(true)
-	, renderer(mainWindow, RendererFlag::VSync | RendererFlag::MSAA2, RendererBackend::Direct3D11)
+	, renderer(mainWindow, RendererFlag::VSync | RendererFlag::MSAA4, RendererBackend::Direct3D11)
 	, view(scene, camera)
 	, imguiBackend(eventSignaler, 0, renderer)
 {
@@ -72,17 +72,28 @@ bool DemoContext::update()
 	fontManager.update();
 	modelDataManager.update();
 
-	eventCatcher.pollEvents();
-	eventSignaler.signalEvents(eventCatcher);
-	inputManager.update(eventCatcher);
-
 	audioEngine.setListenerDirection(camera.getDirection());
 	audioEngine.setListenerPosition(camera.getPosition());
 	audioEngine.setListenerUp(camera.getUp());
 	audioEngine.update();
 
-	imguiBackend.render();
-	renderer.render();
+	eventCatcher.pollEvents();
+	inputManager.update(eventCatcher);
+	eventSignaler.signalEvents(eventCatcher);
 
 	return !inputManager.isQuitRequested() && !mainWindow.isQuitRequested();
+}
+void DemoContext::render()
+{
+	imguiBackend.render();
+	renderer.render();
+}
+void DemoContext::showWindowDefault()
+{
+	mainWindow.setBorderless(false);
+	mainWindow.setWidth(1600);
+	mainWindow.setHeight(900);
+	mainWindow.setCenteredX();
+	mainWindow.setCenteredY();
+	mainWindow.show();
 }

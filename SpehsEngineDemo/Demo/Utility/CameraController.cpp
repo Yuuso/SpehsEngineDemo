@@ -48,6 +48,14 @@ void CameraController::update(const se::time::Time _deltaTime)
 		se::input::setMousePosition({ window.getWidth() / 2, window.getHeight() / 2 });
 	}
 }
+glm::vec3 CameraController::getFrustumPoint(const glm::vec3& _screenCoordinates) const
+{
+#pragma warning(push)
+#pragma warning(disable : 4127)
+	const glm::vec3 screenCoordinatesFlipped(_screenCoordinates.x, float(window.getHeight()) - _screenCoordinates.y, _screenCoordinates.z);
+	return glm::unProject(screenCoordinatesFlipped, camera.getViewMatrix(), camera.getProjectionMatrix(window.getWidth(), window.getHeight()), glm::ivec4(0, 0, window.getWidth(), window.getHeight()));
+#pragma warning(pop)
+}
 
 void CameraController::preUpdateCallback()
 {

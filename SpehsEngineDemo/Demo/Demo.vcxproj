@@ -179,6 +179,8 @@
   <ItemGroup>
     <ClCompile Include="Demos\DemoSelector.cpp" />
     <ClCompile Include="Demos\GraphicsPlayground.cpp" />
+    <ClCompile Include="Demos\GeneratedPlanets.cpp" />
+    <ClCompile Include="Demos\MusicManager.cpp" />
     <ClCompile Include="Utility\CameraController.cpp" />
     <ClCompile Include="DemoContext.cpp" />
     <ClCompile Include="Demos\GUIPlayground.cpp" />
@@ -196,6 +198,8 @@
     <ClInclude Include="Demos\DemoApplication.h" />
     <ClInclude Include="DemoSelector.h" />
     <ClInclude Include="Demos\GraphicsPlayground.h" />
+    <ClInclude Include="Demos\GeneratedPlanets.h" />
+    <ClInclude Include="Demos\MusicManager.h" />
     <ClInclude Include="Utility\CameraController.h" />
     <ClInclude Include="DefaultResourcePathFinders.h" />
     <ClInclude Include="DemoContext.h" />

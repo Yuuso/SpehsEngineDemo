@@ -126,12 +126,7 @@ void GUIPlayground::init()
 	}
 	root.addChild(vstack);
 
-	demoContext.mainWindow.setBorderless(false);
-	demoContext.mainWindow.setWidth(1600);
-	demoContext.mainWindow.setHeight(900);
-	demoContext.mainWindow.setCenteredX();
-	demoContext.mainWindow.setCenteredY();
-	demoContext.mainWindow.show();
+	demoContext.showWindowDefault();
 }
 GUIPlayground::~GUIPlayground()
 {

@@ -25,6 +25,8 @@ struct DemoContext
 
 	void reset();
 	bool update();
+	void render();
+	void showWindowDefault();
 
 
 	se::time::DeltaTimeSystem deltaTimeSystem;

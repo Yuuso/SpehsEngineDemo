@@ -381,12 +381,7 @@ void GraphicsPlayground::init()
 	demoContext.scene.add(instanceShape);
 	instanceShape.setInstances(shapeInstances.getBuffer());
 
-	demoContext.mainWindow.setBorderless(false);
-	demoContext.mainWindow.setWidth(1600);
-	demoContext.mainWindow.setHeight(900);
-	demoContext.mainWindow.setCenteredX();
-	demoContext.mainWindow.setCenteredY();
-	demoContext.mainWindow.show();
+	demoContext.showWindowDefault();
 }
 
 bool GraphicsPlayground::update()

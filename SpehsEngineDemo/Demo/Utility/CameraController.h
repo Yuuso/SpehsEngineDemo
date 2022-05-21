@@ -14,6 +14,7 @@ public:
 	CameraController(const se::graphics::Window& _window, se::graphics::Camera& _camera, se::input::EventSignaler& _eventSignaler);
 
 	void update(const se::time::Time _deltaTime);
+	glm::vec3 getFrustumPoint(const glm::vec3& _screenCoordinates) const;
 
 private:
 	void preUpdateCallback();

@@ -1,8 +1,10 @@
 #include "stdafx.h"
 #include "Demo/DemoSelector.h"
 
+#include "Demo/Demos/GeneratedPlanets.h"
 #include "Demo/Demos/GraphicsPlayground.h"
 #include "Demo/Demos/GUIPlayground.h"
+#include "Demo/Demos/MusicManager.h"
 #include "SpehsEngine/GUI/GUIView.h"
 #include "SpehsEngine/GUI/GUIShape.h"
 #include "SpehsEngine/GUI/GUIStack.h"
@@ -92,7 +94,8 @@ static std::unique_ptr<DemoApplication> runApplicationSelector(DemoContext& _dem
 		GUIText text;
 		text.setAlignment(VerticalAlignment::Center, HorizontalAlignment::Center);
 		text.setAnchor(VerticalAnchor::Center, HorizontalAnchor::Center);
-		text.setHeight(24_px);
+		text.setHeight(15_px);
+		text.setFont("OpenSans-Regular");
 		text.setConsumeInput(false);
 		text.setInheritInputStatus(true);
 		{
@@ -105,22 +108,19 @@ static std::unique_ptr<DemoApplication> runApplicationSelector(DemoContext& _dem
 
 		//
 
-	#define SelectDemoType(__type) \
-		[&](auto&){ result = std::make_unique<__type>(_demoContext); demoSelected = true; }
+	#define SelectDemoButton(__type, __text) { \
+			auto appButton = button.clone(); \
+			text.clear(); \
+			text.insert(__text); \
+			appButton->addChild(text.clone()); \
+			appButton->onClick([&](auto&){ result = std::make_unique<__type>(_demoContext); demoSelected = true; }); \
+			appList->addChild(appButton); \
+		}
 
-		auto graphicsAppButton = button.clone();
-		text.clear();
-		text.insert("Graphics Playground");
-		graphicsAppButton->addChild(text.clone());
-		graphicsAppButton->onClick(SelectDemoType(GraphicsPlayground));
-		appList->addChild(graphicsAppButton);
-
-		auto GUIAppButton = button.clone();
-		text.clear();
-		text.insert("GUI Playground");
-		GUIAppButton->addChild(text.clone());
-		GUIAppButton->onClick(SelectDemoType(GUIPlayground));
-		appList->addChild(GUIAppButton);
+		SelectDemoButton(GraphicsPlayground,	"GRAPHICS PLAYGROUND")
+		SelectDemoButton(GUIPlayground,			"GUI PLAYGROUND")
+		SelectDemoButton(MusicManager,			"MUSIC MANAGER")
+		SelectDemoButton(GeneratedPlanets,		"GENERATED PLANETS")
 
 		GUIElement gap;
 		gap.setHeight(10_px);
@@ -128,7 +128,7 @@ static std::unique_ptr<DemoApplication> runApplicationSelector(DemoContext& _dem
 
 		auto quitButton = button.clone();
 		text.clear();
-		text.insert("Quit");
+		text.insert("QUIT");
 		quitButton->addChild(text.clone());
 		quitButton->onClick([&](auto&){ demoSelected = true; });
 		appList->addChild(quitButton);
@@ -141,7 +141,15 @@ static std::unique_ptr<DemoApplication> runApplicationSelector(DemoContext& _dem
 	_demoContext.mainWindow.setCenteredY();
 	_demoContext.mainWindow.show();
 
-	while (_demoContext.update() && !demoSelected) {}
+	while (true)
+	{
+		const bool engineExitRequested = !_demoContext.update();
+		_demoContext.render();
+		if (engineExitRequested || demoSelected)
+		{
+			break;
+		}
+	}
 	guiView.remove(root);
 	return result;
 }
@@ -154,6 +162,7 @@ std::unique_ptr<DemoApplication> demoApplicationSelector(DemoContext& _demoConte
 
 	_demoContext.reset();
 	_demoContext.update();
+	_demoContext.render();
 
 	if (result)
 	{

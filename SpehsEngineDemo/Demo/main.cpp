@@ -22,7 +22,16 @@ int main()
 
 		while (auto demoApp = demoApplicationSelector(demoContext))
 		{
-			while (demoApp->update() && demoContext.update()) {}
+			while (true)
+			{
+				const bool engineExitRequested = !demoContext.update();
+				const bool demoExitRequested = !demoApp->update();
+				demoContext.render();
+				if (engineExitRequested || demoExitRequested)
+				{
+					break;
+				}
+			}
 		}
 	}
 
