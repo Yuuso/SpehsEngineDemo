@@ -16,6 +16,7 @@ class GeneratedPlanets final : public DemoApplication
 {
 public:
 	GeneratedPlanets(DemoContext& _demoContext);
+	~GeneratedPlanets();
 
 	void init() override;
 	bool update() override;

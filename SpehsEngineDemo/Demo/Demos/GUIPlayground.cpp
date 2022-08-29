@@ -16,6 +16,11 @@ GUIPlayground::GUIPlayground(DemoContext& _context)
 	, view(_context.shaderManager, _context.textureManager, _context.fontManager, _context.eventSignaler, 465)
 {
 }
+GUIPlayground::~GUIPlayground()
+{
+	root.clearChildren();
+	view.remove(root);
+}
 
 void GUIPlayground::init()
 {
@@ -127,11 +132,6 @@ void GUIPlayground::init()
 	root.addChild(vstack);
 
 	demoContext.showWindowDefault();
-}
-GUIPlayground::~GUIPlayground()
-{
-	root.clearChildren();
-	view.remove(root);
 }
 bool GUIPlayground::update()
 {

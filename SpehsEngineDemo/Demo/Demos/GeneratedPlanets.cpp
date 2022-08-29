@@ -18,6 +18,17 @@ GeneratedPlanets::GeneratedPlanets(DemoContext& _demoContext)
 	: DemoApplication(_demoContext)
 	, cameraController(_demoContext.mainWindow, _demoContext.camera, _demoContext.eventSignaler)
 {}
+GeneratedPlanets::~GeneratedPlanets()
+{
+	if (loadingMaterial)
+	{
+		while (!materialReady)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(32));
+		}
+		loadingThread.join();
+	}
+}
 void GeneratedPlanets::init()
 {
 	generatePlanet();
