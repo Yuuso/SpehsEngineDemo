@@ -16,6 +16,8 @@ XCOPY *.png %TARGET_LOC%\ /y
 
 %TOKTX% --cubemap %TARGET_LOC%\skybox.ktx skybox\right.png skybox\left.png skybox\top.png skybox\bottom.png skybox\front.png skybox\back.png
 
+ECHO Cubemaps created.
+
 
 ECHO.
 ECHO Done.

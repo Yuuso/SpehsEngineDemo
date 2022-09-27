@@ -111,6 +111,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\lib\;$(SolutionDir)bin\;$(SPEHSENGINE_ROOT)Dependencies\lib\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\$(Configuration)\$(PlatformToolset)\;$(SPEHSENGINE_ROOT)bin\$(Platform)\$(Configuration)\$(PlatformToolset)\</AdditionalLibraryDirectories>
       <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>CALL post_build.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -129,6 +132,9 @@
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\lib\;$(SolutionDir)bin\;$(SPEHSENGINE_ROOT)Dependencies\lib\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\$(Configuration)\$(PlatformToolset)\;$(SPEHSENGINE_ROOT)bin\$(Platform)\$(Configuration)\$(PlatformToolset)\</AdditionalLibraryDirectories>
       <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <PostBuildEvent>
+      <Command>CALL post_build.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -152,6 +158,9 @@
       <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
+    <PostBuildEvent>
+      <Command>CALL post_build.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -175,6 +184,9 @@
       <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
+    <PostBuildEvent>
+      <Command>CALL post_build.bat</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Demos\DemoSelector.cpp" />
