@@ -12,6 +12,7 @@ DemoContext::DemoContext()
 	, renderer(mainWindow, RendererFlag::VSync | RendererFlag::MSAA4, RendererBackend::Direct3D11)
 	, view(scene, camera)
 	, imguiBackend(eventSignaler, 0, renderer)
+	, imGraphics(view, shaderManager, textureManager, fontManager, modelDataManager, shapeGenerator)
 {
 	se::time::ScopeTimer initTimer;
 
@@ -40,6 +41,9 @@ DemoContext::DemoContext()
 	modelDataManager.setResourcePathFinder(std::make_shared<ModelPathFinder>());
 	modelDataManager.setResourceLoader(graphicsResourceLoader);
 
+	imGraphics.init();
+	ImGfx::init(imGraphics);
+
 
 	///////////////
 	// Audio
@@ -51,6 +55,10 @@ DemoContext::DemoContext()
 
 	se::log::info("DemoContext init time: " + std::to_string(initTimer.get().asSeconds()) + " seconds", se::log::GREEN);
 }
+DemoContext::~DemoContext()
+{
+	ImGfx::deinit();
+}
 void DemoContext::reset()
 {
 	shaderManager.purgeUnused();
@@ -59,6 +67,8 @@ void DemoContext::reset()
 	modelDataManager.purgeUnused();
 	shapeGenerator.clear();
 	audioManager.purgeUnused();
+
+	imGraphics.cleanup();
 
 	inputManager.ignoreQuitRequest();
 	mainWindow.ignoreQuitRequest();
@@ -87,6 +97,7 @@ void DemoContext::render()
 {
 	imguiBackend.render();
 	renderer.render();
+	imGraphics.endFrame();
 }
 void DemoContext::showWindowDefault()
 {

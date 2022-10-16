@@ -386,6 +386,41 @@ void GraphicsPlayground::init()
 
 bool GraphicsPlayground::update()
 {
+	const double timeNowSeconds = se::time::now().asSeconds<double>();
+
+	{
+		ImGfx::shape(ShapeType::Ball)
+			.color(se::Color(se::Red))
+			.position({ 0.0f, 6.0f + (float)cos(timeNowSeconds), 0.0f })
+			.scale(glm::vec3(0.6f))
+			.primitiveType(PrimitiveType::Lines);
+
+		ImGfx::icon("testColor")
+			.position({ 4.0f, 7.0f, 0.0f })
+			.color(se::Color(se::LightGoldenrodYellow));
+
+		ImGfx::line({}, { 10.0f, 0.0f, 0.0f })
+			.color(se::Color(se::GreenYellow).withAlpha(0.5f))
+			.renderFlags(RenderFlag::BlendAlpha);
+
+		for (size_t i = 0; i < 100; i++)
+		{
+			ImGfx::linePoint({ 0.1f * (float)i, 15.0f + (float)cos(timeNowSeconds * 2.0 + (float)i * 0.2f), 0.0f }, "wave")
+				.color(se::Color(se::Violet));
+		}
+
+		ImGfx::text("ImGfx::text testing...")
+			.position({0.0f, 7.0f, 5.0f})
+			.color(se::Color(se::DodgerBlue))
+			.scale(glm::vec3(0.03f));
+
+		ImGfx::model("ico")
+			.position({ 6.0f, 8.0f, 6.0f })
+			.material(flatMaterial)
+			.color(se::Color(se::Orange))
+			.scale(glm::vec3(2.0f));
+	}
+
 	if (objects.size() < 30 &&
 		se::time::now() - lastObjectSpawned > se::time::fromSeconds(0.1f))
 	{
@@ -414,7 +449,6 @@ bool GraphicsPlayground::update()
 	}
 
 	{
-		const double timeNowSeconds = se::time::now().asSeconds<double>();
 		//pointLight.setPosition(glm::vec3(0.0f, -6.0f + (float)abs(sin(timeNowSeconds * 0.5)) * 6.0f, 0.0f));
 		//pointLight.setRadius(pointLight.getInnerRadius(), 15.0f + 10.0f * fabsf((float)sin(timeNowSeconds * 0.3)));
 		//sunLight.setDirection(glm::vec3((float)sin(timeNowSeconds * 0.2) * 0.5f, -1.0f, (float)cos(timeNowSeconds * 0.2) * 0.5f));

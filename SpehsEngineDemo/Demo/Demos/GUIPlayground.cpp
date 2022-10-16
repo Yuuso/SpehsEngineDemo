@@ -137,6 +137,6 @@ bool GUIPlayground::update()
 {
 	root.getChild(1)->setPosition(root.getChild(1)->getPosition() + GUIVec2(0.5_px) * demoContext.deltaTimeSystem.deltaSeconds);
 	root.getChild(1)->setRotation(root.getChild(1)->getRotation() + 0.5f * demoContext.deltaTimeSystem.deltaSeconds);
-	root.getChild(1)->setScale(glm::vec2(1.0f + 0.4f * fabsf(sinf(se::time::now().asSeconds()))));
+	root.getChild(1)->setScale(glm::vec2(1.0f + 0.4f * fabsf((float)sin(se::time::now().asSeconds<double>()))));
 	return true;
 }

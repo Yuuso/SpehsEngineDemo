@@ -17,11 +17,13 @@
 #include "SpehsEngine/Input/EventCatcher.h"
 #include "SpehsEngine/Input/EventSignaler.h"
 #include "SpehsEngine/Input/InputManager.h"
+#include "Utility/ImmediateModeGraphics.h"
 
 
 struct DemoContext
 {
 	DemoContext();
+	~DemoContext();
 
 	void reset();
 	bool update();
@@ -47,6 +49,7 @@ struct DemoContext
 	se::graphics::FontManager fontManager;
 	se::graphics::ModelDataManager modelDataManager;
 	se::graphics::ShapeGenerator shapeGenerator;
+	ImmediateModeGraphics imGraphics;
 
 	// ImGui
 	se::imgui::BackendWrapper imguiBackend;
