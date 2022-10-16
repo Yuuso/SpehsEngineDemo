@@ -112,7 +112,13 @@
       <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>CALL post_build.bat</Command>
+      <Command>ECHO Demo post build script start
+
+ECHO Copy DLLs to Output Directory: $(OutDir)
+DEL $(OutDir)*.dll
+COPY $(SPEHSENGINE_ROOT)Dependencies\dll\x64\SDL2.dll $(OutDir)SDL2.dll /y
+
+ECHO Demo post build script end</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -133,7 +139,13 @@
       <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>CALL post_build.bat</Command>
+      <Command>ECHO Demo post build script start
+
+ECHO Copy DLLs to Output Directory: $(OutDir)
+DEL $(OutDir)*.dll
+COPY $(SPEHSENGINE_ROOT)Dependencies\dll\x64\SDL2.dll $(OutDir)SDL2.dll /y
+
+ECHO Demo post build script end</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -159,7 +171,13 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
-      <Command>CALL post_build.bat</Command>
+      <Command>ECHO Demo post build script start
+
+ECHO Copy DLLs to Output Directory: $(OutDir)
+DEL $(OutDir)*.dll
+COPY $(SPEHSENGINE_ROOT)Dependencies\dll\x64\SDL2.dll $(OutDir)SDL2.dll /y
+
+ECHO Demo post build script end</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -185,7 +203,13 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
-      <Command>CALL post_build.bat</Command>
+      <Command>ECHO Demo post build script start
+
+ECHO Copy DLLs to Output Directory: $(OutDir)
+DEL $(OutDir)*.dll
+COPY $(SPEHSENGINE_ROOT)Dependencies\dll\x64\SDL2.dll $(OutDir)SDL2.dll /y
+
+ECHO Demo post build script end</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
