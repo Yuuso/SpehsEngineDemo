@@ -3,6 +3,7 @@
 
 #include "Demo/DefaultResourcePathFinders.h"
 #include "SpehsEngine/Core/ScopeTimer.h"
+#include "SpehsEngine/Debug/ImGfx.h"
 
 using namespace se::graphics;
 

@@ -3,6 +3,7 @@
 
 #include "Demo/Utility/Materials.h"
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
+#include "SpehsEngine/Debug/ImGfx.h"
 
 using namespace se::graphics;
 
@@ -389,7 +390,7 @@ bool GraphicsPlayground::update()
 	const double timeNowSeconds = se::time::now().asSeconds<double>();
 
 	{
-		ImGfx::shape(ShapeType::Ball)
+		ImGfx::sphere()
 			.color(se::Color(se::Red))
 			.position({ 0.0f, 6.0f + (float)cos(timeNowSeconds), 0.0f })
 			.scale(glm::vec3(0.6f))

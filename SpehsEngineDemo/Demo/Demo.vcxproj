@@ -109,7 +109,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\lib\;$(SolutionDir)bin\;$(SPEHSENGINE_ROOT)Dependencies\lib\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\$(Configuration)\$(PlatformToolset)\;$(SPEHSENGINE_ROOT)bin\$(Platform)\$(Configuration)\$(PlatformToolset)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsDebug.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>ECHO Demo post build script start
@@ -136,7 +136,7 @@ ECHO Demo post build script end</Command>
     <Link>
       <SubSystem>Console</SubSystem>
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\lib\;$(SolutionDir)bin\;$(SPEHSENGINE_ROOT)Dependencies\lib\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\$(Configuration)\$(PlatformToolset)\;$(SPEHSENGINE_ROOT)bin\$(Platform)\$(Configuration)\$(PlatformToolset)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsDebug.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>ECHO Demo post build script start
@@ -167,7 +167,7 @@ ECHO Demo post build script end</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\lib\;$(SolutionDir)bin\;$(SPEHSENGINE_ROOT)Dependencies\lib\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\$(Configuration)\$(PlatformToolset)\;$(SPEHSENGINE_ROOT)bin\$(Platform)\$(Configuration)\$(PlatformToolset)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsDebug.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
@@ -199,7 +199,7 @@ ECHO Demo post build script end</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\lib\;$(SolutionDir)bin\;$(SPEHSENGINE_ROOT)Dependencies\lib\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\;$(SPEHSENGINE_ROOT)Dependencies\lib\$(Platform)\$(Configuration)\$(PlatformToolset)\;$(SPEHSENGINE_ROOT)bin\$(Platform)\$(Configuration)\$(PlatformToolset)\</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>SpehsAudio.lib;SpehsCore.lib;SpehsDebug.lib;SpehsGUI.lib;SpehsMath.lib;SpehsPhysics.lib;SpehsInput.lib;SpehsGraphics.lib;SpehsImGui.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
     </Link>
     <PostBuildEvent>
@@ -221,7 +221,6 @@ ECHO Demo post build script end</Command>
     <ClCompile Include="DemoContext.cpp" />
     <ClCompile Include="Demos\GUIPlayground.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Utility\ImmediateModeGraphics.cpp" />
     <ClCompile Include="Utility\Materials.cpp" />
     <ClCompile Include="Utility\ParticleSystem.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -241,7 +240,6 @@ ECHO Demo post build script end</Command>
     <ClInclude Include="DefaultResourcePathFinders.h" />
     <ClInclude Include="DemoContext.h" />
     <ClInclude Include="Demos\GUIPlayground.h" />
-    <ClInclude Include="Utility\ImmediateModeGraphics.h" />
     <ClInclude Include="Utility\Materials.h" />
     <ClInclude Include="Utility\ParticleSystem.h" />
     <ClInclude Include="stdafx.h" />

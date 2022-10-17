@@ -3,6 +3,7 @@
 #include "SpehsEngine/Audio/AudioEngine.h"
 #include "SpehsEngine/Audio/AudioManager.h"
 #include "SpehsEngine/Core/DeltaTimeSystem.h"
+#include "SpehsEngine/Debug/ImmediateModeGraphics.h"
 #include "SpehsEngine/Graphics/Camera.h"
 #include "SpehsEngine/Graphics/FontManager.h"
 #include "SpehsEngine/Graphics/ModelDataManager.h"
@@ -17,7 +18,6 @@
 #include "SpehsEngine/Input/EventCatcher.h"
 #include "SpehsEngine/Input/EventSignaler.h"
 #include "SpehsEngine/Input/InputManager.h"
-#include "Utility/ImmediateModeGraphics.h"
 
 
 struct DemoContext
@@ -49,7 +49,7 @@ struct DemoContext
 	se::graphics::FontManager fontManager;
 	se::graphics::ModelDataManager modelDataManager;
 	se::graphics::ShapeGenerator shapeGenerator;
-	ImmediateModeGraphics imGraphics;
+	se::debug::ImmediateModeGraphics imGraphics;
 
 	// ImGui
 	se::imgui::BackendWrapper imguiBackend;
