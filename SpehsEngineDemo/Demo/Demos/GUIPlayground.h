@@ -15,6 +15,8 @@ public:
 	bool update() override;
 
 private:
+	void createGUI();
+
 	se::gui::GUIView view;
 	se::gui::GUIShape root;
 };
