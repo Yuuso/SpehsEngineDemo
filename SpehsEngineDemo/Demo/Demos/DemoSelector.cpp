@@ -95,6 +95,7 @@ static std::unique_ptr<DemoApplication> runApplicationSelector(DemoContext& _dem
 		text.setAlignment(VerticalAlignment::Center, HorizontalAlignment::Center);
 		text.setAnchor(VerticalAnchor::Center, HorizontalAnchor::Center);
 		text.setHeight(15_px);
+		text.setZIndex(1);
 		text.setFont("OpenSans-Regular");
 		text.setConsumeInput(false);
 		text.setInheritInputStatus(true);

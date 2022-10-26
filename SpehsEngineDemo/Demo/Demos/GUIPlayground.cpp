@@ -54,7 +54,7 @@ void GUIPlayground::createGUI()
 	bg->setAnchor(centerAnchor);
 	bg->setAlignment(centerAlign);
 	bg->setTexture("test_color.png");
-	bg->setColor(se::Color().withAlpha(0.1f));
+	bg->setColor(se::Color().withAlpha(0.25f));
 
 	auto stack = makeElement<GUIStack>(*bg);
 	stack->setAnchor(centerAnchor);
@@ -74,12 +74,26 @@ void GUIPlayground::createGUI()
 				props.color = se::Color(se::Blue);
 				bg->setPressedProperties(props);
 			}
+			//bg->setScissorMask(true);
+			bg->setLayerMask(true);
+			bg->setUpdateCallback(
+				[](GUIElement& _element)
+				{
+					_element.setRotation(_element.getRotation() + 0.003f);
+				});
 
 			auto tex = makeElement<GUIShape>(*bg);
 			tex->setSize(0.9_parent);
-			tex->setAnchor(centerAnchor);
+			tex->setAnchor(VerticalAnchor::Center, HorizontalAnchor::Left);
 			tex->setAlignment(centerAlign);
 			tex->setTexture("balldemon.png");
+			//tex->setScissorMask(true);
+			tex->setLayerMask(true);
+			tex->setUpdateCallback(
+				[](GUIElement& _element)
+				{
+					_element.setRotation(_element.getRotation() - 0.005f);
+				});
 
 			auto fx = makeElement<GUIShape>(*tex);
 			fx->setSize(1.5_parent);
