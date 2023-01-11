@@ -129,7 +129,7 @@ bool CameraController::mouseButtonCallback(const se::input::MouseButtonEvent& _e
 		switch (_event.button)
 		{
 			case se::input::MouseButton::right:
-				savedMousePos = se::input::getMousePosition();
+				savedMousePos = se::input::getMousePosition().value();
 				mouseMovementActive = true;
 				se::input::setShowCursor(false);
 				return true;

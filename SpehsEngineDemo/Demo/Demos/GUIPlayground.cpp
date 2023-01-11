@@ -101,13 +101,19 @@ void GUIPlayground::createGUI()
 			fx->setAlignment(centerAlign);
 			fx->setTexture("wonky_smoke_atlas.png");
 
+			auto text = makeElement<GUIText>(*tex);
+			text->setWidth(1.5_pw);
+			text->setAnchor(centerAnchor);
+			text->setAlignment(centerAlign);
+			text->insert("1234567890");
+
 			return bg;
 		};
 
 	auto tester = createTester();
 	stack->addChild(tester);
-	stack->addChild(tester->clone());
-	stack->addChild(tester->clone());
+	//stack->addChild(tester->clone());
+	//stack->addChild(tester->clone());
 	stack->addChild(createTester());
 	stack->addChild(createTester());
 }

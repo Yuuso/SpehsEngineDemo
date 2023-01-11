@@ -2,7 +2,7 @@
 
 #include "Demo/Demos/DemoApplication.h"
 #include "Demo/Utility/CameraController.h"
-#include "Demo/Utility/ParticleSystem.h"
+#include "SpehsEngine/Graphics/InstanceBuffer.h"
 #include "SpehsEngine/Graphics/Text.h"
 #include "SpehsEngine/Graphics/Lights.h"
 #include "SpehsEngine/Graphics/Line.h"
@@ -52,7 +52,6 @@ private:
 	bool view2Active = false;
 
 	CameraController cameraController;
-	ParticleSystem particleSystem;
 
 	//
 	se::graphics::Text testText;

@@ -3,6 +3,7 @@
 
 #include "SpehsEngine/Core/ScopeTimer.h"
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
+#include "SpehsEngine/Graphics/Uniform.h"
 #include "SpehsEngine/ImGui/imgui.h"
 #include "SpehsEngine/ImGui/Utility/ImGuiUtility.h"
 #include "SpehsEngine/input/MouseUtilityFunctions.h"

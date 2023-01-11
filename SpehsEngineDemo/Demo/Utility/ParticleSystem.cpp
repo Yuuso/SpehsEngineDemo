@@ -1,66 +1,147 @@
 #include "stdafx.h"
 #include "ParticleSystem.h"
 
-#include "SpehsEngine/Core/RNG.h"
-
-
 using namespace se::graphics;
+using namespace se::time;
 
-ParticleSystem::ParticleSystem(Scene& _scene, ShaderManager& _shaderManager, TextureManager& _textureManager, ShapeGenerator& _shapeGen)
+
+#if 0
+namespace se::xpr
 {
-	material = createMaterial(DefaultMaterialType::FlatTexture, _shaderManager);
-	auto texture = _textureManager.create("wonky_smoke_atlas.png", "wonky_smoke_atlas.png");
-	material->setTexture(texture);
-
-	ShapeParameters params;
-	params.uvScale = 0.5f;
-	shape.generate(ShapeType::Square, params, &_shapeGen);
-	shape.enableRenderFlags(RenderFlag::BillboardSpherical);
-	shape.enableRenderFlags(RenderFlag::BlendAlpha);
-	shape.disableRenderFlags(RenderFlag::WriteDepth);
-	shape.setScale(glm::vec3(3.0f));
-	shape.setInstances(instanceBuffer.getBuffer());
-	shape.setMaterial(material);
-	_scene.add(shape);
-
-	shape.setPosition(spawnPosition);
-}
-
-void ParticleSystem::update(const se::time::Time _deltaTime)
-{
-	spawnTimer -= _deltaTime;
-	if (spawnTimer <= se::time::Time::zero)
+	Emitter_CpuBillboard::Emitter_CpuBillboard(DemoContext& _context)
+		: ParticleEmitter(_context)
 	{
-		particles.push_back(Particle());
-		Particle& particle = particles.back();
+		TextureModes genModes;
+		genModes.sampleMin = genModes.sampleMag = genModes.sampleMip = TextureSamplingMode::Point;
 
-		particle.instanceData.position = glm::vec3(se::rng::random(-5.0f, 5.0f), 0.0f, se::rng::random(-5.0f, 5.0f));
-		particle.instanceData.scale = glm::vec2(se::rng::random(0.8f, 1.2f));
-		particle.instanceData.uvOffset = glm::vec2(se::rng::coin() ? 0.0f : 0.5f, se::rng::coin() ? 0.0f : 0.5f);
-		particle.velocity = glm::vec3(se::rng::random(-2.0f, 2.0f), 0.0f, se::rng::random(-2.0f, 2.0f));
-		particle.anglularVelocity = se::rng::random(-1.0f, 1.0f);
-		particle.lifeTime = se::time::fromSeconds(se::rng::random(5.0, 9.0));
+		#define ColorToU8Data(COLOR) \
+		uint8_t((COLOR & 0xff000000) >> 24), \
+		uint8_t((COLOR & 0x00ff0000) >> 16), \
+		uint8_t((COLOR & 0x0000ff00) >> 8), \
+		uint8_t((COLOR & 0x000000ff) >> 0)
 
-		instanceBuffer.grow(1);
+		TextureInput textureInput;
+		textureInput.width = textureInput.height = 3;
+		textureInput.data = {
+			ColorToU8Data(se::Clear),	ColorToU8Data(se::Gray),	ColorToU8Data(se::Clear),
+			ColorToU8Data(se::Gray),	ColorToU8Data(se::White),	ColorToU8Data(se::Gray),
+			ColorToU8Data(se::Clear),	ColorToU8Data(se::Gray),	ColorToU8Data(se::Clear),
+		};
+		auto texture = demoContext.textureManager.create("Emitter_CpuBillboard_fallback", textureInput, genModes);
 
-		spawnTimer = se::time::fromSeconds(se::rng::random(0.05, 0.2));
+		auto shader = demoContext.shaderManager.find("tex_billboard");
+		material = std::make_shared<Material>();
+		material->setShader(shader, ShaderVariant::Billboard);
+		material->setTexture(texture, "s_texColor", 0);
+		material->setName("Emitter_CpuBillboard");
 	}
 
-	for (size_t i = 0; i < particles.size(); /*i++*/)
+	void Emitter_CpuBillboard::update(Time _dt)
 	{
-		particles[i].lifeTime -= _deltaTime;
-		if (particles[i].lifeTime <= se::time::Time::zero)
+		if (!active || paused)
 		{
-			particles.erase(particles.begin() + i);
-			instanceBuffer.erase(i);
-			continue;
+			return;
+		}
+		if (params.duration.has_value() && emitterTime >= params.duration)
+		{
+			stop();
+			return;
+		}
+		if (emitterTime < params.delay)
+		{
+			emitterTime += _dt;
+			return;
 		}
 
-		Particle& particle = particles[i];
-		particle.instanceData.position += particle.velocity * _deltaTime.asSeconds();
-		//particle.instanceData.rotationAngle += particle.anglularVelocity * _deltaTime.asSeconds();
-		instanceBuffer.set(i, particle.instanceData);
+		while ((emitterTime - nextEmit) > Time::zero)
+		{
+			#define EMIT_BREAK nextEmit += params.frequency.resolve(); continue
 
-		i++;
+			const uint32_t emitQuantity = params.quantity.resolve();
+			if (particles.size() >= static_cast<size_t>(params.maxParticles))
+			{
+				if (params.preventEmitIfMaxParticles)
+				{
+					EMIT_BREAK;
+				}
+				removeParticles(emitQuantity);
+			}
+
+			createParticles(emitQuantity);
+			EMIT_BREAK;
+		}
+
+		updateParticles();
+		emitterTime += _dt;
+	}
+	void Emitter_CpuBillboard::start()
+	{
+		if (active)
+		{
+			return;
+		}
+		active = true;
+		emitterTime = Time::zero;
+		nextEmit = Time::zero;
+		// TODO: presimulate
+	}
+	void Emitter_CpuBillboard::pause()
+	{
+		if (!active)
+		{
+			return;
+		}
+		paused = true;
+	}
+	void Emitter_CpuBillboard::stop()
+	{
+		active = false;
+		paused = false;
+	}
+	bool Emitter_CpuBillboard::isActive() const
+	{
+		return active;
+	}
+
+	void Emitter_CpuBillboard::createParticles(uint32_t _amount)
+	{
+		auto i = particles.size() - 1;
+		particles.insert(particles.end(), _amount, {});
+		for (; i < particles.size(); i++)
+		{
+			Shape& shape = particles[i].shape;
+			shape.generate(ShapeType::Square, {}, &demoContext.shapeGenerator);
+			shape.setMaterial(material);
+			shape.setRenderFlags(BlendAlpha | DepthTestLess | BillboardSpherical);
+			demoContext.scene.add(shape);
+
+			ParticleParams& pparams = particles[i].params;
+			#define OPT_SET(VAR) if (params.VAR.has_value()) pparams.VAR
+
+			pparams.emitTime = nextEmit;
+			OPT_SET(lifetime) = params.lifetime->resolve();
+
+			pparams.initialPosition = params.bounds->getPosition(nextEmit);
+			pparams.initialVelocity = resolve(params.initialVelocity, nextEmit);
+			OPT_SET(linearAcceleration) = params.linearAcceleration->resolve();
+			OPT_SET(linearDrag) = params.linearDrag->resolve();
+			OPT_SET(orbitTarget) = params.orbitTarget;
+			pparams.orbitStrength = params.orbitStrength.resolve();
+			OPT_SET(linearOscilation) = params.linearOscilation;
+			pparams.linearOscilationSpeed = params.linearOscilationSpeed.resolve();
+			pparams.orientationAffectsLinearOscilation = params.orientationAffectsLinearOscilation;
+
+			// ...
+			// Some sort of modules instead of this shit?
+		}
+	}
+	void Emitter_CpuBillboard::removeParticles(uint32_t _amount)
+	{
+		particles.erase(particles.begin(), particles.begin() + _amount);
+	}
+	void Emitter_CpuBillboard::updateParticles()
+	{
+
 	}
 }
+#endif

@@ -3,6 +3,7 @@
 
 #include "Demo/Utility/Materials.h"
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
+#include "SpehsEngine/Graphics/Animator.h"
 #include "SpehsEngine/Debug/ImGfx.h"
 
 using namespace se::graphics;
@@ -69,7 +70,6 @@ GraphicsPlayground::GraphicsPlayground(DemoContext& _context)
 	, observerView1(_context.scene, observerCamera1)
 	, observerView2(_context.scene, observerCamera2)
 	, cameraController(_context.mainWindow, _context.camera, _context.eventSignaler)
-	, particleSystem(_context.scene, _context.shaderManager, _context.textureManager, _context.shapeGenerator)
 {
 }
 
@@ -504,7 +504,6 @@ bool GraphicsPlayground::update()
 	cameraLight->setPosition(demoContext.camera.getPosition());
 	cameraLight->setDirection(demoContext.camera.getDirection());
 
-	particleSystem.update(demoContext.deltaTimeSystem.deltaTime);
 	for (auto&& object : objects)
 	{
 		object->update(demoContext.deltaTimeSystem.deltaTime);
