@@ -2,11 +2,12 @@
 #include "Demo/Demos/GraphicsPlayground.h"
 
 #include "Demo/Utility/Materials.h"
+#include "SpehsEngine/Core/RNG.h"
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
 #include "SpehsEngine/Graphics/Animator.h"
 #include "SpehsEngine/Debug/ImGfx.h"
 
-using namespace se::graphics;
+using namespace se::gfx;
 
 
 ShapeObject::ShapeObject(Scene& _scene, std::shared_ptr<Material> _material,
@@ -267,7 +268,7 @@ void GraphicsPlayground::init()
 	boxShape.setScale(glm::vec3(50.0f));
 	boxShape.setPosition({ 0.0f, 0.0f, 0.0f });
 	boxShape.setColor(se::Color());
-	boxShape.setRenderMode(RenderMode::Static);
+	boxShape.setRenderMode(RenderMode::Batched);
 	demoContext.scene.add(boxShape);
 
 	ShapeParameters defaultShapeParams;

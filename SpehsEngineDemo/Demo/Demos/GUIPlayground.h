@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Demo/Demos/DemoApplication.h"
-#include "SpehsEngine/GUI/GUIView.h"
-#include "SpehsEngine/GUI/GUIShape.h"
+#include "SpehsEngine/GUI/Canvas.h"
+#include "SpehsEngine/GUI/Mirror.h"
 
+
+class ViewModel;
 
 class GUIPlayground final : public DemoApplication
 {
@@ -14,9 +16,15 @@ public:
 	void init() override;
 	bool update() override;
 
-private:
-	void createGUI();
+	struct AppData
+	{
+		int value = 4;
+	};
 
-	se::gui::GUIView view;
-	se::gui::GUIShape root;
+private:
+
+	se::gui::Mirror mirror;
+	se::gui::Canvas canvas;
+	std::shared_ptr<ViewModel> viewModel;
+	AppData appData;
 };

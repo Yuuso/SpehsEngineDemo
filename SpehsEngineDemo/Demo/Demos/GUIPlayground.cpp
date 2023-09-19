@@ -1,119 +1,131 @@
 #include "stdafx.h"
 #include "Demo/Demos/GUIPlayground.h"
 
-#include "SpehsEngine/Core/RNG.h"
-#include "SpehsEngine/Graphics/DefaultMaterials.h"
-#include "SpehsEngine/GUI/GUIShape.h"
-#include "SpehsEngine/GUI/GUIStack.h"
-#include "SpehsEngine/GUI/GUIText.h"
+#include "SpehsEngine/GUI/Element.h"
+#include "SpehsEngine/GUI/LogOutputAction.h"
+
+
+class ViewModel : public se::gui::IPropertyHost
+{
+	GUI_REFLECT(ViewModel, se::gui::IPropertyHost)
+	{
+		GUI_REGISTER_DATA_PROPERTY(DataValue)
+	}
+
+	GUI_DATA_PROPERTY(DataValue, int, data->value)
+
+
+public:
+	ViewModel() = default; // TODO: Do ViewModel classes have to be default constructible?
+	ViewModel(GUIPlayground::AppData& _data)
+		: data(&_data) {}
+
+private:
+	GUIPlayground::AppData* data = nullptr;
+};
+
 
 using namespace se::gui;
-using namespace se::gui::unit_literals;
 
-constexpr GUIVec2 centerAlign{0.5_parent, 0.5_parent};
-constexpr GUIVec2 centerAnchor{0.5_self, 0.5_self};
 
 GUIPlayground::GUIPlayground(DemoContext& _context)
 	: DemoApplication(_context)
-	, view(_context.shaderManager, _context.textureManager, _context.fontManager, _context.eventSignaler, 465)
+	, canvas(_context.eventSignaler, 123)
 {
+	mirror.registerPropertyHost<ViewModel>();
 }
 GUIPlayground::~GUIPlayground()
-{
-	root.clearChildren();
-	view.remove(root);
-}
+{}
 
 void GUIPlayground::init()
 {
-	demoContext.mainWindow.add(view.getView());
+	viewModel = std::make_shared<ViewModel>(appData);
+	{
+		Element& element = *canvas.add<Element>();
 
-	root.setSize(1.0_view);
-	root.setColor(se::Color(se::Black));
-	view.add(root);
+		element.onMouseMotion([]{ se::log::info("boo"); return false; });
+		element.onMouseLeftPress([](const MouseButtonArgs& args){ se::log::info("hoo " + toString(args.position)); return false; });
+		element.addEventTrigger(EventTrigger("MouseRightRelease", { std::make_shared<const LogOutputAction>("goo") }));
+		element.addPropertyTrigger(PropertyTrigger("Example", 5, {}, { std::make_shared<const LogOutputAction>("Example is 5") }, { std::make_shared<const LogOutputAction>("Example is not 5") }));
+		element.addPropertyTrigger(PropertyTrigger("Example", 6, {}, { std::make_shared<const LogOutputAction>("Example is 6") }, { std::make_shared<const LogOutputAction>("Example is not 6") }));
 
-	createGUI();
+		element.addResource("TestResource", 10);
+		element.addResource(std::make_shared<ValueResource<int>>(
+			ResourceTargetType{ "Element" }, ResourceTargetPropertyName{ "Example" }, 11));
+
+		se_assert(element.getExample() == 0);
+
+		element.init();
+		se_assert(element.getExample() == 11);
+
+		element.setExample(3);
+		se_assert(element.getExample() == 3);
+
+		element.setExample(Binding{ "DataValue", BindingMode::TwoWay });
+		se_assert(element.getExample() == 0);
+
+		element.setDataContext(viewModel);
+		se_assert(element.getExample() == 4);
+
+		viewModel->setDataValue(5);
+		se_assert(element.getExample() == 5);
+
+		element.setExample(6);
+		se_assert(viewModel->getDataValue() == 6);
+
+		element.setDataContext(nullptr);
+		se_assert(element.getExample() == 0);
+
+		element.setExample(Binding{ "DataValue", BindingMode::OneWayToSource });
+		se_assert(element.getExample() == 0);
+
+		element.setDataContext(viewModel);
+		se_assert(element.getExample() == 0);
+
+		element.setExample(6);
+		se_assert(viewModel->getDataValue() == 6);
+
+		viewModel->setDataValue(7);
+		se_assert(element.getExample() == 6);
+
+		element.setDataContext(nullptr);
+		se_assert(element.getExample() == 6);
+
+		element.setExample(ResourceKey{ "TestResource" });
+		se_assert(element.getExample() == 10);
+	}
+	{
+		Element& element = *canvas.add<Element>();
+
+		Style style;
+		style.setters.push_back(PropertySetter{ "Example", 1 });
+		element.setStyle(style);
+		se_assert(element.getExample() == 0);
+
+		element.init();
+		se_assert(element.getExample() == 1);
+	}
+	{
+		Element& element = *canvas.add<Element>();
+
+		Style baseStyle;
+		baseStyle.setters.push_back(PropertySetter{ "Example", 1 });
+		element.addResource("BaseStyleResource", baseStyle);
+
+		Style style;
+		style.basedOn = ResourceKey{ "BaseStyleResource" };
+		element.addResource("StyleResource", style);
+
+		element.setStyle(ResourceKey{ "StyleResource" });
+		se_assert(element.getExample() == 0);
+
+		element.init();
+		se_assert(element.getExample() == 1);
+	}
 
 	demoContext.showWindowDefault();
 }
 bool GUIPlayground::update()
 {
 	return true;
-}
-template <typename T>
-static std::shared_ptr<T> makeElement(GUIElement& parent)
-{
-	auto result = std::make_shared<T>();
-	parent.addChild(result);
-	return result;
-}
-void GUIPlayground::createGUI()
-{
-	auto bg = makeElement<GUIShape>(root);
-	bg->setSize(2000_px);
-	bg->setAnchor(centerAnchor);
-	bg->setAlignment(centerAlign);
-	bg->setTexture("test_color.png");
-	bg->setColor(se::Color().withAlpha(0.25f));
-
-	auto stack = makeElement<GUIStack>(*bg);
-	stack->setAnchor(centerAnchor);
-	stack->setAlignment(centerAlign);
-	stack->setOrientation(StackOrientation::Vertical);
-	stack->setPadding(4_px);
-
-	auto createTester =
-		[]
-		{
-			auto bg = std::make_shared<GUIShape>();
-			bg->setSize(150_px);
-			bg->setDataContext(int{});
-			bg->setTexture("stone_color.png");
-			{
-				GUIElementProperties props;
-				props.color = se::Color(se::Blue);
-				bg->setPressedProperties(props);
-			}
-			//bg->setScissorMask(true);
-			bg->setLayerMask(true);
-			bg->setUpdateCallback(
-				[](GUIElement& _element)
-				{
-					_element.setRotation(_element.getRotation() + 0.003f);
-				});
-
-			auto tex = makeElement<GUIShape>(*bg);
-			tex->setSize(0.9_parent);
-			tex->setAnchor(VerticalAnchor::Center, HorizontalAnchor::Left);
-			tex->setAlignment(centerAlign);
-			tex->setTexture("balldemon.png");
-			//tex->setScissorMask(true);
-			tex->setLayerMask(true);
-			tex->setUpdateCallback(
-				[](GUIElement& _element)
-				{
-					_element.setRotation(_element.getRotation() - 0.005f);
-				});
-
-			auto fx = makeElement<GUIShape>(*tex);
-			fx->setSize(1.5_parent);
-			fx->setAnchor(centerAnchor);
-			fx->setAlignment(centerAlign);
-			fx->setTexture("wonky_smoke_atlas.png");
-
-			auto text = makeElement<GUIText>(*tex);
-			text->setWidth(1.5_pw);
-			text->setAnchor(centerAnchor);
-			text->setAlignment(centerAlign);
-			text->insert("1234567890");
-
-			return bg;
-		};
-
-	auto tester = createTester();
-	stack->addChild(tester);
-	//stack->addChild(tester->clone());
-	//stack->addChild(tester->clone());
-	stack->addChild(createTester());
-	stack->addChild(createTester());
 }

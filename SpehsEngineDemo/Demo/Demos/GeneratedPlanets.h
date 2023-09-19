@@ -59,8 +59,8 @@ private:
 	std::thread loadingThread;
 
 	CameraController cameraController;
-	se::graphics::DirectionalLight sunLight;
-	se::graphics::AmbientLight ambientLight;
-	se::graphics::Model planet;
-	std::shared_ptr<se::graphics::Material> material;
+	se::gfx::DirectionalLight sunLight;
+	se::gfx::AmbientLight ambientLight;
+	se::gfx::Model planet;
+	std::shared_ptr<se::gfx::Material> material;
 };

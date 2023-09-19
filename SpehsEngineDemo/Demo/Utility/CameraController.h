@@ -11,7 +11,7 @@
 class CameraController
 {
 public:
-	CameraController(const se::graphics::Window& _window, se::graphics::Camera& _camera, se::input::EventSignaler& _eventSignaler);
+	CameraController(const se::gfx::Window& _window, se::gfx::Camera& _camera, se::input::EventSignaler& _eventSignaler);
 
 	void update(const se::time::Time _deltaTime);
 	glm::vec3 getFrustumPoint(const glm::vec3& _screenCoordinates) const;
@@ -24,10 +24,10 @@ private:
 	bool mouseButtonCallback(const se::input::MouseButtonEvent& _event);
 	bool mouseMotionCallback(const se::input::MouseMotionEvent& _event);
 
-	se::graphics::Camera& camera;
-	const se::graphics::Camera initialState;
+	se::gfx::Camera& camera;
+	const se::gfx::Camera initialState;
 	se::input::EventSignaler& eventSignaler;
-	const se::graphics::Window& window;
+	const se::gfx::Window& window;
 
 	glm::vec3 movement = glm::vec3(0.0f);
 	glm::vec2 rotation = glm::vec2(0.0f);

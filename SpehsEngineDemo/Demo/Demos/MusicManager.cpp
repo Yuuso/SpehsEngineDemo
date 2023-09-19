@@ -5,7 +5,7 @@
 #include "SpehsEngine/Core/StringUtilityFunctions.h"
 #include "SpehsEngine/GUI/GUIStack.h"
 
-using namespace se::gui;
+using namespace se::legacygui;
 using namespace se::gui::unit_literals;
 
 

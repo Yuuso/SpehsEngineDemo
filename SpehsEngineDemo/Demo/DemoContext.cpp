@@ -5,12 +5,10 @@
 #include "SpehsEngine/Core/ScopeTimer.h"
 #include "SpehsEngine/Debug/ImGfx.h"
 
-using namespace se::graphics;
-
 
 DemoContext::DemoContext()
 	: mainWindow(true)
-	, renderer(mainWindow, RendererFlag::VSync | RendererFlag::MSAA4, RendererBackend::Direct3D11)
+	, renderer(mainWindow, se::gfx::RendererFlag::VSync | se::gfx::RendererFlag::MSAA4, se::gfx::RendererBackend::Direct3D11)
 	, view(scene, camera)
 	, imguiBackend(eventSignaler, 0, renderer)
 	, imGraphics(view, shaderManager, textureManager, fontManager, modelDataManager, shapeGenerator)
@@ -30,7 +28,7 @@ DemoContext::DemoContext()
 	camera.setFar(50000.0f);
 
 	// Resource Management
-	auto graphicsResourceLoader = se::graphics::makeResourceLoader(8);
+	auto graphicsResourceLoader = se::gfx::makeResourceLoader(8);
 	shaderManager.setResourcePathFinder(std::make_shared<ShaderPathFinder>());
 	shaderManager.setResourceLoader(graphicsResourceLoader);
 	shaderManager.createDefaultShaders();

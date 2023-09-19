@@ -39,16 +39,16 @@ struct DemoContext
 	se::input::EventSignaler eventSignaler;
 
 	// Graphics
-	se::graphics::Window mainWindow;
-	se::graphics::Renderer renderer;
-	se::graphics::Scene scene;
-	se::graphics::Camera camera;
-	se::graphics::View view;
-	se::graphics::ShaderManager shaderManager;
-	se::graphics::TextureManager textureManager;
-	se::graphics::FontManager fontManager;
-	se::graphics::ModelDataManager modelDataManager;
-	se::graphics::ShapeGenerator shapeGenerator;
+	se::gfx::Window mainWindow;
+	se::gfx::Renderer renderer;
+	se::gfx::Scene scene;
+	se::gfx::Camera camera;
+	se::gfx::View view;
+	se::gfx::ShaderManager shaderManager;
+	se::gfx::TextureManager textureManager;
+	se::gfx::FontManager fontManager;
+	se::gfx::ModelDataManager modelDataManager;
+	se::gfx::ShapeGenerator shapeGenerator;
 	se::debug::ImmediateModeGraphics imGraphics;
 
 	// ImGui

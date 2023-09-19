@@ -104,7 +104,7 @@ namespace se::xpr
 	{
 		time::Time spawnInterval;
 		uint16_t spawnQuantity;
-		std::shared_ptr<graphics::Texture> texture;
+		std::shared_ptr<gfx::Texture> texture;
 	};
 
 	enum class ParticleModuleType : uint64_t
@@ -566,7 +566,7 @@ namespace se::xpr
 		struct Particle
 		{
 			ParticleParams params;
-			se::graphics::Shape shape;
+			se::gfx::Shape shape;
 		};
 
 		void createParticles(uint32_t _amount);
@@ -578,7 +578,7 @@ namespace se::xpr
 		bool active = false;
 		bool paused = false;
 
-		std::shared_ptr<se::graphics::Material> material;
+		std::shared_ptr<se::gfx::Material> material;
 		std::deque<Particle> particles;
 	};
 

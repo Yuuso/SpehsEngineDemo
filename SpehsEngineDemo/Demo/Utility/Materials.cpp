@@ -3,13 +3,11 @@
 
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
 
-using namespace se::graphics;
 
-
-std::shared_ptr<Material> createTestMaterial(ShaderManager& _shaderManager)
+std::shared_ptr<se::gfx::Material> createTestMaterial(se::gfx::ShaderManager& _shaderManager)
 {
-	auto material = createMaterial(DefaultMaterialType::Phong, _shaderManager);
-	material->setShader(_shaderManager.find("test"), ShaderVariant::Default);
-	material->setShader(_shaderManager.find("test_anim"), ShaderVariant::Skinned);
+	auto material = createMaterial(se::gfx::DefaultMaterialType::Phong, _shaderManager);
+	material->setShader(_shaderManager.find("test"), se::gfx::ShaderVariant::Default);
+	material->setShader(_shaderManager.find("test_anim"), se::gfx::ShaderVariant::Skinned);
 	return material;
 }

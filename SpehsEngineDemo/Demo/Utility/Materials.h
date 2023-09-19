@@ -4,4 +4,4 @@
 #include "SpehsEngine/Graphics/ShaderManager.h"
 
 
-std::shared_ptr<se::graphics::Material> createTestMaterial(se::graphics::ShaderManager& _shaderManager);
+std::shared_ptr<se::gfx::Material> createTestMaterial(se::gfx::ShaderManager& _shaderManager);

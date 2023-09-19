@@ -12,8 +12,6 @@
 #include "SpehsEngine/Physics/3D/SphereCollider3D.h"
 #include "SpehsEngine/Math/GLMVectorUtilityFunctions.h"
 
-using namespace se::graphics;
-
 
 GeneratedPlanets::GeneratedPlanets(DemoContext& _demoContext)
 	: DemoApplication(_demoContext)
@@ -39,7 +37,7 @@ void GeneratedPlanets::init()
 
 	auto planetModel = demoContext.modelDataManager.create("planet", "icosphere_5.gltf");
 	planet.loadModelData(planetModel);
-	planet.disableRenderFlags(RenderFlag::CullBackFace); // WTF is going on here?!
+	planet.disableRenderFlags(se::gfx::RenderFlag::CullBackFace); // WTF is going on here?!
 
 	demoContext.scene.add(planet);
 
@@ -143,18 +141,18 @@ void GeneratedPlanets::generateMaterial()
 
 	noise.setSeed(planetParams.seed);
 
-	TextureInput noiseColorInput;
+	se::gfx::TextureInput noiseColorInput;
 	noiseColorInput.width = noiseColorInput.height = colorCubeFaceSize;
 	noiseColorInput.isCubemap = true;
 	noiseColorInput.data.resize(4 * colorCubeFaceSize * colorCubeFaceSize * 6);
 
-	TextureInput noiseNormalInput;
+	se::gfx::TextureInput noiseNormalInput;
 	noiseNormalInput.width = noiseNormalInput.height = normalCubeFaceSize;
 	noiseNormalInput.isCubemap = true;
 	noiseNormalInput.data.resize(4 * normalCubeFaceSize * normalCubeFaceSize * 6);
 
-	TextureInput noiseRoughnessInput;
-	noiseRoughnessInput.format = TextureInput::Format::R8;
+	se::gfx::TextureInput noiseRoughnessInput;
+	noiseRoughnessInput.format = se::gfx::TextureInput::Format::R8;
 	noiseRoughnessInput.width = noiseRoughnessInput.height = roughnessCubeFaceSize;
 	noiseRoughnessInput.isCubemap = true;
 	noiseRoughnessInput.data.resize(1 * roughnessCubeFaceSize * roughnessCubeFaceSize * 6);
@@ -391,11 +389,11 @@ void GeneratedPlanets::generateMaterial()
 	planetNormalTexture->waitUntilReady();
 	planetRoughnessTexture->waitUntilReady();
 
-	material = createMaterial(DefaultMaterialType::PhongCubemap, demoContext.shaderManager);
-	material->setTexture(planetColorTexture, PhongTextureType::Color);
-	material->setTexture(planetNormalTexture, PhongTextureType::Normal);
-	material->setTexture(planetRoughnessTexture, PhongTextureType::Roughness);
-	auto phongAttributes = std::make_shared<PhongAttributes>();
+	material = createMaterial(se::gfx::DefaultMaterialType::PhongCubemap, demoContext.shaderManager);
+	material->setTexture(planetColorTexture, se::gfx::PhongTextureType::Color);
+	material->setTexture(planetNormalTexture, se::gfx::PhongTextureType::Normal);
+	material->setTexture(planetRoughnessTexture, se::gfx::PhongTextureType::Roughness);
+	auto phongAttributes = std::make_shared<se::gfx::PhongAttributes>();
 	phongAttributes->specularStrength() = 0.8f;
 	phongAttributes->shininess() = 8.0f;
 	material->setUniformContainer(phongAttributes, "PhongAttributes");

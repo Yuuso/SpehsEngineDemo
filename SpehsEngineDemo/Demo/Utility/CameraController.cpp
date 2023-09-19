@@ -9,7 +9,7 @@
 #include "glm/gtx/rotate_vector.hpp"
 
 
-CameraController::CameraController(const se::graphics::Window& _window, se::graphics::Camera& _camera, se::input::EventSignaler& _eventSignaler)
+CameraController::CameraController(const se::gfx::Window& _window, se::gfx::Camera& _camera, se::input::EventSignaler& _eventSignaler)
 	: camera(_camera)
 	, initialState(_camera)
 	, eventSignaler(_eventSignaler)
@@ -128,7 +128,7 @@ bool CameraController::mouseButtonCallback(const se::input::MouseButtonEvent& _e
 			return false;
 		switch (_event.button)
 		{
-			case se::input::MouseButton::right:
+			case se::input::MouseButton::Right:
 				savedMousePos = se::input::getMousePosition().value();
 				mouseMovementActive = true;
 				se::input::setShowCursor(false);
@@ -139,7 +139,7 @@ bool CameraController::mouseButtonCallback(const se::input::MouseButtonEvent& _e
 	{
 		switch (_event.button)
 		{
-			case se::input::MouseButton::right:
+			case se::input::MouseButton::Right:
 				se::input::setMousePosition(savedMousePos);
 				mouseMovementActive = false;
 				se::input::setShowCursor(true);

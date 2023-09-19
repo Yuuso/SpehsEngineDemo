@@ -4,8 +4,6 @@
 #include "SpehsEngine/Graphics/Material.h"
 #include "SpehsEngine/Graphics/Uniform.h"
 
-using namespace se::graphics;
-
 
 ParticleEditor::ParticleEditor(DemoContext& _context)
 	: DemoApplication(_context)
@@ -18,11 +16,11 @@ void ParticleEditor::init()
 
 	{
 		auto shader = demoContext.shaderManager.create("world_plane", "vs_world_plane.bin", "fs_world_plane.bin");
-		auto material = std::make_shared<Material>();
-		material->setShader(shader, ShaderVariant::Default);
+		auto material = std::make_shared<se::gfx::Material>();
+		material->setShader(shader, se::gfx::ShaderVariant::Default);
 		material->setName("world_plane");
 
-		worldPlane.generate(ShapeType::Plane, {}, &demoContext.shapeGenerator);
+		worldPlane.generate(se::gfx::ShapeType::Plane, {}, &demoContext.shapeGenerator);
 		worldPlane.setMaterial(material);
 		worldPlane.setColor(se::mixColor(se::Color(se::SteelBlue), se::Color(se::Gray), 0.35f));
 		worldPlane.setScale({ 100000.0f, 1.0f, 100000.0f });
@@ -37,7 +35,7 @@ bool ParticleEditor::update()
 
 	{
 		const se::time::Time frameTime = timeNow - frameTimer;
-		Renderer::debugTextPrintf(1, 1, "frame: %ims", (int)frameTime.asMilliseconds());
+		se::gfx::Renderer::debugTextPrintf(1, 1, "frame: %ims", (int)frameTime.asMilliseconds());
 		frameTimer = timeNow;
 
 		if (demoContext.inputManager.isKeyPressed((unsigned)se::input::Key::F5))

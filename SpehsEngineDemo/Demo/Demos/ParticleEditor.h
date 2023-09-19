@@ -18,6 +18,6 @@ private:
 
 	CameraController cameraController;
 	//se::xpr::ParticleSystem particleSystem;
-	se::graphics::Shape worldPlane;
+	se::gfx::Shape worldPlane;
 	se::time::Time frameTimer = se::time::Time::zero;
 };

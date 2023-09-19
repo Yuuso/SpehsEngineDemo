@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "ParticleSystem.h"
 
-using namespace se::graphics;
-using namespace se::time;
-
 
 #if 0
 namespace se::xpr
