@@ -11,9 +11,8 @@ using namespace se::gui::unit_literals;
 
 MusicManager::MusicManager(DemoContext& _demoContext)
 	: DemoApplication(_demoContext)
-	, view(_demoContext.shaderManager, _demoContext.textureManager, _demoContext.fontManager, _demoContext.eventSignaler, 678)
-{
-}
+	, view(_demoContext.assetManager, _demoContext.eventSignaler, 678)
+{}
 MusicManager::~MusicManager()
 {
 	root.clearChildren();
@@ -22,18 +21,21 @@ MusicManager::~MusicManager()
 
 void MusicManager::init()
 {
-	auto themeResource = demoContext.audioManager.stream("MusicTheme", "music_manager_theme_001.ogg");
-	auto commonResource = demoContext.audioManager.stream("MusicCommon", "music_manager_common_001.ogg");
-	auto actionResource = demoContext.audioManager.stream("MusicAction", "music_manager_action_001.ogg");
+	auto themeResource = demoContext.assetManager.emplace<se::audio::AudioAsset>(
+		"MusicTheme", getAudioPath("music_manager_theme_001.ogg"), se::audio::LoadType::Stream);
+	auto commonResource = demoContext.assetManager.emplace<se::audio::AudioAsset>(
+		"MusicCommon", getAudioPath("music_manager_common_001.ogg"), se::audio::LoadType::Stream);
+	auto actionResource = demoContext.assetManager.emplace<se::audio::AudioAsset>(
+		"MusicAction", getAudioPath("music_manager_action_001.ogg"), se::audio::LoadType::Stream);
 
 	themeResource->waitUntilReady();
 	commonResource->waitUntilReady();
 	actionResource->waitUntilReady();
 	lastBar = timeToBars(commonResource->getLength() - se::time::fromSeconds(0.1f));
 
-	themeLayer.setResource(themeResource);
-	commonLayer.setResource(commonResource);
-	actionLayer.setResource(actionResource);
+	themeLayer.setAsset(themeResource);
+	commonLayer.setAsset(commonResource);
+	actionLayer.setAsset(actionResource);
 
 	outputBus.connect(demoContext.audioEngine.getMasterBus());
 	outputBus.setVolume(1.0f);

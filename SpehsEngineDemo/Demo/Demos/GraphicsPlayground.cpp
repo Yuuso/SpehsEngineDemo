@@ -3,9 +3,15 @@
 
 #include "Demo/Utility/Materials.h"
 #include "SpehsEngine/Core/RNG.h"
-#include "SpehsEngine/Graphics/DefaultMaterials.h"
-#include "SpehsEngine/Graphics/Animator.h"
 #include "SpehsEngine/Debug/ImGfx.h"
+#include "SpehsEngine/Graphics/Animator.h"
+#include "SpehsEngine/Graphics/DefaultFonts.h"
+#include "SpehsEngine/Graphics/DefaultMaterials.h"
+#include "SpehsEngine/Graphics/DefaultShaders.h"
+#include "SpehsEngine/Graphics/Font.h"
+#include "SpehsEngine/Graphics/ModelAsset.h"
+#include "SpehsEngine/Graphics/Shader.h"
+#include "SpehsEngine/Graphics/Texture.h"
 
 using namespace se::gfx;
 
@@ -71,14 +77,13 @@ GraphicsPlayground::GraphicsPlayground(DemoContext& _context)
 	, observerView1(_context.scene, observerCamera1)
 	, observerView2(_context.scene, observerCamera2)
 	, cameraController(_context.mainWindow, _context.camera, _context.eventSignaler)
-{
-}
+{}
 
 void GraphicsPlayground::init()
 {
 	// TODO: There has to be a way to fix this!
 	observerWindowSupported =
-		demoContext.renderer.getRendererBackend() == RendererBackend::Direct3D11;
+		demoContext.renderer.getBackend() == RendererBackend::Direct3D11;
 
 	if (observerWindowSupported)
 	{
@@ -110,90 +115,95 @@ void GraphicsPlayground::init()
 	//////////
 	// Resources
 
-	demoContext.shaderManager.create("test", "vs_test.bin", "fs_test.bin");
-	demoContext.shaderManager.create("test_anim", "vs_test_anim.bin", "fs_test.bin");
+	auto makeTexture =
+		[&](std::string_view _name)
+		{
+			return demoContext.assetManager.emplace<Texture>(_name, getTexturePath(_name));
+		};
+	auto makeModel =
+		[&](std::string_view _name)
+		{
+			return demoContext.assetManager.emplace<ModelAsset>(_name, getModelPath(_name));
+		};
 
-	// TODO: Cubemap textures don't work with temp textures!
-	auto skyboxColor = demoContext.textureManager.create("skybox", "skybox.ktx");
-	skyboxColor->waitUntilReady();
-	//
+	demoContext.assetManager.emplace<Shader>("test", getShaderPath("vs_test.bin"), getShaderPath("fs_test.bin"));
+	demoContext.assetManager.emplace<Shader>("test_anim", getShaderPath("vs_test_anim.bin"), getShaderPath("fs_test.bin"));
 
-	auto testColor = demoContext.textureManager.create("testColor", "test_color.png");
-	auto testNormal = demoContext.textureManager.create("testNormal", "test_normal.png");
-	auto demonColor = demoContext.textureManager.create("balldemon", "balldemon.png");
-	auto stoneColor = demoContext.textureManager.create("stoneColor", "stone_color.png");
-	auto stoneNormal = demoContext.textureManager.create("stoneNormal", "stone_normal.png");
+	//// TODO: Cubemap textures don't work with temp textures!
+	//auto skyboxColor = makeTexture("skybox.ktx");
+	//skyboxColor->waitUntilReady();
+	////
 
-	auto testFont = demoContext.fontManager.create("test", "open-sans.regular.ttf", FontSize(32, FontSizeType::Pixel), defaultCharacterSet);
-	auto embeddedFont = demoContext.fontManager.find("AnonymousPro-Regular");
+	auto testColor = makeTexture("test_color.png");
+	auto testNormal = makeTexture("test_normal.png");
+	auto demonColor = makeTexture("balldemon.png");
+	auto stoneColor = makeTexture("stone_color.png");
+	auto stoneNormal = makeTexture("stone_normal.png");
 
-	auto testModelData = demoContext.modelDataManager.create("test", "test.fbx");
-	auto animModelData = demoContext.modelDataManager.create("anim", "walking_cube.gltf");
-	auto jumpModelData = demoContext.modelDataManager.create("jump", "jumping_cube.glb");
-	auto demonModelData = demoContext.modelDataManager.create("demon", "ball_demon.gltf");
-	auto rotorTestModelData = demoContext.modelDataManager.create("rotortest", "rotor_test.glb");
-	auto icosphereModelData = demoContext.modelDataManager.create("ico", "icosphere.fbx");
-	auto simpleModelData = demoContext.modelDataManager.create("simple", "simple.gltf");
+	auto testFont = demoContext.assetManager.emplace<Font>("testFont", getFontPath("open-sans.regular.ttf"), FontSize(32, FontSizeType::Pixel), defaultCharacterSet);
+	auto embeddedFont = demoContext.assetManager.find<Font>(getDefaultFontName(DefaultFontType::Default));
+
+	auto testModelData = makeModel("test.fbx");
+	auto animModelData = makeModel("walking_cube.gltf");
+	auto jumpModelData = makeModel("jumping_cube.glb");
+	auto demonModelData = makeModel("ball_demon.gltf");
+	auto rotorTestModelData = makeModel("rotor_test.glb");
+	auto icosphereModelData = makeModel("icosphere.fbx");
+	auto simpleModelData = makeModel("simple.gltf");
 
 	TextureModes genModes;
 	genModes.sampleMin = TextureSamplingMode::Point;
 	genModes.sampleMag = TextureSamplingMode::Point;
 	genModes.sampleMip = TextureSamplingMode::Point;
 
-	TextureInput textureInput;
-	textureInput.width = 2;
-	textureInput.height = 2;
-	textureInput.data = { 255,	0,		0,		255,
-							0,		255,	0,		255,
-							0,		0,		255,	255,
-							255,	0,		255,	255, };
-	auto genTexture = demoContext.textureManager.create("genTest", textureInput, genModes);
+	TextureInput textureInput{ 2, 2 };
+	textureInput.push(se::Color{ se::Red });
+	textureInput.push(se::Color{ se::Green });
+	textureInput.push(se::Color{ se::Blue });
+	textureInput.push(se::Color{ se::Purple });
+	auto genTexture = demoContext.assetManager.emplace<Texture>("genTest", textureInput, genModes);
 
-	textureInput.width = 1;
-	textureInput.height = 1;
-	textureInput.data = { 128, 128, 255, 255 };
-	auto flatNormalTexture = demoContext.textureManager.create("flatNormal", textureInput, genModes);
+	textureInput = { 1, 1 };
+	textureInput.push(128, 128, 255, 255);
+	auto flatNormalTexture = demoContext.assetManager.emplace<Texture>("flatNormal", textureInput, genModes);
 
-	textureInput.width = 1;
-	textureInput.height = 1;
-	textureInput.data = { 255, 255, 255, 255 };
-	auto whiteTexture = demoContext.textureManager.create("whiteColor", textureInput, genModes);
+	textureInput = { 1, 1 };
+	textureInput.push(255, 255, 255, 255);
+	auto whiteTexture = demoContext.assetManager.emplace<Texture>("whiteColor", textureInput, genModes);
 
-	TextureInput blackTextureInput;
-	blackTextureInput.width = 1;
-	blackTextureInput.height = 1;
-	blackTextureInput.data = { 0, 0, 0, 0 };
-	auto blackTexture = demoContext.textureManager.create("blackTexture", blackTextureInput, genModes);
+	textureInput = { 1, 1 };
+	textureInput.push(glm::vec4{ 0.0f, 0.0f, 0.0f, 1.0f });
+	auto blackTexture = demoContext.assetManager.emplace<Texture>("blackTexture", textureInput, genModes);
 
-	colorMaterial = createMaterial(DefaultMaterialType::FlatColor, demoContext.shaderManager);
-	flatMaterial = createMaterial(DefaultMaterialType::FlatTexture, demoContext.shaderManager);
+	colorMaterial = createMaterial(DefaultMaterialType::FlatColor, demoContext.assetManager);
+	flatMaterial = createMaterial(DefaultMaterialType::FlatTexture, demoContext.assetManager);
 	flatMaterial->setTexture(genTexture);
 
-	std::shared_ptr<Material> phongMaterial = createMaterial(DefaultMaterialType::Phong, demoContext.shaderManager);
+	std::shared_ptr<Material> phongMaterial = createMaterial(DefaultMaterialType::Phong, demoContext.assetManager);
 	phongMaterial->setTexture(testColor, PhongTextureType::Color);
 	phongMaterial->setTexture(testNormal, PhongTextureType::Normal);
 
-	std::shared_ptr<Material> testMaterial = createTestMaterial(demoContext.shaderManager);
+	std::shared_ptr<Material> testMaterial = createTestMaterial(demoContext.assetManager);
 	testMaterial->setTexture(testColor, PhongTextureType::Color);
 	testMaterial->setTexture(testNormal, PhongTextureType::Normal);
 
-	std::shared_ptr<Material> demonMaterial = createTestMaterial(demoContext.shaderManager);
+	std::shared_ptr<Material> demonMaterial = createTestMaterial(demoContext.assetManager);
 	demonMaterial->setTexture(demonColor, PhongTextureType::Color);
 	demonMaterial->setTexture(flatNormalTexture, PhongTextureType::Normal);
 
-	std::shared_ptr<Material> stoneMaterial = createTestMaterial(demoContext.shaderManager);
+	std::shared_ptr<Material> stoneMaterial = createTestMaterial(demoContext.assetManager);
 	stoneMaterial->setTexture(stoneColor, PhongTextureType::Color);
 	stoneMaterial->setTexture(stoneNormal, PhongTextureType::Normal);
 
-	std::shared_ptr<Material> flatPhongMaterial = createMaterial(DefaultMaterialType::Phong, demoContext.shaderManager);
+	std::shared_ptr<Material> flatPhongMaterial = createMaterial(DefaultMaterialType::Phong, demoContext.assetManager);
 	flatPhongMaterial->setTexture(whiteTexture, PhongTextureType::Color);
 	flatPhongMaterial->setTexture(flatNormalTexture, PhongTextureType::Normal);
 
-	std::shared_ptr<Material> textMaterial = createMaterial(DefaultMaterialType::Text, demoContext.shaderManager);
+	std::shared_ptr<Material> textMaterial = createMaterial(DefaultMaterialType::Text, demoContext.assetManager);
 	textMaterial->setFont(testFont);
 
-	std::shared_ptr<Material> skyboxMaterial = createMaterial(DefaultMaterialType::Skybox, demoContext.shaderManager);
-	skyboxMaterial->setTexture(skyboxColor);
+	//std::shared_ptr<Material> skyboxMaterial = createMaterial(DefaultMaterialType::Skybox, demoContext.assetManager);
+	//skyboxMaterial->setTexture(skyboxColor);
 
 
 	//////////
@@ -244,16 +254,16 @@ void GraphicsPlayground::init()
 	skyboxShapeParams.invertNormals = true;
 	skyboxShapeParams.generateTangents = false;
 
-	skybox.generate(ShapeType::Box, skyboxShapeParams, &demoContext.shapeGenerator);
-	skybox.disableRenderFlags(RenderFlag::CullBackFace);
-	skybox.disableRenderFlags(RenderFlag::WriteDepth);
-	skybox.disableRenderFlags(RenderFlag::DepthTestLess);
-	skybox.enableRenderFlags(RenderFlag::DepthTestLessOrEqual);
-	skybox.setMaterial(skyboxMaterial);
-	// NOTE: rotating skybox does not work with static render mode!
-	//skybox.setRenderMode(RenderMode::Static);
-	//skybox.setPosition(camera.getPosition());
-	demoContext.scene.add(skybox);
+	//skybox.generate(ShapeType::Box, skyboxShapeParams, &demoContext.shapeGenerator);
+	//skybox.disableRenderFlags(RenderFlag::CullBackFace);
+	//skybox.disableRenderFlags(RenderFlag::WriteDepth);
+	//skybox.disableRenderFlags(RenderFlag::DepthTestLess);
+	//skybox.enableRenderFlags(RenderFlag::DepthTestLessOrEqual);
+	//skybox.setMaterial(skyboxMaterial);
+	//// NOTE: rotating skybox does not work with static render mode!
+	////skybox.setRenderMode(RenderMode::Static);
+	////skybox.setPosition(camera.getPosition());
+	//demoContext.scene.add(skybox);
 
 
 	ShapeParameters boxShapeParams;
@@ -303,7 +313,7 @@ void GraphicsPlayground::init()
 	originY.setMaterial(colorMaterial);
 	demoContext.scene.add(originY);
 
-	testModel.loadModelData(testModelData);
+	testModel.loadModelAsset(testModelData);
 	testModel.setMaterial(testMaterial);
 	demoContext.scene.add(testModel);
 
@@ -323,20 +333,20 @@ void GraphicsPlayground::init()
 		}
 	}
 
-	testModel2.loadModelData(icosphereModelData);
+	testModel2.loadModelAsset(icosphereModelData);
 	testModel2.setMaterial(phongMaterial);
 	testModel2.setPosition(glm::vec3(4.0f, -20.0f, 4.0f));
 	testModel2.setInstances(modelInstances.getBuffer());
 	testModel2.setPrimitiveType(PrimitiveType::Points);
 	demoContext.scene.add(testModel2);
 
-	animModel.loadModelData(animModelData);
+	animModel.loadModelAsset(animModelData);
 	animModel.setMaterial(testMaterial);
 	animModel.setPosition(glm::vec3(0.0f, -20.0f, 0.0f));
 	animModel.getAnimator().start("Walk");
 	demoContext.scene.add(animModel);
 
-	jumpModel.loadModelData(jumpModelData);
+	jumpModel.loadModelAsset(jumpModelData);
 	jumpModel.setMaterial(phongMaterial);
 	jumpModel.setColor(se::Color(se::HexColor::Coral));
 	jumpModel.setPosition(glm::vec3(15.0f, -25.0f, 15.0f));
@@ -344,20 +354,20 @@ void GraphicsPlayground::init()
 	jumpModel.setInstances(modelInstances.getBuffer());
 	demoContext.scene.add(jumpModel);
 
-	ballTestModel.loadModelData(rotorTestModelData);
+	ballTestModel.loadModelAsset(rotorTestModelData);
 	ballTestModel.setMaterial(phongMaterial);
 	ballTestModel.setPosition(glm::vec3(-15.0f, -25.0f, -15.0f));
 	ballTestModel.getAnimator().start("rotor_move.L");
 	demoContext.scene.add(ballTestModel);
 
-	demonModel.loadModelData(demonModelData);
+	demonModel.loadModelAsset(demonModelData);
 	//demonModel.setMaterial(demonMaterial);
 	demonModel.setMaterial(phongMaterial);
 	demonModel.setPosition(glm::vec3(-15.0f, -25.0f, 15.0f));
 	demonModel.setInstances(modelInstances.getBuffer());
 	demoContext.scene.add(demonModel);
 
-	simpleModel.loadModelData(simpleModelData);
+	simpleModel.loadModelAsset(simpleModelData);
 	simpleModel.setMaterial(phongMaterial);
 	simpleModel.setPosition(glm::vec3(-15.0f, -25.0f, 0.0f));
 	simpleModel.getAnimator().start("Wobble");
@@ -397,7 +407,7 @@ bool GraphicsPlayground::update()
 			.scale(glm::vec3(0.6f))
 			.primitiveType(PrimitiveType::Lines);
 
-		ImGfx::icon("testColor")
+		ImGfx::icon("test_color.png")
 			.position({ 4.0f, 7.0f, 0.0f })
 			.color(se::Color(se::LightGoldenrodYellow));
 
@@ -416,7 +426,7 @@ bool GraphicsPlayground::update()
 			.color(se::Color(se::DodgerBlue))
 			.scale(glm::vec3(0.03f));
 
-		ImGfx::model("ico")
+		ImGfx::model("icosphere.fbx")
 			.position({ 6.0f, 8.0f, 6.0f })
 			.material(flatMaterial)
 			.color(se::Color(se::Orange))
@@ -512,7 +522,7 @@ bool GraphicsPlayground::update()
 
 	{
 		const se::time::Time frameTime = se::time::now() - frameTimer;
-		Renderer::debugTextPrintf(1, 3, "frame time: %i", (int)frameTime.asMilliseconds());
+		//Renderer::debugTextPrintf(1, 3, "frame time: %i", (int)frameTime.asMilliseconds());
 		frameTimer = se::time::now();
 	}
 
@@ -535,21 +545,13 @@ bool GraphicsPlayground::update()
 
 	if (demoContext.inputManager.isKeyPressed((unsigned)se::input::Key::F8))
 	{
-		demoContext.mainWindow.requestScreenShot("screenshot_" + std::to_string(frameN));
+		demoContext.mainWindow.takeScreenShot("screenshot_" + std::to_string(frameN));
 	}
 
 	if (demoContext.inputManager.isKeyPressed((unsigned)se::input::Key::F5))
 	{
-		se::log::info("Reloading shaders...", se::log::TextColor::BLUE);
-		//shaderManager.purgeUnusedShaders();
-		demoContext.shaderManager.reload();
-	}
-
-	if (demoContext.inputManager.isKeyPressed((unsigned)se::input::Key::F4))
-	{
-		se::log::info("Reloading textures and models...", se::log::TextColor::BLUE);
-		demoContext.textureManager.reload();
-		demoContext.modelDataManager.reload();
+		se::log::info("Reloading assets...", se::log::TextColor::BLUE);
+		demoContext.assetManager.reload();
 	}
 
 	frameN++;

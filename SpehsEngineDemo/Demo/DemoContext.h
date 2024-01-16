@@ -1,16 +1,12 @@
 #pragma once
 
 #include "SpehsEngine/Audio/AudioEngine.h"
-#include "SpehsEngine/Audio/AudioManager.h"
+#include "SpehsEngine/Core/AssetManager.h"
 #include "SpehsEngine/Core/DeltaTimeSystem.h"
 #include "SpehsEngine/Debug/ImmediateModeGraphics.h"
 #include "SpehsEngine/Graphics/Camera.h"
-#include "SpehsEngine/Graphics/FontManager.h"
-#include "SpehsEngine/Graphics/ModelDataManager.h"
 #include "SpehsEngine/Graphics/Renderer.h"
 #include "SpehsEngine/Graphics/Scene.h"
-#include "SpehsEngine/Graphics/ShaderManager.h"
-#include "SpehsEngine/Graphics/TextureManager.h"
 #include "SpehsEngine/Graphics/ShapeGenerator.h"
 #include "SpehsEngine/Graphics/View.h"
 #include "SpehsEngine/Graphics/Window.h"
@@ -31,6 +27,7 @@ struct DemoContext
 	void showWindowDefault();
 
 
+	se::AssetManager assetManager;
 	se::time::DeltaTimeSystem deltaTimeSystem;
 
 	// Input
@@ -44,10 +41,6 @@ struct DemoContext
 	se::gfx::Scene scene;
 	se::gfx::Camera camera;
 	se::gfx::View view;
-	se::gfx::ShaderManager shaderManager;
-	se::gfx::TextureManager textureManager;
-	se::gfx::FontManager fontManager;
-	se::gfx::ModelDataManager modelDataManager;
 	se::gfx::ShapeGenerator shapeGenerator;
 	se::debug::ImmediateModeGraphics imGraphics;
 
@@ -56,5 +49,4 @@ struct DemoContext
 
 	// Audio
 	se::audio::AudioEngine audioEngine;
-	se::audio::AudioManager audioManager;
 };

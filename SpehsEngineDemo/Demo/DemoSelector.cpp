@@ -19,7 +19,7 @@ static std::unique_ptr<DemoApplication> runApplicationSelector(DemoContext& _dem
 {
 	std::unique_ptr<DemoApplication> result;
 	bool demoSelected = false;
-	GUIView guiView(_demoContext.shaderManager, _demoContext.textureManager, _demoContext.fontManager, _demoContext.eventSignaler, 8999);
+	GUIView guiView(_demoContext.assetManager, _demoContext.eventSignaler, 8999);
 	_demoContext.mainWindow.add(guiView.getView());
 
 	GUIShape root;

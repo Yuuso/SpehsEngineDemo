@@ -72,7 +72,7 @@ void CameraController::postUpdateCallback()
 }
 bool CameraController::keyboardCallback(const se::input::KeyboardEvent& _event)
 {
-	if (!window.getKeyboardFocus())
+	if (!window.hasKeyboardFocus())
 		return false;
 	if (_event.type == se::input::KeyboardEvent::Type::Press)
 	{
@@ -124,7 +124,7 @@ bool CameraController::mouseButtonCallback(const se::input::MouseButtonEvent& _e
 {
 	if (_event.type == se::input::MouseButtonEvent::Type::Press)
 	{
-		if (!window.getMouseFocus())
+		if (!window.hasMouseFocus())
 			return false;
 		switch (_event.button)
 		{
@@ -150,7 +150,7 @@ bool CameraController::mouseButtonCallback(const se::input::MouseButtonEvent& _e
 }
 bool CameraController::mouseMotionCallback(const se::input::MouseMotionEvent& _event)
 {
-	if (!window.getMouseFocus())
+	if (!window.hasMouseFocus())
 		return false;
 	if (mouseMovementActive && receivingHover)
 	{
@@ -161,7 +161,7 @@ bool CameraController::mouseMotionCallback(const se::input::MouseMotionEvent& _e
 }
 bool CameraController::mouseHoverCallback(const se::input::MouseHoverEvent&)
 {
-	if (!window.getMouseFocus())
+	if (!window.hasMouseFocus())
 		return false;
 	if (mouseMovementActive)
 	{

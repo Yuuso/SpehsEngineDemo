@@ -39,7 +39,7 @@
     <ClCompile Include="Demos\GraphicsPlayground.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Demos\DemoSelector.cpp">
+    <ClCompile Include="DemoSelector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Demos\GeneratedPlanets.cpp">

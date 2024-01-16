@@ -2,12 +2,14 @@
 #include "Materials.h"
 
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
+#include "SpehsEngine/Graphics/DefaultShaders.h"
+#include "SpehsEngine/Graphics/Shader.h"
 
 
-std::shared_ptr<se::gfx::Material> createTestMaterial(se::gfx::ShaderManager& _shaderManager)
+std::shared_ptr<se::gfx::Material> createTestMaterial(se::AssetManager& _assetManager)
 {
-	auto material = createMaterial(se::gfx::DefaultMaterialType::Phong, _shaderManager);
-	material->setShader(_shaderManager.find("test"), se::gfx::ShaderVariant::Default);
-	material->setShader(_shaderManager.find("test_anim"), se::gfx::ShaderVariant::Skinned);
+	auto material = createMaterial(se::gfx::DefaultMaterialType::Phong, _assetManager);
+	material->setShader(_assetManager.find<se::gfx::Shader>("test"), se::gfx::ShaderVariant::Default);
+	material->setShader(_assetManager.find<se::gfx::Shader>("test_anim"), se::gfx::ShaderVariant::Skinned);
 	return material;
 }

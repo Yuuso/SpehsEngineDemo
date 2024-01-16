@@ -15,3 +15,5 @@
 
 #include "SpehsEngine/Core/ColorUtilityFunctions.h"
 #include "SpehsEngine/Core/HexColor.h"
+
+#include "Demo/DefaultResourcePathFinders.h"

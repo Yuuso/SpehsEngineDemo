@@ -4,6 +4,9 @@
 #include "SpehsEngine/Core/ScopeTimer.h"
 #include "SpehsEngine/Graphics/DefaultMaterials.h"
 #include "SpehsEngine/Graphics/Uniform.h"
+#include "SpehsEngine/Graphics/ModelAsset.h"
+#include "SpehsEngine/Graphics/TextureInput.h"
+#include "SpehsEngine/Graphics/Texture.h"
 #include "SpehsEngine/ImGui/imgui.h"
 #include "SpehsEngine/ImGui/Utility/ImGuiUtility.h"
 #include "SpehsEngine/input/MouseUtilityFunctions.h"
@@ -35,8 +38,10 @@ void GeneratedPlanets::init()
 	////////
 	// Planet model
 
-	auto planetModel = demoContext.modelDataManager.create("planet", "icosphere_5.gltf");
-	planet.loadModelData(planetModel);
+	auto planetModel =
+		demoContext.assetManager.emplace<se::gfx::ModelAsset>(
+			"planet", getModelPath("icosphere_5.gltf"));
+	planet.loadModelAsset(planetModel);
 	planet.disableRenderFlags(se::gfx::RenderFlag::CullBackFace); // WTF is going on here?!
 
 	demoContext.scene.add(planet);
@@ -141,41 +146,24 @@ void GeneratedPlanets::generateMaterial()
 
 	noise.setSeed(planetParams.seed);
 
-	se::gfx::TextureInput noiseColorInput;
-	noiseColorInput.width = noiseColorInput.height = colorCubeFaceSize;
-	noiseColorInput.isCubemap = true;
-	noiseColorInput.data.resize(4 * colorCubeFaceSize * colorCubeFaceSize * 6);
-
-	se::gfx::TextureInput noiseNormalInput;
-	noiseNormalInput.width = noiseNormalInput.height = normalCubeFaceSize;
-	noiseNormalInput.isCubemap = true;
-	noiseNormalInput.data.resize(4 * normalCubeFaceSize * normalCubeFaceSize * 6);
-
-	se::gfx::TextureInput noiseRoughnessInput;
-	noiseRoughnessInput.format = se::gfx::TextureInput::Format::R8;
-	noiseRoughnessInput.width = noiseRoughnessInput.height = roughnessCubeFaceSize;
-	noiseRoughnessInput.isCubemap = true;
-	noiseRoughnessInput.data.resize(1 * roughnessCubeFaceSize * roughnessCubeFaceSize * 6);
-
-	/// How the cube map data is structured (bgfx docs have faces 2 & 3 swapped?):
-	///
-	///                  +----------+
-	///                  |-z       3|
-	///                  | ^  +y    |
-	///                  | |        |    Unfolded cube:
-	///                  | +---->+x |
-	///       +----------+----------+----------+----------+
-	///       |+y       1|+y       4|+y       0|+y       5|
-	///       | ^  -x    | ^  +z    | ^  +x    | ^  -z    |
-	///       | |        | |        | |        | |        |
-	///       | +---->+z | +---->+x | +---->-z | +---->-x |
-	///       +----------+----------+----------+----------+
-	///                  |+z       2|
-	///                  | ^  -y    |
-	///                  | |        |
-	///                  | +---->+x |
-	///                  +----------+
-	///
+	se::gfx::TextureInput noiseColorInput{
+		colorCubeFaceSize,
+		colorCubeFaceSize,
+		se::gfx::TextureFormat::RGBA8,
+		true
+	};
+	se::gfx::TextureInput noiseNormalInput{
+		normalCubeFaceSize,
+		normalCubeFaceSize,
+		se::gfx::TextureFormat::RGBA8,
+		true
+	};
+	se::gfx::TextureInput noiseRoughnessInput{
+		roughnessCubeFaceSize,
+		roughnessCubeFaceSize,
+		se::gfx::TextureFormat::R8,
+		true
+	};
 
 	auto getElevation2 =
 		[&](const glm::dvec3& coord)
@@ -287,31 +275,6 @@ void GeneratedPlanets::generateMaterial()
 			return 1.0f;
 		};
 
-	size_t colorDataIndex = 0;
-	auto pushColorData =
-		[&](se::Color _color)
-		{
-			noiseColorInput.data[colorDataIndex++] = static_cast<uint8_t>(_color.r * UINT8_MAX);
-			noiseColorInput.data[colorDataIndex++] = static_cast<uint8_t>(_color.g * UINT8_MAX);
-			noiseColorInput.data[colorDataIndex++] = static_cast<uint8_t>(_color.b * UINT8_MAX);
-			noiseColorInput.data[colorDataIndex++] = UINT8_MAX;
-		};
-	size_t normalDataIndex = 0;
-	auto pushNormalData =
-		[&](se::Color _color)
-		{
-			noiseNormalInput.data[normalDataIndex++] = static_cast<uint8_t>(_color.r * UINT8_MAX);
-			noiseNormalInput.data[normalDataIndex++] = static_cast<uint8_t>(_color.g * UINT8_MAX);
-			noiseNormalInput.data[normalDataIndex++] = static_cast<uint8_t>(_color.b * UINT8_MAX);
-			noiseNormalInput.data[normalDataIndex++] = UINT8_MAX;
-		};
-	size_t roughnessDataIndex = 0;
-	auto pushRoughnessData =
-		[&](float roughness)
-		{
-			noiseRoughnessInput.data[roughnessDataIndex++] = static_cast<uint8_t>(roughness * UINT8_MAX);
-		};
-
 	auto cubemapGenerator =
 		[](auto func, int faceSize)
 		{
@@ -365,31 +328,24 @@ void GeneratedPlanets::generateMaterial()
 			}
 		};
 
-	// NOTE: DemoContext technically not thread safe, but we're not doing anything else so it's fine...
+	cubemapGenerator([&](int _x, int _y, int _z){ noiseColorInput.push(getColor(_x, _y, _z)); }, colorCubeFaceSize);
+	auto planetColorTexture = std::make_shared<se::gfx::Texture>("PlanetColorTexture", nullptr, noiseColorInput);
 
-	cubemapGenerator([&](int _x, int _y, int _z){ pushColorData(getColor(_x, _y, _z)); }, colorCubeFaceSize);
-	se_assert(colorDataIndex == noiseColorInput.data.size());
-	auto planetColorTexture = demoContext.textureManager.create("PlanetColorTexture", noiseColorInput);
-	demoContext.textureManager.remove("PlanetColorTexture"); // No need for manager
+	cubemapGenerator([&](int _x, int _y, int _z){ noiseNormalInput.push(getNormal(_x, _y, _z)); }, normalCubeFaceSize);
+	auto planetNormalTexture = std::make_shared<se::gfx::Texture>("PlanetNormalTexture", nullptr, noiseNormalInput);
 
-	cubemapGenerator([&](int _x, int _y, int _z){ pushNormalData(getNormal(_x, _y, _z)); }, normalCubeFaceSize);
-	se_assert(normalDataIndex == noiseNormalInput.data.size());
-	auto planetNormalTexture = demoContext.textureManager.create("PlanetNormalTexture", noiseNormalInput);
-	demoContext.textureManager.remove("PlanetNormalTexture"); // No need for manager
+	cubemapGenerator([&](int _x, int _y, int _z){ noiseRoughnessInput.push(getRoughness(_x, _y, _z)); }, roughnessCubeFaceSize);
+	auto planetRoughnessTexture = std::make_shared<se::gfx::Texture>("PlanetRoughnessTexture", nullptr, noiseRoughnessInput);
 
-	cubemapGenerator([&](int _x, int _y, int _z){ pushRoughnessData(getRoughness(_x, _y, _z)); }, roughnessCubeFaceSize);
-	se_assert(roughnessDataIndex == noiseRoughnessInput.data.size());
-	auto planetRoughnessTexture = demoContext.textureManager.create("PlanetRoughnessTexture", noiseRoughnessInput);
-	demoContext.textureManager.remove("PlanetRoughnessTexture"); // No need for manager
-
+	se_assert(planetColorTexture->isValid());
+	se_assert(planetNormalTexture->isValid());
+	se_assert(planetRoughnessTexture->isValid());
 	se_assert(numElevationDataGens == estimateElevationDataGens);
 	loadingProgress = 1.0f;
 
-	planetColorTexture->waitUntilReady();
-	planetNormalTexture->waitUntilReady();
-	planetRoughnessTexture->waitUntilReady();
+	// NOTE: DemoContext technically not thread safe, but we're not doing anything else so it's fine...
 
-	material = createMaterial(se::gfx::DefaultMaterialType::PhongCubemap, demoContext.shaderManager);
+	material = createMaterial(se::gfx::DefaultMaterialType::PhongCubemap, demoContext.assetManager);
 	material->setTexture(planetColorTexture, se::gfx::PhongTextureType::Color);
 	material->setTexture(planetNormalTexture, se::gfx::PhongTextureType::Normal);
 	material->setTexture(planetRoughnessTexture, se::gfx::PhongTextureType::Roughness);

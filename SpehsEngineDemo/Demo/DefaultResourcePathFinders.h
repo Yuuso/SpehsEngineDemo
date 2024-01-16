@@ -1,83 +1,44 @@
 #pragma once
 
-#include "SpehsEngine/Core/ResourcePathFinder.h"
-#include "SpehsEngine/Core/SE_Assert.h"
 #include "SpehsEngine/Core/StringViewUtilityFunctions.h"
 #include "SpehsEngine/Graphics/Renderer.h"
-#include <string>
 
 
-static const std::string DATA_PATH = "data/";
-
-
-class ShaderPathFinder : public se::ResourcePathFinder
+inline std::string getShaderPath(std::string_view _filename)
 {
-public:
+	const se::gfx::RendererBackend rendererBackend = se::gfx::Renderer::getBackend();
 
-	std::string getPath(const std::string_view _resource) const override
+	switch (rendererBackend)
 	{
-		const se::gfx::RendererBackend rendererBackend = se::gfx::Renderer::getRendererBackend();
+		case se::gfx::RendererBackend::Auto:
+		case se::gfx::RendererBackend::Direct3D12:
+		case se::gfx::RendererBackend::Gnm:
+		case se::gfx::RendererBackend::Nvn:		break;
 
-		switch (rendererBackend)
-		{
-			case se::gfx::RendererBackend::Auto:
-			case se::gfx::RendererBackend::Direct3D12:
-			case se::gfx::RendererBackend::Gnm:
-			case se::gfx::RendererBackend::Nvn:		break;
-
-			case se::gfx::RendererBackend::Direct3D9:	return DATA_PATH + "shaders/dx9/" + _resource;
-			case se::gfx::RendererBackend::Direct3D11: return DATA_PATH + "shaders/dx11/" + _resource;
-			case se::gfx::RendererBackend::Metal:		return DATA_PATH + "shaders/metal/" + _resource;
-			case se::gfx::RendererBackend::OpenGLES:
-			case se::gfx::RendererBackend::OpenGL:		return DATA_PATH + "shaders/glsl/" + _resource;
-			case se::gfx::RendererBackend::Vulkan:		return DATA_PATH + "shaders/spirv/" + _resource;
-		}
-
-		se_assert_m(false, "Unknown RendererBackend: " + std::to_string((int)rendererBackend));
-		return "";
+		case se::gfx::RendererBackend::Direct3D9:	return "data/shaders/dx9/" + _filename;
+		case se::gfx::RendererBackend::Direct3D11:	return "data/shaders/dx11/" + _filename;
+		case se::gfx::RendererBackend::Metal:		return "data/shaders/metal/" + _filename;
+		case se::gfx::RendererBackend::OpenGLES:
+		case se::gfx::RendererBackend::OpenGL:		return "data/shaders/glsl/" + _filename;
+		case se::gfx::RendererBackend::Vulkan:		return "data/shaders/spirv/" + _filename;
 	}
-};
 
-
-class TexturePathFinder : public se::ResourcePathFinder
+	se_assert_m(false, "Unknown RendererBackend: " + std::to_string((int)rendererBackend));
+	return "";
+}
+inline std::string getTexturePath(std::string_view _filename)
 {
-public:
-
-	std::string getPath(const std::string_view _resource) const override
-	{
-		return DATA_PATH + "textures/" + _resource;
-	}
-};
-
-
-class FontPathFinder : public se::ResourcePathFinder
+	return "data/textures/" + _filename;
+}
+inline std::string getFontPath(std::string_view _filename)
 {
-public:
-
-	std::string getPath(const std::string_view _resource) const override
-	{
-		return DATA_PATH + "fonts/" + _resource;
-	}
-};
-
-
-class ModelPathFinder : public se::ResourcePathFinder
+	return "data/fonts/" + _filename;
+}
+inline std::string getModelPath(std::string_view _filename)
 {
-public:
-
-	std::string getPath(const std::string_view _resource) const override
-	{
-		return DATA_PATH + "models/" + _resource;
-	}
-};
-
-
-class AudioPathFinder : public se::ResourcePathFinder
+	return "data/models/" + _filename;
+}
+inline std::string getAudioPath(std::string_view _filename)
 {
-public:
-
-	std::string getPath(const std::string_view _resource) const override
-	{
-		return DATA_PATH + "audio/" + _resource;
-	}
-};
+	return "data/audio/" + _filename;
+}

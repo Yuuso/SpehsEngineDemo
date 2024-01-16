@@ -4,14 +4,18 @@
 #include "Demo/DefaultResourcePathFinders.h"
 #include "SpehsEngine/Core/ScopeTimer.h"
 #include "SpehsEngine/Debug/ImGfx.h"
+#include "SpehsEngine/Graphics/DefaultFonts.h"
+#include "SpehsEngine/Graphics/DefaultShaders.h"
 
 
 DemoContext::DemoContext()
 	: mainWindow(true)
-	, renderer(mainWindow, se::gfx::RendererFlag::VSync | se::gfx::RendererFlag::MSAA4, se::gfx::RendererBackend::Direct3D11)
+	, renderer(mainWindow,
+			   se::gfx::RendererFlag::VSync | se::gfx::RendererFlag::MSAA4,
+			   se::gfx::RendererBackend::Direct3D11)
 	, view(scene, camera)
-	, imguiBackend(eventSignaler, 0, renderer)
-	, imGraphics(view, shaderManager, textureManager, fontManager, modelDataManager, shapeGenerator)
+	, imguiBackend(eventSignaler, 0, mainWindow)
+	, imGraphics(view, assetManager, shapeGenerator)
 {
 	se::time::ScopeTimer initTimer;
 
@@ -27,30 +31,13 @@ DemoContext::DemoContext()
 	// Camera settings
 	camera.setFar(50000.0f);
 
-	// Resource Management
-	auto graphicsResourceLoader = se::gfx::makeResourceLoader(8);
-	shaderManager.setResourcePathFinder(std::make_shared<ShaderPathFinder>());
-	shaderManager.setResourceLoader(graphicsResourceLoader);
-	shaderManager.createDefaultShaders();
-	textureManager.setResourcePathFinder(std::make_shared<TexturePathFinder>());
-	textureManager.setResourceLoader(graphicsResourceLoader);
-	fontManager.setResourcePathFinder(std::make_shared<FontPathFinder>());
-	fontManager.setResourceLoader(graphicsResourceLoader);
-	fontManager.createDefaultFonts();
-	modelDataManager.setResourcePathFinder(std::make_shared<ModelPathFinder>());
-	modelDataManager.setResourceLoader(graphicsResourceLoader);
+	// Asset Management
+	assetManager.setAsyncTaskManager(std::make_shared<se::AsyncTaskManager>());
+	se::gfx::createDefaultFonts(assetManager);
+	se::gfx::createDefaultShaders(assetManager);
 
 	imGraphics.init();
 	ImGfx::init(imGraphics);
-
-
-	///////////////
-	// Audio
-
-	auto audioPathFinder = std::make_shared<AudioPathFinder>();
-	auto audioResourceLoader = se::audio::makeResourceLoader(4);
-	audioManager.setResourceLoader(audioResourceLoader);
-	audioManager.setResourcePathFinder(audioPathFinder);
 
 	se::log::info("DemoContext init time: " + std::to_string(initTimer.get().asSeconds()) + " seconds", se::log::GREEN);
 }
@@ -60,12 +47,8 @@ DemoContext::~DemoContext()
 }
 void DemoContext::reset()
 {
-	shaderManager.purgeUnused();
-	textureManager.purgeUnused();
-	fontManager.purgeUnused();
-	modelDataManager.purgeUnused();
+	assetManager.purgeUnused();
 	shapeGenerator.clear();
-	audioManager.purgeUnused();
 
 	imGraphics.cleanup();
 
@@ -75,11 +58,7 @@ void DemoContext::reset()
 bool DemoContext::update()
 {
 	deltaTimeSystem.update();
-
-	shaderManager.update();
-	textureManager.update();
-	fontManager.update();
-	modelDataManager.update();
+	assetManager.update();
 
 	audioEngine.setListenerDirection(camera.getDirection());
 	audioEngine.setListenerPosition(camera.getPosition());
