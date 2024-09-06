@@ -44,6 +44,7 @@ DemoContext::DemoContext()
 DemoContext::~DemoContext()
 {
 	ImGfx::deinit();
+	assetManager.purgeAll();
 }
 void DemoContext::reset()
 {

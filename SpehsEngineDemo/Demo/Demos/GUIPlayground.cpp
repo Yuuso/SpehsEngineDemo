@@ -93,6 +93,8 @@ void GUIPlayground::init()
 
 		element.setExample(ResourceKey{ "TestResource" });
 		se_assert(element.getExample() == 10);
+
+		//element.setExample(Inherit{});
 	}
 	{
 		Element& element = *canvas.add<Element>();
