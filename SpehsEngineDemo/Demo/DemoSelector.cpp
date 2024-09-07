@@ -11,7 +11,7 @@
 #include "SpehsEngine/GUI/GUIStack.h"
 #include "SpehsEngine/GUI/GUIText.h"
 
-using namespace se::legacygui;
+using namespace se::gui;
 using namespace se::gui::unit_literals;
 
 

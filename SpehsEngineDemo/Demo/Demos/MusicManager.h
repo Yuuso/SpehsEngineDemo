@@ -26,11 +26,11 @@ private:
 	void queueChange();
 	void fadeChange(se::time::Time _fade);
 
-	se::legacygui::GUIView view;
-	se::legacygui::GUIShape root;
-	std::shared_ptr<se::legacygui::GUIText> playButtonText;
-	std::shared_ptr<se::legacygui::GUIText> timerText;
-	std::shared_ptr<se::legacygui::GUIText> layerDisplayText;
+	se::gui::GUIView view;
+	se::gui::GUIShape root;
+	std::shared_ptr<se::gui::GUIText> playButtonText;
+	std::shared_ptr<se::gui::GUIText> timerText;
+	std::shared_ptr<se::gui::GUIText> layerDisplayText;
 
 	const float beatsPerMinute = 120.0;
 	const int beatsPerBar = 4;
