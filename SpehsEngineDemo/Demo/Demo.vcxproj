@@ -220,7 +220,6 @@ ECHO Demo post build script end</Command>
     <ClCompile Include="Demos\ParticleEditor.cpp" />
     <ClCompile Include="Utility\CameraController.cpp" />
     <ClCompile Include="DemoContext.cpp" />
-    <ClCompile Include="Demos\GUIPlayground.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Utility\Materials.cpp" />
     <ClCompile Include="Utility\ParticleSystem.cpp" />
@@ -241,7 +240,6 @@ ECHO Demo post build script end</Command>
     <ClInclude Include="Utility\CameraController.h" />
     <ClInclude Include="DefaultResourcePathFinders.h" />
     <ClInclude Include="DemoContext.h" />
-    <ClInclude Include="Demos\GUIPlayground.h" />
     <ClInclude Include="Utility\Materials.h" />
     <ClInclude Include="Utility\ParticleSystem.h" />
     <ClInclude Include="stdafx.h" />

@@ -3,7 +3,6 @@
 
 #include "Demo/Demos/GeneratedPlanets.h"
 #include "Demo/Demos/GraphicsPlayground.h"
-#include "Demo/Demos/GUIPlayground.h"
 #include "Demo/Demos/MusicManager.h"
 #include "Demo/Demos/ParticleEditor.h"
 #include "SpehsEngine/GUI/GUIView.h"
@@ -121,7 +120,6 @@ static std::unique_ptr<DemoApplication> runApplicationSelector(DemoContext& _dem
 
 		SelectDemoButton(GraphicsPlayground,	"GRAPHICS PLAYGROUND")
 		SelectDemoButton(ParticleEditor,		"PARTICLE EDITOR")
-		SelectDemoButton(GUIPlayground,			"GUI PLAYGROUND")
 		SelectDemoButton(MusicManager,			"MUSIC MANAGER")
 		SelectDemoButton(GeneratedPlanets,		"GENERATED PLANETS")
 

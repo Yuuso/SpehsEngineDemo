@@ -37,10 +37,10 @@ private:
 	bool boosting = false;
 	glm::ivec2 savedMousePos;
 
-	boost::signals2::scoped_connection preUpdateConnection;
-	boost::signals2::scoped_connection postUpdateConnection;
-	boost::signals2::scoped_connection mouseHoverConnection;
-	boost::signals2::scoped_connection keyboardConnection;
-	boost::signals2::scoped_connection mouseButtonConnection;
-	boost::signals2::scoped_connection mouseMotionConnection;
+	se::ScopedConnection preUpdateConnection;
+	se::ScopedConnection postUpdateConnection;
+	se::ScopedConnection mouseHoverConnection;
+	se::ScopedConnection keyboardConnection;
+	se::ScopedConnection mouseButtonConnection;
+	se::ScopedConnection mouseMotionConnection;
 };
